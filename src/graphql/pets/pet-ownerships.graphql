@@ -1,0 +1,19 @@
+fragment PetOwnerships on PaginatedOwnerships{
+    items{
+        id
+        custody_level
+        user {
+            first_name
+            last_name
+            email
+            id
+        }
+    }
+    success
+    pagination {
+        current_page
+        page_size
+        total_items
+        total_pages
+    }
+}

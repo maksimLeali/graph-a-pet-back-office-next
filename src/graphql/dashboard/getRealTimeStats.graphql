@@ -1,0 +1,17 @@
+query getRealTimeStats{
+	getRealTimeStatistic{
+		statistics {
+			all_pets
+			all_users
+			active_users
+			active_users_percent
+			
+		}
+		success
+		error{
+			code
+			message
+		}
+		
+	}
+}

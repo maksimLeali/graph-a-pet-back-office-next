@@ -1,0 +1,34 @@
+fragment FullPet on Pet {
+    id
+    name
+    birthday
+    neutered
+    gender
+    weight_kg
+    diet
+    chip_code
+    intollerance
+    temperament
+    disciplines
+    breed
+    coat_length
+    years
+    ownerships(commonSearch: {
+            filters: {
+                fixed: [{
+                    key: "custody_level",
+                    value: "OWNER"
+                }]
+            }
+        }) {
+        items {
+            id
+            user {
+                first_name
+                last_name
+                id
+                email
+            }
+        }
+    }
+}

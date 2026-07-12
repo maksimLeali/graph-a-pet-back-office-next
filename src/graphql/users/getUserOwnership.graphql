@@ -1,0 +1,16 @@
+query getUserOwnership($id: ID!, $commonSearch: CommonSearch!){
+    getUser(id: $id){
+        user {
+            ownerships(commonSearch: $commonSearch)
+            {
+                ...UserOwnerships
+            }
+        }
+        success
+        error {
+            code
+            message
+            extra
+        }
+    }
+}

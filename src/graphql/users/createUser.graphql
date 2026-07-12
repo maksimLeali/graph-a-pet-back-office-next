@@ -1,0 +1,15 @@
+mutation createUserBO($data: UserCreate!) {
+	createUser(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		user {
+			id
+			first_name
+			last_name
+			email
+		}
+	}
+}

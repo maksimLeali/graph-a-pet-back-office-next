@@ -1,0 +1,13 @@
+query getUser( $id: ID! ) {
+    getUser(id: $id ){
+        user{
+            ...FullUser
+        }
+        success
+        error {
+            code
+            message
+            extra
+        }
+    }
+}

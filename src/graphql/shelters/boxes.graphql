@@ -1,0 +1,122 @@
+query listShelterBoxesBO($search: CommonSearch!) {
+	listShelterBoxes(commonSearch: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			created_at
+			label
+			capacity
+			status
+			is_out_of_service
+			last_cleaned_at
+			notes
+			zone {
+				id
+				name
+			}
+			area {
+				id
+				name
+			}
+			current_occupants {
+				id
+				pet {
+					id
+					name
+				}
+			}
+			occupancy_history(
+				commonSearch: { page: 0, page_size: 20, order_by: "entered_at", order_direction: "desc" }
+			) {
+				items {
+					id
+					entered_at
+					exited_at
+					reason
+					shelter_pet {
+						id
+						pet {
+							id
+							name
+						}
+					}
+					moved_by {
+						id
+						first_name
+						last_name
+					}
+				}
+			}
+		}
+	}
+}
+
+mutation updateShelterBoxBO($id: ID!, $data: ShelterBoxUpdate!) {
+	updateShelterBox(id: $id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		box {
+			id
+		}
+	}
+}
+
+mutation markBoxCleanedBO($box_id: ID!) {
+	markBoxCleaned(box_id: $box_id) {
+		success
+		error {
+			code
+			message
+		}
+		box {
+			id
+			last_cleaned_at
+			status
+		}
+	}
+}
+
+mutation deleteShelterBoxBO($id: ID!) {
+	deleteShelterBox(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}
+
+mutation movePetBetweenBoxesBO(
+	$shelter_pet_id: ID!
+	$to_box_id: ID!
+	$reason: String
+) {
+	movePetBetweenBoxes(
+		shelter_pet_id: $shelter_pet_id
+		to_box_id: $to_box_id
+		reason: $reason
+	) {
+		success
+		error {
+			code
+			message
+		}
+		occupancy {
+			id
+		}
+	}
+}

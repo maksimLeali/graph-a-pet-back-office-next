@@ -1,0 +1,44 @@
+query getUserTreatments($userId: String!, $page: Int!){
+    listTreatments(commonSearch: {
+        page: $page,
+        order_by: "date",
+        filters: {
+            join: [{
+                key: "health_cards",
+                value: {
+                    join: [{
+                        key: "pets",
+                        value: {
+                            join: [{
+                                key: "ownerships",
+                                value: {
+                                    fixed: [{
+                                        key: "user_id",
+                                        value: $userId
+                                    }]
+                                }
+                            }]
+                        }
+                    }]
+                }
+            }]
+        }
+    }){
+        success
+        error{
+            code
+            message
+            extra
+        }
+        pagination {
+            page_size
+            current_page
+            total_pages
+            total_items
+        }
+        items{
+            ...UserTreatment
+        }
+
+    }
+}

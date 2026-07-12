@@ -1,0 +1,20 @@
+query getPaginatedUsers($search: CommonSearch!) {
+	listUsers(commonSearch: $search) {
+		pagination{
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+        success
+        error{
+            message
+            code
+            extra
+        }
+		items {
+			...ListUser
+		}
+	}
+}
+

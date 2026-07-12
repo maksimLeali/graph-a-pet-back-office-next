@@ -1,0 +1,46 @@
+{
+  "name": "graph-a-pet-back-office-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "generate": "graphql-codegen --config codegen.yml",
+    "fetch:graphql": "rover graph introspect https://graph-a-pet.makso.me/graphql > graphql-schema.graphql",
+    "fetch:graphql:local": "rover graph introspect http://localhost:5001/graphql > graphql-schema.graphql"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.13.8",
+    "@lemaks/grid_system": "^1.0.13",
+    "chart.js": "^4.5.1",
+    "dayjs": "^1.11.21",
+    "graphql": "16.11.0",
+    "js-cookie": "^3.0.8",
+    "lodash": "^4.18.1",
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "19.2.4",
+    "react-hook-form": "^7.81.0",
+    "react-hot-toast": "^2.6.0",
+    "styled-components": "^6.4.3"
+  },
+  "devDependencies": {
+    "@apollo/rover": "^0.41.0",
+    "@graphql-codegen/cli": "5.0.7",
+    "@graphql-codegen/near-operation-file-preset": "3.1.0",
+    "@graphql-codegen/typescript": "4.1.6",
+    "@graphql-codegen/typescript-operations": "4.6.1",
+    "@graphql-codegen/typescript-react-apollo": "4.3.3",
+    "@types/js-cookie": "^3.0.6",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "typescript": "^5"
+  }
+}

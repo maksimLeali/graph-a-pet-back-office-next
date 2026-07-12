@@ -1,0 +1,26 @@
+fragment UserOwnerships on PaginatedOwnerships{
+    items{
+        id
+        custody_level
+        pet {
+            birthday
+            chip_code
+            diet
+            disciplines
+            gender
+            id
+            intollerance
+            name
+            neutered
+            temperament
+            weight_kg
+        }
+    }
+    success
+    pagination {
+        current_page
+        page_size
+        total_items
+        total_pages
+    }
+}

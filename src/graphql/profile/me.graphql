@@ -1,0 +1,17 @@
+query getMe{
+    me{
+        success
+        error{
+            code
+            message 
+            extra
+        }
+        user {
+            id
+            first_name
+            last_name
+            email
+            role
+        }
+    }
+}

@@ -1,0 +1,282 @@
+mutation createShelterPersonBO($data: CreateShelterPersonInput!) {
+	createShelterPerson(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_person {
+			id
+		}
+	}
+}
+
+mutation archiveShelterPersonBO($id: ID!) {
+	archiveShelterPerson(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_person {
+			id
+		}
+	}
+}
+
+mutation createShelterInviteBO($data: ShelterInviteCreate!) {
+	createShelterInvite(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_invite {
+			id
+			status
+		}
+	}
+}
+
+mutation createShelterRoleBO($data: ShelterRoleCreate!) {
+	createShelterRole(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_role {
+			id
+		}
+	}
+}
+
+mutation updateShelterRoleBO($id: ID!, $data: ShelterRoleUpdate!) {
+	updateShelterRole(id: $id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_role {
+			id
+			role
+		}
+	}
+}
+
+mutation deleteShelterRoleBO($id: ID!) {
+	deleteShelterRole(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}
+
+mutation createShelterPetsWithDataBO($data: ShelterPetsWithDataCreate!) {
+	createShelterPetsWithData(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_pets {
+			id
+		}
+	}
+}
+
+mutation createShelterPetBO($data: ShelterPetCreate!) {
+	createShelterPet(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_pet {
+			id
+		}
+	}
+}
+
+mutation deleteShelterPetBO($id: ID!) {
+	deleteShelterPet(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}
+
+mutation createShelterInventoryItemBO($data: ShelterInventoryItemCreate!) {
+	createShelterInventoryItem(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		item {
+			id
+		}
+	}
+}
+
+mutation createShelterInventoryMovementBO($data: ShelterInventoryMovementCreate!) {
+	createShelterInventoryMovement(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		movement {
+			id
+		}
+	}
+}
+
+mutation archiveShelterInventoryItemBO($id: ID!) {
+	archiveShelterInventoryItem(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		item {
+			id
+		}
+	}
+}
+
+mutation deleteShelterInventoryItemBO($id: ID!) {
+	deleteShelterInventoryItem(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}
+
+mutation createShelterWalkBO($data: ShelterWalkCreate!) {
+	createShelterWalk(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_walk {
+			id
+		}
+	}
+}
+
+mutation startShelterWalkBO($id: ID!) {
+	startShelterWalk(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_walk {
+			id
+			status
+		}
+	}
+}
+
+mutation completeShelterWalkBO($id: ID!, $notes: String) {
+	completeShelterWalk(id: $id, notes: $notes) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_walk {
+			id
+			status
+		}
+	}
+}
+
+mutation cancelShelterWalkBO($id: ID!, $reason: String) {
+	cancelShelterWalk(id: $id, reason: $reason) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_walk {
+			id
+			status
+		}
+	}
+}
+
+mutation deleteShelterWalkBO($id: ID!) {
+	deleteShelterWalk(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}
+
+mutation createShelterTaskBO($data: ShelterTaskCreate!) {
+	createShelterTask(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_task {
+			id
+		}
+	}
+}
+
+mutation completeShelterTaskBO($id: ID!, $notes: String) {
+	completeShelterTask(id: $id, notes: $notes) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_task {
+			id
+			status
+		}
+	}
+}
+
+mutation skipShelterTaskBO($id: ID!, $reason: String) {
+	skipShelterTask(id: $id, reason: $reason) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_task {
+			id
+			status
+		}
+	}
+}
+
+mutation deleteShelterTaskBO($id: ID!) {
+	deleteShelterTask(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		id
+	}
+}

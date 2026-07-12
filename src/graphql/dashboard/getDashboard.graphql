@@ -1,0 +1,22 @@
+query getDashboard{
+	getDashboard{
+		dashboard {
+			all_pets
+			all_users
+			active_users
+			active_users_mean
+			active_users_percent
+			active_users_percent_stats
+			all_pet_stats 
+			all_users_stats 
+			active_users_stats 
+			labels 
+		}
+		success
+		error{
+			code
+			message
+		}
+		
+	}
+}

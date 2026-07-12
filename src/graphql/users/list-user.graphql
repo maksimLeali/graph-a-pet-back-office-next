@@ -1,0 +1,10 @@
+fragment ListUser on User {
+    id
+    email
+    last_name
+    first_name
+    role
+    created_at
+    pets_owned
+    pets_on_loan
+}

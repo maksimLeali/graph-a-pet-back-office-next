@@ -1,0 +1,19 @@
+query getGroupedStats($dateFrom: String!, $dateTo: String, $group: String!){
+	getGroupedStatistics(date_from:$dateFrom, date_to: $dateTo, group: $group){
+		statistics {
+			all_pets
+			all_users
+			active_users_min
+			active_users_mean
+			active_users_max
+			labels
+			
+		}
+		success
+		error{
+			code
+			message
+		}
+		
+	}
+}

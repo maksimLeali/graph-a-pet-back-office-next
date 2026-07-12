@@ -1,0 +1,13 @@
+query getPet($id: ID!){
+	getPet(id: $id){
+		pet{
+		    ...FullPet  
+		}
+		success
+		error{
+			code
+			message
+		}
+		
+	}
+}

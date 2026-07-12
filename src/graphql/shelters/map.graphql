@@ -1,0 +1,170 @@
+fragment FullShelterMapBO on ShelterMap {
+	id
+	name
+	width
+	height
+	unit
+	zones {
+		id
+		name
+		x
+		y
+		width
+		height
+		color
+	}
+	areas {
+		id
+		name
+		area_type
+		x
+		y
+		width
+		height
+		color
+		zone {
+			id
+		}
+	}
+	boxes {
+		id
+		label
+		x
+		y
+		width
+		height
+		rotation
+		capacity
+		status
+		is_out_of_service
+		area {
+			id
+		}
+		zone {
+			id
+		}
+		occupancy_history {
+			items {
+				id
+				exited_at
+				shelter_pet {
+					id
+					pet {
+						id
+						name
+					}
+				}
+			}
+		}
+	}
+	elements {
+		id
+		element_type
+		x
+		y
+		width
+		height
+		rotation
+		color
+		label
+	}
+}
+
+query listShelterMapsBO($commonSearch: CommonSearch) {
+	listShelterMaps(commonSearch: $commonSearch) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			name
+			width
+			height
+			unit
+		}
+	}
+}
+
+query getShelterMapBO($id: ID!) {
+	getShelterMap(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		map {
+			...FullShelterMapBO
+		}
+	}
+}
+
+mutation createShelterMapBO($data: ShelterMapCreate!) {
+	createShelterMap(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		map {
+			...FullShelterMapBO
+		}
+	}
+}
+
+mutation updateShelterMapBO($id: ID!, $data: ShelterMapUpdate!) {
+	updateShelterMap(id: $id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		map {
+			...FullShelterMapBO
+		}
+	}
+}
+
+mutation saveShelterMapLayoutBO($map_id: ID!, $data: ShelterMapLayoutInput!) {
+	saveShelterMapLayout(map_id: $map_id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		map {
+			...FullShelterMapBO
+		}
+	}
+}
+
+mutation assignPetToBoxBO($box_id: ID!, $shelter_pet_id: ID!, $reason: String) {
+	assignPetToBox(
+		box_id: $box_id
+		shelter_pet_id: $shelter_pet_id
+		reason: $reason
+	) {
+		success
+		error {
+			code
+			message
+		}
+		occupancy {
+			id
+		}
+	}
+}
+
+mutation releasePetFromBoxBO($occupancy_id: ID!, $reason: String) {
+	releasePetFromBox(occupancy_id: $occupancy_id, reason: $reason) {
+		success
+		error {
+			code
+			message
+		}
+		occupancy {
+			id
+		}
+	}
+}

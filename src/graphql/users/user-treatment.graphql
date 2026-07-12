@@ -1,0 +1,18 @@
+fragment UserTreatment on Treatment {
+    id 
+    date
+    name
+    type
+    created_at
+    booster {
+       name
+       date
+       id
+    }
+    health_card{
+        pet{
+            id
+            name
+        }
+    }
+}

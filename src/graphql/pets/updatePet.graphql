@@ -1,0 +1,12 @@
+mutation UpdatePet($id: ID!, $data: PetUpdate!) {
+	updatePet(id: $id, data: $data) {
+		pet {
+			...FullPet
+		}
+		success
+		error {
+			message
+			code
+		}
+	}
+}

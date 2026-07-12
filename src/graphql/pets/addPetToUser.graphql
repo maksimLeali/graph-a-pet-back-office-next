@@ -1,0 +1,18 @@
+mutation addPetToUserBO($pet: PetCreate!, $userId: String!, $custodyLevel: CustodyLevel) {
+	addPetToUser(pet: $pet, userId: $userId, custodyLevel: $custodyLevel) {
+		success
+		error {
+			code
+			message
+		}
+		data {
+			pet {
+				id
+				name
+			}
+			ownership {
+				id
+			}
+		}
+	}
+}

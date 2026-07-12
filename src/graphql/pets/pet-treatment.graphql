@@ -1,0 +1,13 @@
+fragment PetTreatment on Treatment {
+    id 
+    date
+    created_at
+    name
+    type
+    booster {
+       name
+       date
+       id
+    }
+ 
+}

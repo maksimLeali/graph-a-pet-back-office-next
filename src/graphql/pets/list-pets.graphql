@@ -1,0 +1,11 @@
+fragment SimplePet on Pet {
+    id
+    name
+    weight_kg
+    birthday
+    neutered
+    chip_code
+    gender
+    breed
+    years
+}

@@ -1,0 +1,258 @@
+query listShelters($search: CommonSearch!) {
+	listShelters(commonSearch: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			name
+			city
+			province_code
+			type
+			verification_status
+			created_at
+		}
+	}
+}
+
+query getShelter($id: ID!) {
+	getShelter(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		shelter {
+			id
+			name
+			street
+			street_number
+			city
+			province_code
+			postal_code
+			region
+			type
+			verification_status
+			visibility
+			accepts_volunteers
+			public_contact_email
+			public_contact_phone
+			created_at
+		}
+	}
+}
+
+query listShelterPeople($shelter_id: ID!, $search: CommonSearch) {
+	listShelterPeople(shelter_id: $shelter_id, search: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			created_at
+			first_name
+			last_name
+			email
+			phone
+			status
+			source
+			notes
+			user {
+				id
+				first_name
+				last_name
+				email
+			}
+		}
+	}
+}
+
+query listShelterRolesBO($search: CommonSearch!) {
+	listShelterRoles(commonSearch: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			created_at
+			role
+			user {
+				id
+				first_name
+				last_name
+				email
+			}
+		}
+	}
+}
+
+query listShelterPetsBO($search: CommonSearch!) {
+	listShelterPets(commonSearch: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			created_at
+			is_active
+			left_at
+			pet {
+				id
+				name
+				gender
+				breed
+				birthday
+				chip_code
+			}
+		}
+	}
+}
+
+query listShelterInventoryItemsBO($search: CommonSearch!) {
+	listShelterInventoryItems(commonSearch: $search) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			name
+			category
+			unit
+			minimum_threshold
+			current_quantity
+			is_below_threshold
+			is_active
+			notes
+		}
+	}
+}
+
+query listOperationalShelterWalksBO($shelter_id: ID!) {
+	listOperationalShelterWalks(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			created_at
+			status
+			scheduled_at
+			started_at
+			ended_at
+			duration_minutes
+			notes
+			shelter_pet {
+				id
+				pet {
+					id
+					name
+				}
+			}
+			walker {
+				id
+				first_name
+				last_name
+			}
+			walker_shelter_person {
+				id
+				first_name
+				last_name
+			}
+		}
+	}
+}
+
+query myShelterAuthorizationBO($shelter_id: ID!) {
+	myShelterAuthorization(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		authorization {
+			shelter_id
+			membership_status
+			permissions
+		}
+	}
+}
+
+query listOperationalShelterTasksBO($shelter_id: ID!) {
+	listOperationalShelterTasks(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			created_at
+			task_type
+			area
+			status
+			scheduled_at
+			scheduled_date
+			is_recurring
+			notes
+			shelter_pet {
+				id
+				pet {
+					id
+					name
+				}
+			}
+			assignees {
+				id
+				first_name
+				last_name
+			}
+			assignee_shelter_people {
+				id
+				first_name
+				last_name
+			}
+		}
+	}
+}

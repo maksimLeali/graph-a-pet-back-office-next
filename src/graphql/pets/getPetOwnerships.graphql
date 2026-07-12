@@ -1,0 +1,16 @@
+query getPetOwnership($id: ID!, $commonSearch: CommonSearch!){
+    getPet(id: $id){
+        pet {
+            ownerships(commonSearch: $commonSearch)
+            {
+                ...PetOwnerships
+            }
+        }
+        success
+        error {
+            code
+            message
+            extra
+        }
+    }
+}

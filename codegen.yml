@@ -1,0 +1,21 @@
+# codegen.yml — allineato a graph-a-pet-app
+schema: "./graphql-schema.graphql"
+documents:
+  - "src/graphql/**/*.graphql"
+  - "!src/**/__generated__/**"
+  - "!src/types.ts"
+generates:
+  src/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+  src/:
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: types.ts
+      extension: .generated.ts
+      folder: ../__generated__
+    plugins:
+      - typescript-operations
+      - typescript-react-apollo
