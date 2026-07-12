@@ -1,0 +1,13 @@
+services:
+  gap_back_office:
+    container_name: gap_back_office
+    image: gap_back_office
+    build:
+      context: .
+      args:
+        # inlined nel bundle al build; override: export prima di `docker compose build`
+        NEXT_PUBLIC_GRAPHQL_URL: ${NEXT_PUBLIC_GRAPHQL_URL:-https://graph-a-pet.makso.me/graphql}
+        NEXT_PUBLIC_BASE_FETCH_URL: ${NEXT_PUBLIC_BASE_FETCH_URL:-https://graph-a-pet.makso.me}
+    ports:
+      - "3101:3101"
+    restart: unless-stopped
