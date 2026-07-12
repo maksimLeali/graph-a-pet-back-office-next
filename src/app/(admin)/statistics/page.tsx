@@ -22,17 +22,27 @@ const PERIODS: { value: Period; label: string }[] = [
 ];
 
 // stessa logica del vecchio back office: se il periodo corrente è appena
-// iniziato si estende all'indietro per avere abbastanza punti dati
-const rangeFor = (period: Period): { dateFrom: string; group: string } => {
+// iniziato si estende all'indietro per avere abbastanza punti dati.
+// dateTo è calcolato qui (non inline nelle variables) perché un timestamp
+// nuovo a ogni render farebbe ripartire la query in loop.
+const rangeFor = (
+	period: Period
+): { dateFrom: string; dateTo: string; group: string } => {
+	const dateTo = dayjs().endOf("day").toISOString();
 	switch (period) {
 		case "day":
-			return { dateFrom: dayjs().startOf("day").toISOString(), group: "day" };
+			return {
+				dateFrom: dayjs().startOf("day").toISOString(),
+				dateTo,
+				group: "day",
+			};
 		case "week":
 			return {
 				dateFrom:
 					dayjs().day() <= 1
 						? dayjs().subtract(1, "week").toISOString()
 						: dayjs().startOf("week").toISOString(),
+				dateTo,
 				group: "day",
 			};
 		case "month":
@@ -41,6 +51,7 @@ const rangeFor = (period: Period): { dateFrom: string; group: string } => {
 					dayjs().date() <= 7
 						? dayjs().subtract(1, "month").startOf("month").toISOString()
 						: dayjs().startOf("month").toISOString(),
+				dateTo,
 				group: "week",
 			};
 		case "year":
@@ -49,6 +60,7 @@ const rangeFor = (period: Period): { dateFrom: string; group: string } => {
 					dayjs().month() < 1
 						? dayjs().subtract(1, "year").startOf("year").toISOString()
 						: dayjs().startOf("year").toISOString(),
+				dateTo,
 				group: "month",
 			};
 	}
@@ -56,10 +68,10 @@ const rangeFor = (period: Period): { dateFrom: string; group: string } => {
 
 export default function StatisticsPage() {
 	const [period, setPeriod] = useState<Period>("year");
-	const { dateFrom, group } = useMemo(() => rangeFor(period), [period]);
+	const { dateFrom, dateTo, group } = useMemo(() => rangeFor(period), [period]);
 
 	const { data, loading } = useGetGroupedStatsQuery({
-		variables: { dateFrom, dateTo: dayjs().toISOString(), group },
+		variables: { dateFrom, dateTo, group },
 		onError: () => toast.error("Errore nel caricamento delle statistiche"),
 	});
 
