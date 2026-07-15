@@ -7,6 +7,7 @@ import styled from "styled-components";
 
 import { auth, SessionUser } from "@/lib/auth";
 import { $color, $uw } from "@/theme";
+import { ThemeToggle } from "./ThemeToggle";
 
 const TITLES: [RegExp, string][] = [
 	[/^\/dashboard/, "Dashboard"],
@@ -45,14 +46,17 @@ export const Topbar: React.FC = () => {
 				{back && <BackLink href={back.href}>← {back.label}</BackLink>}
 				<Title>{title}</Title>
 			</Left>
-			{user && (
-				<Right>
-					<UserName>
-						{user.first_name} {user.last_name}
-					</UserName>
-					<RoleBadge>{user.role ?? "admin"}</RoleBadge>
-				</Right>
-			)}
+			<Right>
+				<ThemeToggle />
+				{user && (
+					<>
+						<UserName>
+							{user.first_name} {user.last_name}
+						</UserName>
+						<RoleBadge>{user.role ?? "admin"}</RoleBadge>
+					</>
+				)}
+			</Right>
 		</Header>
 	);
 };
@@ -103,7 +107,7 @@ const UserName = styled.span`
 
 const RoleBadge = styled.span`
 	border-radius: 999px;
-	background: rgba(52, 211, 153, 0.1);
+	background: ${$color("primary-soft")};
 	padding: ${$uw(0.25)} ${$uw(0.6)};
 	font-size: 1.1rem;
 	font-weight: 600;

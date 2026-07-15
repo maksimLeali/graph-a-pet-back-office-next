@@ -31,6 +31,16 @@ export enum AreaType {
   Storage = 'STORAGE'
 }
 
+export type AuthenticatedDonationInput = {
+  amount_cents: Scalars['Int']['input'];
+  currency?: InputMaybe<Scalars['String']['input']>;
+  funding_need_id?: InputMaybe<Scalars['ID']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+  shelter_id: Scalars['ID']['input'];
+  success_url: Scalars['String']['input'];
+  target_type: DonationTargetType;
+};
+
 export enum BoxStatus {
   Available = 'AVAILABLE',
   Full = 'FULL',
@@ -93,6 +103,11 @@ export type CommonSearch = {
   page_size?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export enum ConnectedAccountEnvironment {
+  Live = 'LIVE',
+  Test = 'TEST'
+}
+
 export type Coordinates = {
   __typename?: 'Coordinates';
   latitude?: Maybe<Scalars['Float']['output']>;
@@ -109,6 +124,14 @@ export type CreatePersonalWorkspaceInput = {
   region?: InputMaybe<Scalars['String']['input']>;
   street?: InputMaybe<Scalars['String']['input']>;
   street_number?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateRbacRoleInput = {
+  code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  permission_keys: Array<Scalars['String']['input']>;
+  scope_type: Scalars['String']['input'];
 };
 
 export type CreateShelterPersonInput = {
@@ -235,6 +258,114 @@ export type DeleteResult = {
   success?: Maybe<Scalars['Boolean']['output']>;
 };
 
+export enum DisputeStatus {
+  Lost = 'LOST',
+  None = 'NONE',
+  Open = 'OPEN',
+  Won = 'WON'
+}
+
+export type Donation = {
+  __typename?: 'Donation';
+  connected_account_id: Scalars['ID']['output'];
+  created_at: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  dispute_status: DisputeStatus;
+  donor_email?: Maybe<Scalars['String']['output']>;
+  donor_type: DonorType;
+  donor_user_id?: Maybe<Scalars['ID']['output']>;
+  funding_need_id?: Maybe<Scalars['ID']['output']>;
+  gross_amount_cents: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  is_test: Scalars['Boolean']['output'];
+  pet_id?: Maybe<Scalars['ID']['output']>;
+  platform_fee_amount_cents: Scalars['Int']['output'];
+  platform_fee_percent: Scalars['Float']['output'];
+  processing_fee_amount_cents?: Maybe<Scalars['Int']['output']>;
+  refund_status: RefundStatus;
+  refunded_amount_cents: Scalars['Int']['output'];
+  reservation_id?: Maybe<Scalars['ID']['output']>;
+  shelter_id: Scalars['ID']['output'];
+  shelter_net_amount_cents?: Maybe<Scalars['Int']['output']>;
+  status: DonationStatus;
+  stripe_checkout_session_id?: Maybe<Scalars['ID']['output']>;
+  stripe_payment_intent_id?: Maybe<Scalars['ID']['output']>;
+  target_type: DonationTargetType;
+  updated_at?: Maybe<Scalars['String']['output']>;
+};
+
+export type DonationAvailability = {
+  __typename?: 'DonationAvailability';
+  available: Scalars['Boolean']['output'];
+  is_test_mode: Scalars['Boolean']['output'];
+  reasons: Array<Scalars['String']['output']>;
+  remaining_pet_allowance_cents?: Maybe<Scalars['Int']['output']>;
+};
+
+export type DonationAvailabilityResult = {
+  __typename?: 'DonationAvailabilityResult';
+  availability?: Maybe<DonationAvailability>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type DonationCheckoutResult = {
+  __typename?: 'DonationCheckoutResult';
+  checkout_url?: Maybe<Scalars['String']['output']>;
+  donation?: Maybe<Donation>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type DonationLimitReservation = {
+  __typename?: 'DonationLimitReservation';
+  amount_cents: Scalars['Int']['output'];
+  created_at: Scalars['String']['output'];
+  donation_id?: Maybe<Scalars['ID']['output']>;
+  expires_at: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  override_expires_at?: Maybe<Scalars['String']['output']>;
+  override_reason?: Maybe<Scalars['String']['output']>;
+  period_end: Scalars['String']['output'];
+  period_start: Scalars['String']['output'];
+  pet_id: Scalars['ID']['output'];
+  shelter_id: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type DonationLimitReservationsResult = {
+  __typename?: 'DonationLimitReservationsResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<DonationLimitReservation>>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type DonationResult = {
+  __typename?: 'DonationResult';
+  donation?: Maybe<Donation>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
+};
+
+export enum DonationStatus {
+  Canceled = 'CANCELED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED'
+}
+
+export enum DonationTargetType {
+  Pet = 'PET',
+  PetFundingNeed = 'PET_FUNDING_NEED',
+  Shelter = 'SHELTER'
+}
+
+export enum DonorType {
+  Authenticated = 'AUTHENTICATED',
+  Guest = 'GUEST'
+}
+
 export type Error = {
   __typename?: 'Error';
   code: Scalars['String']['output'];
@@ -243,6 +374,13 @@ export type Error = {
   message: Scalars['String']['output'];
 };
 
+export enum ExpenseStatus {
+  Approved = 'APPROVED',
+  Draft = 'DRAFT',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED'
+}
+
 export type Filters = {
   fixed?: InputMaybe<Array<InputMaybe<FixedFilter>>>;
   join?: InputMaybe<Array<InputMaybe<Join>>>;
@@ -250,6 +388,33 @@ export type Filters = {
   ranges?: InputMaybe<Array<InputMaybe<RangeFilter>>>;
   search?: InputMaybe<Array<InputMaybe<SearchFilter>>>;
 };
+
+export type FinancialMovement = {
+  __typename?: 'FinancialMovement';
+  amount_cents: Scalars['Int']['output'];
+  created_at: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  donation_id?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['ID']['output'];
+  is_test: Scalars['Boolean']['output'];
+  movement_type: FinancialMovementType;
+  shelter_id: Scalars['ID']['output'];
+  stripe_object_id?: Maybe<Scalars['String']['output']>;
+};
+
+export enum FinancialMovementType {
+  Adjustment = 'ADJUSTMENT',
+  Dispute = 'DISPUTE',
+  GrossPayment = 'GROSS_PAYMENT',
+  Payout = 'PAYOUT',
+  PlatformFee = 'PLATFORM_FEE',
+  ProcessingFee = 'PROCESSING_FEE',
+  Refund = 'REFUND',
+  Reversal = 'REVERSAL',
+  ShelterNet = 'SHELTER_NET',
+  Transfer = 'TRANSFER'
+}
 
 export type FixedFilter = {
   key: Scalars['String']['input'];
@@ -263,6 +428,32 @@ export enum FrequencyUnit {
   Yearly = 'YEARLY'
 }
 
+export type FundingNeedCreateInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  ends_at?: InputMaybe<Scalars['String']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+  shelter_id: Scalars['ID']['input'];
+  starts_at?: InputMaybe<Scalars['String']['input']>;
+  target_amount_cents: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+};
+
+export enum FundingNeedStatus {
+  Active = 'ACTIVE',
+  Closed = 'CLOSED'
+}
+
+export type FundingNeedUpdateInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  ends_at?: InputMaybe<Scalars['String']['input']>;
+  starts_at?: InputMaybe<Scalars['String']['input']>;
+  target_amount_cents?: InputMaybe<Scalars['Int']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export enum Gender {
   Female = 'FEMALE',
   Male = 'MALE',
@@ -273,6 +464,17 @@ export type GenericResult = {
   __typename?: 'GenericResult';
   error?: Maybe<Error>;
   success: Scalars['Boolean']['output'];
+};
+
+export type GuestDonationCheckoutInput = {
+  amount_cents: Scalars['Int']['input'];
+  currency?: InputMaybe<Scalars['String']['input']>;
+  donor_email: Scalars['String']['input'];
+  funding_need_id?: InputMaybe<Scalars['ID']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+  shelter_id: Scalars['ID']['input'];
+  success_url: Scalars['String']['input'];
+  target_type: DonationTargetType;
 };
 
 export type HealthCard = {
@@ -412,6 +614,8 @@ export type Mutation = {
   addPetToMe: PetAddedResult;
   addPetToUser: PetAddedResult;
   approveShelterClaim: ShelterClaimRequestResult;
+  approveShelterExpense: ShelterExpenseResult;
+  archiveRbacRole: RbacRoleMutationResult;
   archiveShelterInventoryItem: ShelterInventoryItemResult;
   archiveShelterPerson: ShelterPersonResult;
   assignPetToBox: ShelterBoxOccupancyResult;
@@ -420,19 +624,26 @@ export type Mutation = {
   cancelShelterWalk: ShelterWalkResult;
   changeShelter: ShelterPetResult;
   checkCode: CodeValidationResult;
+  closeFundingNeed: PetFundingNeedResult;
   completeShelterTask: ShelterTaskResult;
   completeShelterWalk: ShelterWalkResult;
+  createAuthenticatedDonation: DonationCheckoutResult;
   createCode: CodeResult;
   createCure: CureResult;
+  createFundingNeed: PetFundingNeedResult;
+  createGuestDonationCheckout: DonationCheckoutResult;
   createHealthCard: HealthCardResult;
   createMedia: MediaResult;
+  createPaymentMethodSetup: PaymentMethodSetupResult;
   createPersonalWorkspace: ShelterResult;
   createPet: PetResult;
   createPetWeight: PetWeightResult;
+  createRbacRole: RbacRoleMutationResult;
   createReport: ReportResult;
   createShelter: ShelterResult;
   createShelterArea: ShelterAreaResult;
   createShelterBox: ShelterBoxResult;
+  createShelterExpense: ShelterExpenseResult;
   createShelterInventoryItem: ShelterInventoryItemResult;
   createShelterInventoryMovement: ShelterInventoryMovementResult;
   createShelterInvite: ShelterInviteResult;
@@ -447,6 +658,7 @@ export type Mutation = {
   createShelterWalk: ShelterWalkResult;
   createShelterWalkRating: ShelterWalkRatingResult;
   createShelterZone: ShelterZoneResult;
+  createTemporaryPetLimitOverride: PetDonationPolicyResult;
   createTreatment: TreatmentResult;
   createUser: UserResult;
   createWalk: WalkResult;
@@ -480,33 +692,49 @@ export type Mutation = {
   markBoxCleaned: ShelterBoxResult;
   markNotificationAsRead: NotificationResult;
   movePetBetweenBoxes: ShelterBoxOccupancyResult;
+  partiallyRefundDonation: DonationResult;
+  reconcileFinancialTransaction: ReconciliationResult;
+  refreshShelterStripeAccount: StripeAccountRefreshResult;
   refreshToken: NewTokenResult;
+  refundDonation: DonationResult;
   rejectPetOwnershipInvite: OwnershipResult;
   rejectShelterClaim: ShelterClaimRequestResult;
+  rejectShelterExpense: ShelterExpenseResult;
   rejectShelterInvite: ShelterInviteResult;
   rejectShelterOwnershipTransfer: ShelterOwnershipTransferResult;
   releasePetFromBox: ShelterBoxOccupancyResult;
+  removeSavedPaymentMethod: GenericResult;
   requestShelterClaim: ShelterClaimRequestResult;
   requestShelterOwnershipTransfer: ShelterOwnershipTransferResult;
   resendCode: GenericResult;
   respondToReport: ReportResult;
   restoreMemoriae: RestoredResult;
+  retryStripeWebhookEvent: StripeWebhookEventResult;
   saveShelterMapLayout: ShelterMapResult;
   setBoxOutOfService: ShelterBoxResult;
+  setDefaultPaymentMethod: UserPaymentMethodResult;
   setShelterWalkManualDuration: ShelterWalkResult;
   signUp: UserResult;
   skipShelterTask: ShelterTaskResult;
+  startShelterStripeOnboarding: StripeOnboardingResult;
   startShelterWalk: ShelterWalkResult;
+  submitShelterExpense: ShelterExpenseResult;
+  suspendConnectedAccount: StripeConnectedAccountResult;
   updateCure: CureResult;
+  updateFundingNeed: PetFundingNeedResult;
   updateHealthCard: HealthCardResult;
   updateMe: UserResult;
   updateMedia: MediaResult;
   updateOwnership: OwnershipResult;
   updatePet: PetResult;
+  updatePetDonationLimit: PetDonationPolicyResult;
+  updateRbacRolePermissions: RbacRoleMutationResult;
   updateReport: ReportResult;
   updateShelter: ShelterResult;
   updateShelterArea: ShelterAreaResult;
   updateShelterBox: ShelterBoxResult;
+  updateShelterDonationSettings: ShelterDonationSettingsResult;
+  updateShelterExpense: ShelterExpenseResult;
   updateShelterInventoryItem: ShelterInventoryItemResult;
   updateShelterMap: ShelterMapResult;
   updateShelterMapElement: ShelterMapElementResult;
@@ -562,6 +790,16 @@ export type MutationApproveShelterClaimArgs = {
 };
 
 
+export type MutationApproveShelterExpenseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationArchiveRbacRoleArgs = {
+  role_id: Scalars['ID']['input'];
+};
+
+
 export type MutationArchiveShelterInventoryItemArgs = {
   id: Scalars['ID']['input'];
 };
@@ -605,6 +843,11 @@ export type MutationCheckCodeArgs = {
 };
 
 
+export type MutationCloseFundingNeedArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationCompleteShelterTaskArgs = {
   id: Scalars['ID']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -614,6 +857,11 @@ export type MutationCompleteShelterTaskArgs = {
 export type MutationCompleteShelterWalkArgs = {
   id: Scalars['ID']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCreateAuthenticatedDonationArgs = {
+  data: AuthenticatedDonationInput;
 };
 
 
@@ -627,6 +875,16 @@ export type MutationCreateCureArgs = {
 };
 
 
+export type MutationCreateFundingNeedArgs = {
+  data: FundingNeedCreateInput;
+};
+
+
+export type MutationCreateGuestDonationCheckoutArgs = {
+  data: GuestDonationCheckoutInput;
+};
+
+
 export type MutationCreateHealthCardArgs = {
   data: HealthCardCreate;
 };
@@ -634,6 +892,11 @@ export type MutationCreateHealthCardArgs = {
 
 export type MutationCreateMediaArgs = {
   data: MediaCreate;
+};
+
+
+export type MutationCreatePaymentMethodSetupArgs = {
+  data: PaymentMethodSetupInput;
 };
 
 
@@ -649,6 +912,11 @@ export type MutationCreatePetArgs = {
 
 export type MutationCreatePetWeightArgs = {
   data: PetWeightCreate;
+};
+
+
+export type MutationCreateRbacRoleArgs = {
+  input: CreateRbacRoleInput;
 };
 
 
@@ -669,6 +937,11 @@ export type MutationCreateShelterAreaArgs = {
 
 export type MutationCreateShelterBoxArgs = {
   data: ShelterBoxCreate;
+};
+
+
+export type MutationCreateShelterExpenseArgs = {
+  data: ShelterExpenseCreateInput;
 };
 
 
@@ -739,6 +1012,11 @@ export type MutationCreateShelterWalkRatingArgs = {
 
 export type MutationCreateShelterZoneArgs = {
   data: ShelterZoneCreate;
+};
+
+
+export type MutationCreateTemporaryPetLimitOverrideArgs = {
+  data: TemporaryPetLimitOverrideInput;
 };
 
 
@@ -906,6 +1184,29 @@ export type MutationMovePetBetweenBoxesArgs = {
 };
 
 
+export type MutationPartiallyRefundDonationArgs = {
+  amount_cents: Scalars['Int']['input'];
+  donation_id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+export type MutationReconcileFinancialTransactionArgs = {
+  donation_id: Scalars['ID']['input'];
+};
+
+
+export type MutationRefreshShelterStripeAccountArgs = {
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type MutationRefundDonationArgs = {
+  donation_id: Scalars['ID']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationRejectPetOwnershipInviteArgs = {
   id: Scalars['ID']['input'];
 };
@@ -914,6 +1215,12 @@ export type MutationRejectPetOwnershipInviteArgs = {
 export type MutationRejectShelterClaimArgs = {
   decision_note?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRejectShelterExpenseArgs = {
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
 };
 
 
@@ -930,6 +1237,11 @@ export type MutationRejectShelterOwnershipTransferArgs = {
 export type MutationReleasePetFromBoxArgs = {
   occupancy_id: Scalars['ID']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationRemoveSavedPaymentMethodArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -962,6 +1274,11 @@ export type MutationRestoreMemoriaeArgs = {
 };
 
 
+export type MutationRetryStripeWebhookEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSaveShelterMapLayoutArgs = {
   data: ShelterMapLayoutInput;
   map_id: Scalars['ID']['input'];
@@ -971,6 +1288,11 @@ export type MutationSaveShelterMapLayoutArgs = {
 export type MutationSetBoxOutOfServiceArgs = {
   box_id: Scalars['ID']['input'];
   out_of_service: Scalars['Boolean']['input'];
+};
+
+
+export type MutationSetDefaultPaymentMethodArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -991,13 +1313,36 @@ export type MutationSkipShelterTaskArgs = {
 };
 
 
+export type MutationStartShelterStripeOnboardingArgs = {
+  refresh_url: Scalars['String']['input'];
+  return_url: Scalars['String']['input'];
+  shelter_id: Scalars['ID']['input'];
+};
+
+
 export type MutationStartShelterWalkArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+export type MutationSubmitShelterExpenseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSuspendConnectedAccountArgs = {
+  connected_account_id: Scalars['ID']['input'];
+};
+
+
 export type MutationUpdateCureArgs = {
   data: CureUpdate;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateFundingNeedArgs = {
+  data: FundingNeedUpdateInput;
   id: Scalars['ID']['input'];
 };
 
@@ -1031,6 +1376,16 @@ export type MutationUpdatePetArgs = {
 };
 
 
+export type MutationUpdatePetDonationLimitArgs = {
+  data: PetDonationLimitInput;
+};
+
+
+export type MutationUpdateRbacRolePermissionsArgs = {
+  input: UpdateRbacRolePermissionsInput;
+};
+
+
 export type MutationUpdateReportArgs = {
   data: ReportUpdate;
   id: Scalars['ID']['input'];
@@ -1051,6 +1406,18 @@ export type MutationUpdateShelterAreaArgs = {
 
 export type MutationUpdateShelterBoxArgs = {
   data: ShelterBoxUpdate;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateShelterDonationSettingsArgs = {
+  data: ShelterDonationSettingsInput;
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateShelterExpenseArgs = {
+  data: ShelterExpenseUpdateInput;
   id: Scalars['ID']['input'];
 };
 
@@ -1334,6 +1701,22 @@ export type PaginatedDamnationesMemoriae = {
   success: Scalars['Boolean']['output'];
 };
 
+export type PaginatedDonations = {
+  __typename?: 'PaginatedDonations';
+  error?: Maybe<Error>;
+  items: Array<Maybe<Donation>>;
+  pagination: Pagination;
+  success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type PaginatedFinancialMovements = {
+  __typename?: 'PaginatedFinancialMovements';
+  error?: Maybe<Error>;
+  items: Array<Maybe<FinancialMovement>>;
+  pagination: Pagination;
+  success?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type PaginatedHealthCards = {
   __typename?: 'PaginatedHealthCards';
   error?: Maybe<Error>;
@@ -1510,6 +1893,21 @@ export type PaginatedShelters = {
   success?: Maybe<Scalars['Boolean']['output']>;
 };
 
+export type PaginatedStripeConnectedAccounts = {
+  __typename?: 'PaginatedStripeConnectedAccounts';
+  error?: Maybe<Error>;
+  items: Array<Maybe<StripeConnectedAccount>>;
+  success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type PaginatedStripeWebhookEvents = {
+  __typename?: 'PaginatedStripeWebhookEvents';
+  error?: Maybe<Error>;
+  items: Array<Maybe<StripeWebhookEvent>>;
+  pagination: Pagination;
+  success?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type PaginatedTreatments = {
   __typename?: 'PaginatedTreatments';
   error?: Maybe<Error>;
@@ -1549,6 +1947,19 @@ export type Pagination = {
   page_size?: Maybe<Scalars['Int']['output']>;
   total_items?: Maybe<Scalars['Int']['output']>;
   total_pages?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PaymentMethodSetupInput = {
+  cancel_url: Scalars['String']['input'];
+  consent_text: Scalars['String']['input'];
+  success_url: Scalars['String']['input'];
+};
+
+export type PaymentMethodSetupResult = {
+  __typename?: 'PaymentMethodSetupResult';
+  error?: Maybe<Error>;
+  setup_url?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type Pet = {
@@ -1606,6 +2017,41 @@ export type PetCreate = {
   weight_kg?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type PetDonationLimitInput = {
+  custom_monthly_limit_cents?: InputMaybe<Scalars['Int']['input']>;
+  pet_id: Scalars['ID']['input'];
+  shelter_id: Scalars['ID']['input'];
+};
+
+export type PetDonationPoliciesResult = {
+  __typename?: 'PetDonationPoliciesResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<PetDonationPolicy>>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type PetDonationPolicy = {
+  __typename?: 'PetDonationPolicy';
+  created_at: Scalars['String']['output'];
+  custom_monthly_limit_cents?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  is_active: Scalars['Boolean']['output'];
+  pet_id: Scalars['ID']['output'];
+  shelter_id: Scalars['ID']['output'];
+  temporary_override_cents?: Maybe<Scalars['Int']['output']>;
+  temporary_override_effective_at?: Maybe<Scalars['String']['output']>;
+  temporary_override_expires_at?: Maybe<Scalars['String']['output']>;
+  temporary_override_reason?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['String']['output']>;
+};
+
+export type PetDonationPolicyResult = {
+  __typename?: 'PetDonationPolicyResult';
+  error?: Maybe<Error>;
+  policy?: Maybe<PetDonationPolicy>;
+  success: Scalars['Boolean']['output'];
+};
+
 export enum PetFamily {
   Birds = 'BIRDS',
   Canine = 'CANINE',
@@ -1613,6 +2059,40 @@ export enum PetFamily {
   Fish = 'FISH',
   Reptile = 'REPTILE'
 }
+
+export type PetFundingNeed = {
+  __typename?: 'PetFundingNeed';
+  category?: Maybe<Scalars['String']['output']>;
+  closed_at?: Maybe<Scalars['String']['output']>;
+  collected_amount_cents: Scalars['Int']['output'];
+  created_at: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  ends_at?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  pet_id?: Maybe<Scalars['ID']['output']>;
+  remaining_amount_cents: Scalars['Int']['output'];
+  shelter_id: Scalars['ID']['output'];
+  starts_at?: Maybe<Scalars['String']['output']>;
+  status: FundingNeedStatus;
+  target_amount_cents: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  updated_at?: Maybe<Scalars['String']['output']>;
+};
+
+export type PetFundingNeedResult = {
+  __typename?: 'PetFundingNeedResult';
+  error?: Maybe<Error>;
+  funding_need?: Maybe<PetFundingNeed>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type PetFundingNeedsResult = {
+  __typename?: 'PetFundingNeedsResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<PetFundingNeed>>;
+  success: Scalars['Boolean']['output'];
+};
 
 export type PetResult = {
   __typename?: 'PetResult';
@@ -1689,7 +2169,35 @@ export type PublicShelter = {
   public_lat?: Maybe<Scalars['Float']['output']>;
   public_lng?: Maybe<Scalars['Float']['output']>;
   public_location_label?: Maybe<Scalars['String']['output']>;
+  public_story_html?: Maybe<Scalars['String']['output']>;
   region?: Maybe<Scalars['String']['output']>;
+};
+
+export type PublicShelterPet = {
+  __typename?: 'PublicShelterPet';
+  birthday?: Maybe<Scalars['String']['output']>;
+  breed?: Maybe<Scalars['String']['output']>;
+  coat_length?: Maybe<CoatLength>;
+  gender?: Maybe<Gender>;
+  id: Scalars['ID']['output'];
+  main_picture?: Maybe<Media>;
+  name: Scalars['String']['output'];
+  shelter_pet_id: Scalars['ID']['output'];
+  temperament?: Maybe<Scalars['String']['output']>;
+};
+
+export type PublicShelterPetResult = {
+  __typename?: 'PublicShelterPetResult';
+  error?: Maybe<Error>;
+  pet?: Maybe<PublicShelterPet>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type PublicShelterPetsResult = {
+  __typename?: 'PublicShelterPetsResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<PublicShelterPet>>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type PublicShelterSearchInput = {
@@ -1703,6 +2211,7 @@ export type PublicShelterSearchInput = {
 
 export type Query = {
   __typename?: 'Query';
+  discoverPublicShelters: PaginatedPublicShelters;
   discoverShelters: PaginatedPublicShelters;
   getCode: CodeResult;
   getCure: Cure;
@@ -1717,18 +2226,26 @@ export type Query = {
   getOrCreateCode?: Maybe<CodeResult>;
   getOwnership: OwnershipResult;
   getPet: PetResult;
+  getPetDonationLimitHistory: DonationLimitReservationsResult;
   getPetWalkingStats: WalkRatingChartResult;
   getPetWeightStats: PetWeightChartResult;
+  getPublicDonationAvailability: DonationAvailabilityResult;
+  getPublicDonationShelter?: Maybe<PublicShelter>;
+  getPublicPetFundingNeeds: PetFundingNeedsResult;
   getPublicShelter?: Maybe<PublicShelter>;
+  getPublicShelterPet: PublicShelterPetResult;
   getRealTimeStatistic: RealTimeStatisticResult;
   getReport?: Maybe<ReportResult>;
   getShelter: ShelterResult;
   getShelterArea: ShelterAreaResult;
   getShelterBox: ShelterBoxResult;
+  getShelterDonationOverview: ShelterDonationOverviewResult;
+  getShelterDonationSettings: ShelterDonationSettingsResult;
   getShelterInventoryItem: ShelterInventoryItemResult;
   getShelterInvite: ShelterInviteResult;
   getShelterMap: ShelterMapResult;
   getShelterMapElement: ShelterMapElementResult;
+  getShelterMonthlyDonationReport: ShelterMonthlyReportResult;
   getShelterOperationalDashboard: ShelterOperationalDashboardResult;
   getShelterPerson?: Maybe<ShelterPerson>;
   getShelterPet: ShelterPetResult;
@@ -1741,29 +2258,43 @@ export type Query = {
   getUnreadNotificationCount: Scalars['Int']['output'];
   getUser: UserResult;
   getUserDashboard: UserDashboardResult;
+  getUserRbacRoles: UserRbacResult;
   getWalk: Walk;
   getWalkRating: WalkRatingResult;
   listCodes: PaginatedCodes;
+  listConnectedAccounts: PaginatedStripeConnectedAccounts;
   listCures: PaginatedCures;
   listDamnationesMemoriae?: Maybe<PaginatedDamnationesMemoriae>;
+  listDisputes: PaginatedDonations;
+  listFinancialMovements: PaginatedFinancialMovements;
+  listFundingNeeds: PetFundingNeedsResult;
   listHealthCards: PaginatedHealthCards;
   listLowStockItems: PaginatedInventoryItems;
   listMedias: PaginatedMedias;
+  listMyDonations: PaginatedDonations;
   listMyNotifications: PaginatedNotifications;
   listMyOwnershipTransfers: PaginatedShelterOwnershipTransfers;
   listMyPets: PaginatedPets;
+  listMySavedPaymentMethods: UserPaymentMethodsResult;
   listMyShelterClaimRequests: PaginatedShelterClaimRequests;
   listMyTreatments: PaginatedTreatments;
   listOperationalShelterTasks: PaginatedShelterTasks;
   listOperationalShelterWalks: PaginatedShelterWalks;
   listOwnerships: PaginatedOwnerships;
+  listPermissionCatalog: Array<RbacPermission>;
+  listPetDonationPolicies: PetDonationPoliciesResult;
   listPets: PaginatedPets;
   listPetsNeedingWalk: PaginatedShelterPets;
+  listPlatformDonations: PaginatedDonations;
+  listPublicShelterPets: PublicShelterPetsResult;
+  listRbacRoles: RbacRolesResult;
   listReports: PaginatedReports;
   listShelterAreas: PaginatedShelterAreas;
   listShelterBoxOccupancies: PaginatedBoxOccupancies;
   listShelterBoxes: PaginatedShelterBoxes;
   listShelterClaimRequests: PaginatedShelterClaimRequests;
+  listShelterDonations: PaginatedDonations;
+  listShelterExpenses: ShelterExpensesResult;
   listShelterInventoryItems: PaginatedInventoryItems;
   listShelterInventoryMovements: PaginatedInventoryMovements;
   listShelterKpiHistory: ShelterKpiHistoryResult;
@@ -1777,12 +2308,18 @@ export type Query = {
   listShelterWalks: PaginatedShelterWalks;
   listShelterZones: PaginatedShelterZones;
   listShelters: PaginatedShelters;
+  listStripeWebhookEvents: PaginatedStripeWebhookEvents;
   listTreatments: PaginatedTreatments;
   listUsers: PaginatedUsers;
   listWalkRatings: PaginatedWalkRatings;
   listWalks: PaginatedWalks;
   me: UserResult;
   myShelterAuthorization: ShelterAuthorizationResult;
+};
+
+
+export type QueryDiscoverPublicSheltersArgs = {
+  search?: InputMaybe<PublicShelterSearchInput>;
 };
 
 
@@ -1856,6 +2393,11 @@ export type QueryGetPetArgs = {
 };
 
 
+export type QueryGetPetDonationLimitHistoryArgs = {
+  pet_id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetPetWalkingStatsArgs = {
   period: StatsPeriod;
   pet_id: Scalars['ID']['input'];
@@ -1868,8 +2410,31 @@ export type QueryGetPetWeightStatsArgs = {
 };
 
 
+export type QueryGetPublicDonationAvailabilityArgs = {
+  funding_need_id?: InputMaybe<Scalars['ID']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPublicDonationShelterArgs = {
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPublicPetFundingNeedsArgs = {
+  pet_id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetPublicShelterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPublicShelterPetArgs = {
+  pet_id: Scalars['ID']['input'];
+  shelter_id: Scalars['ID']['input'];
 };
 
 
@@ -1893,6 +2458,16 @@ export type QueryGetShelterBoxArgs = {
 };
 
 
+export type QueryGetShelterDonationOverviewArgs = {
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetShelterDonationSettingsArgs = {
+  shelter_id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetShelterInventoryItemArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1910,6 +2485,13 @@ export type QueryGetShelterMapArgs = {
 
 export type QueryGetShelterMapElementArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetShelterMonthlyDonationReportArgs = {
+  month: Scalars['Int']['input'];
+  shelter_id: Scalars['ID']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -1964,6 +2546,11 @@ export type QueryGetUserArgs = {
 };
 
 
+export type QueryGetUserRbacRolesArgs = {
+  user_id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetWalkArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1979,6 +2566,11 @@ export type QueryListCodesArgs = {
 };
 
 
+export type QueryListConnectedAccountsArgs = {
+  environment?: InputMaybe<ConnectedAccountEnvironment>;
+};
+
+
 export type QueryListCuresArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
 };
@@ -1986,6 +2578,24 @@ export type QueryListCuresArgs = {
 
 export type QueryListDamnationesMemoriaeArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
+};
+
+
+export type QueryListDisputesArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+};
+
+
+export type QueryListFinancialMovementsArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+  movement_type?: InputMaybe<FinancialMovementType>;
+  shelter_id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryListFundingNeedsArgs = {
+  shelter_id: Scalars['ID']['input'];
+  status?: InputMaybe<FundingNeedStatus>;
 };
 
 
@@ -2000,6 +2610,11 @@ export type QueryListLowStockItemsArgs = {
 
 
 export type QueryListMediasArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+};
+
+
+export type QueryListMyDonationsArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
 };
 
@@ -2044,6 +2659,11 @@ export type QueryListOwnershipsArgs = {
 };
 
 
+export type QueryListPetDonationPoliciesArgs = {
+  shelter_id: Scalars['ID']['input'];
+};
+
+
 export type QueryListPetsArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
 };
@@ -2051,6 +2671,19 @@ export type QueryListPetsArgs = {
 
 export type QueryListPetsNeedingWalkArgs = {
   hours?: InputMaybe<Scalars['Int']['input']>;
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryListPlatformDonationsArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+  donor_type?: InputMaybe<DonorType>;
+  shelter_id?: InputMaybe<Scalars['ID']['input']>;
+  status?: InputMaybe<DonationStatus>;
+};
+
+
+export type QueryListPublicShelterPetsArgs = {
   shelter_id: Scalars['ID']['input'];
 };
 
@@ -2078,6 +2711,18 @@ export type QueryListShelterBoxesArgs = {
 export type QueryListShelterClaimRequestsArgs = {
   search?: InputMaybe<CommonSearch>;
   shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryListShelterDonationsArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+  shelter_id: Scalars['ID']['input'];
+};
+
+
+export type QueryListShelterExpensesArgs = {
+  shelter_id: Scalars['ID']['input'];
+  status?: InputMaybe<ExpenseStatus>;
 };
 
 
@@ -2149,6 +2794,13 @@ export type QueryListSheltersArgs = {
 };
 
 
+export type QueryListStripeWebhookEventsArgs = {
+  commonSearch?: InputMaybe<CommonSearch>;
+  event_type?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<WebhookEventStatus>;
+};
+
+
 export type QueryListTreatmentsArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
 };
@@ -2183,10 +2835,52 @@ export type RangeFilterValue = {
   min?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type RbacPermission = {
+  __typename?: 'RbacPermission';
+  domain: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  risk_level: Scalars['String']['output'];
+  scope_type: Scalars['String']['output'];
+};
+
+export type RbacRole = {
+  __typename?: 'RbacRole';
+  code: Scalars['String']['output'];
+  grants_all_permissions: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  is_system: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  permissions: Array<Scalars['String']['output']>;
+  scope_type: Scalars['String']['output'];
+};
+
+export type RbacRoleMutationResult = {
+  __typename?: 'RbacRoleMutationResult';
+  error?: Maybe<Error>;
+  role?: Maybe<RbacRole>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type RbacRolesResult = {
+  __typename?: 'RbacRolesResult';
+  error?: Maybe<Error>;
+  roles: Array<RbacRole>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type RealTimeStatisticResult = {
   __typename?: 'RealTimeStatisticResult';
   error?: Maybe<Error>;
   statistics?: Maybe<DailyStats>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type ReconciliationResult = {
+  __typename?: 'ReconciliationResult';
+  donation_id: Scalars['ID']['output'];
+  error?: Maybe<Error>;
+  is_balanced: Scalars['Boolean']['output'];
+  movement_count: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
 
@@ -2214,6 +2908,12 @@ export type RecurrenceInput = {
   week_ordinal?: InputMaybe<Scalars['Int']['input']>;
   weekdays?: InputMaybe<Array<Weekday>>;
 };
+
+export enum RefundStatus {
+  Full = 'FULL',
+  None = 'NONE',
+  Partial = 'PARTIAL'
+}
 
 export type Report = {
   __typename?: 'Report';
@@ -2317,6 +3017,7 @@ export type Shelter = {
   public_lat?: Maybe<Scalars['Float']['output']>;
   public_lng?: Maybe<Scalars['Float']['output']>;
   public_location_label?: Maybe<Scalars['String']['output']>;
+  public_story_html?: Maybe<Scalars['String']['output']>;
   region?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<PaginatedShelterRoles>;
   street: Scalars['String']['output'];
@@ -2559,6 +3260,101 @@ export type ShelterCreate = {
   region?: InputMaybe<Scalars['String']['input']>;
   street: Scalars['String']['input'];
   street_number: Scalars['String']['input'];
+};
+
+export type ShelterDonationOverview = {
+  __typename?: 'ShelterDonationOverview';
+  active_funding_needs_count: Scalars['Int']['output'];
+  connected_account?: Maybe<StripeConnectedAccount>;
+  declared_expenses_cents: Scalars['Int']['output'];
+  disputed_amount_cents: Scalars['Int']['output'];
+  gross_amount_cents: Scalars['Int']['output'];
+  is_test_mode: Scalars['Boolean']['output'];
+  pets_at_limit_count: Scalars['Int']['output'];
+  pets_near_limit_count: Scalars['Int']['output'];
+  platform_fee_amount_cents: Scalars['Int']['output'];
+  processing_fee_amount_cents: Scalars['Int']['output'];
+  refunded_amount_cents: Scalars['Int']['output'];
+  shelter_net_amount_cents: Scalars['Int']['output'];
+  unreported_funds_cents: Scalars['Int']['output'];
+};
+
+export type ShelterDonationOverviewResult = {
+  __typename?: 'ShelterDonationOverviewResult';
+  error?: Maybe<Error>;
+  overview?: Maybe<ShelterDonationOverview>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type ShelterDonationSettings = {
+  __typename?: 'ShelterDonationSettings';
+  connected_account?: Maybe<StripeConnectedAccount>;
+  default_pet_monthly_limit_cents: Scalars['Int']['output'];
+  donations_enabled: Scalars['Boolean']['output'];
+  environment: Scalars['String']['output'];
+  platform_fee_percent: Scalars['Float']['output'];
+  unused_funds_policy: Scalars['String']['output'];
+};
+
+export type ShelterDonationSettingsInput = {
+  default_pet_monthly_limit_cents?: InputMaybe<Scalars['Int']['input']>;
+  donations_enabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ShelterDonationSettingsResult = {
+  __typename?: 'ShelterDonationSettingsResult';
+  error?: Maybe<Error>;
+  settings?: Maybe<ShelterDonationSettings>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type ShelterExpense = {
+  __typename?: 'ShelterExpense';
+  amount_cents: Scalars['Int']['output'];
+  approved_at?: Maybe<Scalars['String']['output']>;
+  approved_by_id?: Maybe<Scalars['ID']['output']>;
+  created_at: Scalars['String']['output'];
+  created_by_id?: Maybe<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  funding_need_id?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['ID']['output'];
+  pet_id?: Maybe<Scalars['ID']['output']>;
+  rejected_reason?: Maybe<Scalars['String']['output']>;
+  shelter_id: Scalars['ID']['output'];
+  status: ExpenseStatus;
+  submitted_at?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['String']['output']>;
+};
+
+export type ShelterExpenseCreateInput = {
+  amount_cents: Scalars['Int']['input'];
+  currency?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  funding_need_id?: InputMaybe<Scalars['ID']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+  shelter_id: Scalars['ID']['input'];
+};
+
+export type ShelterExpenseResult = {
+  __typename?: 'ShelterExpenseResult';
+  error?: Maybe<Error>;
+  expense?: Maybe<ShelterExpense>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type ShelterExpenseUpdateInput = {
+  amount_cents?: InputMaybe<Scalars['Int']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  funding_need_id?: InputMaybe<Scalars['ID']['input']>;
+  pet_id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type ShelterExpensesResult = {
+  __typename?: 'ShelterExpensesResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<ShelterExpense>>;
+  success: Scalars['Boolean']['output'];
 };
 
 export enum ShelterInventoryAlertStatus {
@@ -2807,6 +3603,27 @@ export type ShelterMapUpdate = {
   name?: InputMaybe<Scalars['String']['input']>;
   unit?: InputMaybe<MapUnit>;
   width?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type ShelterMonthlyReport = {
+  __typename?: 'ShelterMonthlyReport';
+  declared_expenses_cents: Scalars['Int']['output'];
+  disputed_amount_cents: Scalars['Int']['output'];
+  gross_amount_cents: Scalars['Int']['output'];
+  month: Scalars['Int']['output'];
+  platform_fee_amount_cents: Scalars['Int']['output'];
+  processing_fee_amount_cents: Scalars['Int']['output'];
+  refunded_amount_cents: Scalars['Int']['output'];
+  shelter_net_amount_cents: Scalars['Int']['output'];
+  unreported_funds_cents: Scalars['Int']['output'];
+  year: Scalars['Int']['output'];
+};
+
+export type ShelterMonthlyReportResult = {
+  __typename?: 'ShelterMonthlyReportResult';
+  error?: Maybe<Error>;
+  report?: Maybe<ShelterMonthlyReport>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type ShelterOperationalDashboard = {
@@ -3083,6 +3900,7 @@ export type ShelterUpdate = {
   public_lat?: InputMaybe<Scalars['Float']['input']>;
   public_lng?: InputMaybe<Scalars['Float']['input']>;
   public_location_label?: InputMaybe<Scalars['String']['input']>;
+  public_story_html?: InputMaybe<Scalars['String']['input']>;
   region?: InputMaybe<Scalars['String']['input']>;
   street?: InputMaybe<Scalars['String']['input']>;
   street_number?: InputMaybe<Scalars['String']['input']>;
@@ -3257,6 +4075,68 @@ export enum StatsPeriod {
   Yearly = 'YEARLY'
 }
 
+export type StripeAccountRefreshResult = {
+  __typename?: 'StripeAccountRefreshResult';
+  connected_account?: Maybe<StripeConnectedAccount>;
+  error?: Maybe<Error>;
+  requirements?: Maybe<Array<Scalars['String']['output']>>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type StripeConnectedAccount = {
+  __typename?: 'StripeConnectedAccount';
+  charges_enabled: Scalars['Boolean']['output'];
+  created_at: Scalars['String']['output'];
+  default_pet_monthly_limit_cents?: Maybe<Scalars['Int']['output']>;
+  details_submitted: Scalars['Boolean']['output'];
+  donations_enabled: Scalars['Boolean']['output'];
+  environment: ConnectedAccountEnvironment;
+  id: Scalars['ID']['output'];
+  is_active: Scalars['Boolean']['output'];
+  last_synced_at?: Maybe<Scalars['String']['output']>;
+  onboarding_status: Scalars['String']['output'];
+  payouts_enabled: Scalars['Boolean']['output'];
+  shelter_id: Scalars['ID']['output'];
+  stripe_account_id?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['String']['output']>;
+  verification_status: Scalars['String']['output'];
+};
+
+export type StripeConnectedAccountResult = {
+  __typename?: 'StripeConnectedAccountResult';
+  connected_account?: Maybe<StripeConnectedAccount>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type StripeOnboardingResult = {
+  __typename?: 'StripeOnboardingResult';
+  connected_account?: Maybe<StripeConnectedAccount>;
+  error?: Maybe<Error>;
+  onboarding_url?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type StripeWebhookEvent = {
+  __typename?: 'StripeWebhookEvent';
+  attempts: Scalars['Int']['output'];
+  created_at: Scalars['String']['output'];
+  event_type: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  last_error?: Maybe<Scalars['String']['output']>;
+  livemode: Scalars['Boolean']['output'];
+  processed_at?: Maybe<Scalars['String']['output']>;
+  status: WebhookEventStatus;
+  stripe_event_id: Scalars['String']['output'];
+};
+
+export type StripeWebhookEventResult = {
+  __typename?: 'StripeWebhookEventResult';
+  error?: Maybe<Error>;
+  event?: Maybe<StripeWebhookEvent>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type Tag = {
   __typename?: 'Tag';
   id: Scalars['ID']['output'];
@@ -3271,6 +4151,15 @@ export enum TaskStatus {
   Pending = 'PENDING',
   Skipped = 'SKIPPED'
 }
+
+export type TemporaryPetLimitOverrideInput = {
+  amount_cents: Scalars['Int']['input'];
+  effective_at?: InputMaybe<Scalars['String']['input']>;
+  expires_at: Scalars['String']['input'];
+  pet_id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+  shelter_id: Scalars['ID']['input'];
+};
 
 export type Treatment = {
   __typename?: 'Treatment';
@@ -3323,6 +4212,11 @@ export type TreatmentUpdate = {
   name?: InputMaybe<Scalars['String']['input']>;
   treatmentDuration?: InputMaybe<TreatmentDuration>;
   type?: InputMaybe<TreatmentType>;
+};
+
+export type UpdateRbacRolePermissionsInput = {
+  permission_keys: Array<Scalars['String']['input']>;
+  role_id: Scalars['ID']['input'];
 };
 
 export type UpdateShelterPersonInput = {
@@ -3390,6 +4284,51 @@ export type UserDashboardResult = {
   dashboard?: Maybe<UserDashboard>;
   error?: Maybe<Error>;
   success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type UserPaymentMethod = {
+  __typename?: 'UserPaymentMethod';
+  card_brand?: Maybe<Scalars['String']['output']>;
+  card_exp_month?: Maybe<Scalars['Int']['output']>;
+  card_exp_year?: Maybe<Scalars['Int']['output']>;
+  card_last4?: Maybe<Scalars['String']['output']>;
+  created_at: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  is_active: Scalars['Boolean']['output'];
+};
+
+export type UserPaymentMethodResult = {
+  __typename?: 'UserPaymentMethodResult';
+  error?: Maybe<Error>;
+  payment_method?: Maybe<UserPaymentMethod>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type UserPaymentMethodsResult = {
+  __typename?: 'UserPaymentMethodsResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<UserPaymentMethod>>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type UserRbacAssignment = {
+  __typename?: 'UserRbacAssignment';
+  assigned_at: Scalars['String']['output'];
+  role_code: Scalars['String']['output'];
+  role_name: Scalars['String']['output'];
+  scope_type: Scalars['String']['output'];
+  shelter_id?: Maybe<Scalars['ID']['output']>;
+  status: Scalars['String']['output'];
+  valid_from?: Maybe<Scalars['String']['output']>;
+  valid_until?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserRbacResult = {
+  __typename?: 'UserRbacResult';
+  assignments: Array<UserRbacAssignment>;
+  effective_platform_permissions: Array<Scalars['String']['output']>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type UserResult = {
@@ -3510,6 +4449,13 @@ export type WalkUpdate = {
   notes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+export enum WebhookEventStatus {
+  Failed = 'FAILED',
+  Ignored = 'IGNORED',
+  Processed = 'PROCESSED',
+  Received = 'RECEIVED'
+}
+
 export enum Weekday {
   Fri = 'FRI',
   Mon = 'MON',
@@ -3548,6 +4494,59 @@ export type GetRealTimeStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetRealTimeStatsQuery = { __typename?: 'Query', getRealTimeStatistic: { __typename?: 'RealTimeStatisticResult', success: boolean, statistics?: { __typename?: 'DailyStats', all_pets: number, all_users: number, active_users: number, active_users_percent: number } | null, error?: { __typename?: 'Error', code: string, message: string } | null } };
 
+export type GetShelterDonationSettingsQueryVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+}>;
+
+
+export type GetShelterDonationSettingsQuery = { __typename?: 'Query', getShelterDonationSettings: { __typename?: 'ShelterDonationSettingsResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, settings?: { __typename?: 'ShelterDonationSettings', donations_enabled: boolean, default_pet_monthly_limit_cents: number, environment: string, connected_account?: { __typename?: 'StripeConnectedAccount', id: string, onboarding_status: string, verification_status: string, charges_enabled: boolean, payouts_enabled: boolean, details_submitted: boolean, donations_enabled: boolean, environment: ConnectedAccountEnvironment } | null } | null } };
+
+export type ListPetDonationPoliciesQueryVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+}>;
+
+
+export type ListPetDonationPoliciesQuery = { __typename?: 'Query', listPetDonationPolicies: { __typename?: 'PetDonationPoliciesResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, items: Array<{ __typename?: 'PetDonationPolicy', id: string, pet_id: string, shelter_id: string, custom_monthly_limit_cents?: number | null, is_active: boolean, temporary_override_cents?: number | null, temporary_override_reason?: string | null, temporary_override_effective_at?: string | null, temporary_override_expires_at?: string | null, updated_at?: string | null } | null> } };
+
+export type ListShelterDonationsQueryVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+  commonSearch?: InputMaybe<CommonSearch>;
+}>;
+
+
+export type ListShelterDonationsQuery = { __typename?: 'Query', listShelterDonations: { __typename?: 'PaginatedDonations', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'Donation', id: string, target_type: DonationTargetType, pet_id?: string | null, donor_type: DonorType, donor_email?: string | null, currency: string, gross_amount_cents: number, platform_fee_amount_cents: number, processing_fee_amount_cents?: number | null, shelter_net_amount_cents?: number | null, status: DonationStatus, refund_status: RefundStatus, dispute_status: DisputeStatus, is_test: boolean, created_at: string } | null> } };
+
+export type RefreshShelterStripeAccountMutationVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+}>;
+
+
+export type RefreshShelterStripeAccountMutation = { __typename?: 'Mutation', refreshShelterStripeAccount: { __typename?: 'StripeAccountRefreshResult', success: boolean, requirements?: Array<string> | null, error?: { __typename?: 'Error', code: string, message: string } | null, connected_account?: { __typename?: 'StripeConnectedAccount', id: string, onboarding_status: string, verification_status: string, charges_enabled: boolean, payouts_enabled: boolean, details_submitted: boolean, donations_enabled: boolean, environment: ConnectedAccountEnvironment } | null } };
+
+export type StartShelterStripeOnboardingMutationVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+  refresh_url: Scalars['String']['input'];
+  return_url: Scalars['String']['input'];
+}>;
+
+
+export type StartShelterStripeOnboardingMutation = { __typename?: 'Mutation', startShelterStripeOnboarding: { __typename?: 'StripeOnboardingResult', success: boolean, onboarding_url?: string | null, error?: { __typename?: 'Error', code: string, message: string } | null, connected_account?: { __typename?: 'StripeConnectedAccount', id: string, onboarding_status: string, verification_status: string, charges_enabled: boolean, payouts_enabled: boolean, details_submitted: boolean, donations_enabled: boolean, environment: ConnectedAccountEnvironment } | null } };
+
+export type UpdatePetDonationLimitMutationVariables = Exact<{
+  data: PetDonationLimitInput;
+}>;
+
+
+export type UpdatePetDonationLimitMutation = { __typename?: 'Mutation', updatePetDonationLimit: { __typename?: 'PetDonationPolicyResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, policy?: { __typename?: 'PetDonationPolicy', id: string, pet_id: string, shelter_id: string, custom_monthly_limit_cents?: number | null, is_active: boolean, updated_at?: string | null } | null } };
+
+export type UpdateShelterDonationSettingsMutationVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+  data: ShelterDonationSettingsInput;
+}>;
+
+
+export type UpdateShelterDonationSettingsMutation = { __typename?: 'Mutation', updateShelterDonationSettings: { __typename?: 'ShelterDonationSettingsResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, settings?: { __typename?: 'ShelterDonationSettings', donations_enabled: boolean, default_pet_monthly_limit_cents: number, environment: string } | null } };
+
 export type AddPetToUserBoMutationVariables = Exact<{
   pet: PetCreate;
   userId: Scalars['String']['input'];
@@ -3556,6 +4555,13 @@ export type AddPetToUserBoMutationVariables = Exact<{
 
 
 export type AddPetToUserBoMutation = { __typename?: 'Mutation', addPetToUser: { __typename?: 'PetAddedResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, data?: { __typename?: 'NewOwnership', pet: { __typename?: 'Pet', id: string, name: string }, ownership: { __typename?: 'Ownership', id: string } } | null } };
+
+export type CreatePetBoMutationVariables = Exact<{
+  data: PetCreate;
+}>;
+
+
+export type CreatePetBoMutation = { __typename?: 'Mutation', createPet: { __typename?: 'PetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, pet?: { __typename?: 'Pet', id: string, name: string } | null } };
 
 export type DeletePetOwnershipMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3602,6 +4608,15 @@ export type GetPetTreatmentsQueryVariables = Exact<{
 
 
 export type GetPetTreatmentsQuery = { __typename?: 'Query', listTreatments: { __typename?: 'PaginatedTreatments', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null, pagination: { __typename?: 'Pagination', page_size?: number | null, current_page?: number | null, total_pages?: number | null, total_items?: number | null }, items: Array<{ __typename?: 'Treatment', id: string, date: string, created_at: string, name: string, type: TreatmentType, booster?: { __typename?: 'Treatment', name: string, date: string, id: string } | null } | null> } };
+
+export type LinkPetToUserBoMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  petId: Scalars['ID']['input'];
+  custodyLevel?: InputMaybe<CustodyLevel>;
+}>;
+
+
+export type LinkPetToUserBoMutation = { __typename?: 'Mutation', linkPetToUser: { __typename?: 'OwnershipResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null } };
 
 export type SimplePetFragment = { __typename?: 'Pet', id: string, name: string, weight_kg?: number | null, birthday?: string | null, neutered?: boolean | null, chip_code?: string | null, gender?: Gender | null, breed?: string | null, years?: number | null };
 
@@ -3882,6 +4897,14 @@ export type DeleteShelterTaskBoMutationVariables = Exact<{
 
 export type DeleteShelterTaskBoMutation = { __typename?: 'Mutation', deleteShelterTask: { __typename?: 'DeleteResult', success?: boolean | null, id?: string | null, error?: { __typename?: 'Error', code: string, message: string } | null } };
 
+export type UpdateShelterBoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: ShelterUpdate;
+}>;
+
+
+export type UpdateShelterBoMutation = { __typename?: 'Mutation', updateShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, public_story_html?: string | null } | null } };
+
 export type ListSheltersQueryVariables = Exact<{
   search: CommonSearch;
 }>;
@@ -3894,7 +4917,7 @@ export type GetShelterQueryVariables = Exact<{
 }>;
 
 
-export type GetShelterQuery = { __typename?: 'Query', getShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, name: string, street: string, street_number: string, city: string, province_code: string, postal_code: string, region?: string | null, type: ShelterType, verification_status: ShelterVerificationStatus, visibility: ShelterVisibility, accepts_volunteers: boolean, public_contact_email?: string | null, public_contact_phone?: string | null, created_at: string } | null } };
+export type GetShelterQuery = { __typename?: 'Query', getShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, name: string, street: string, street_number: string, city: string, province_code: string, postal_code: string, region?: string | null, district?: string | null, type: ShelterType, verification_status: ShelterVerificationStatus, visibility: ShelterVisibility, accepts_volunteers: boolean, public_description?: string | null, public_story_html?: string | null, public_contact_email?: string | null, public_contact_phone?: string | null, created_at: string } | null } };
 
 export type ListShelterPeopleQueryVariables = Exact<{
   shelter_id: Scalars['ID']['input'];
@@ -3916,7 +4939,7 @@ export type ListShelterPetsBoQueryVariables = Exact<{
 }>;
 
 
-export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, pet: { __typename?: 'Pet', id: string, name: string, gender?: Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
+export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
 
 export type ListShelterInventoryItemsBoQueryVariables = Exact<{
   search: CommonSearch;
@@ -4376,6 +5399,379 @@ export type GetRealTimeStatsQueryHookResult = ReturnType<typeof useGetRealTimeSt
 export type GetRealTimeStatsLazyQueryHookResult = ReturnType<typeof useGetRealTimeStatsLazyQuery>;
 export type GetRealTimeStatsSuspenseQueryHookResult = ReturnType<typeof useGetRealTimeStatsSuspenseQuery>;
 export type GetRealTimeStatsQueryResult = Apollo.QueryResult<GetRealTimeStatsQuery, GetRealTimeStatsQueryVariables>;
+export const GetShelterDonationSettingsDocument = gql`
+    query getShelterDonationSettings($shelter_id: ID!) {
+  getShelterDonationSettings(shelter_id: $shelter_id) {
+    success
+    error {
+      code
+      message
+    }
+    settings {
+      donations_enabled
+      default_pet_monthly_limit_cents
+      environment
+      connected_account {
+        id
+        onboarding_status
+        verification_status
+        charges_enabled
+        payouts_enabled
+        details_submitted
+        donations_enabled
+        environment
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetShelterDonationSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetShelterDonationSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetShelterDonationSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetShelterDonationSettingsQuery({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *   },
+ * });
+ */
+export function useGetShelterDonationSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables> & ({ variables: GetShelterDonationSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>(GetShelterDonationSettingsDocument, options);
+      }
+export function useGetShelterDonationSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>(GetShelterDonationSettingsDocument, options);
+        }
+export function useGetShelterDonationSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>(GetShelterDonationSettingsDocument, options);
+        }
+export type GetShelterDonationSettingsQueryHookResult = ReturnType<typeof useGetShelterDonationSettingsQuery>;
+export type GetShelterDonationSettingsLazyQueryHookResult = ReturnType<typeof useGetShelterDonationSettingsLazyQuery>;
+export type GetShelterDonationSettingsSuspenseQueryHookResult = ReturnType<typeof useGetShelterDonationSettingsSuspenseQuery>;
+export type GetShelterDonationSettingsQueryResult = Apollo.QueryResult<GetShelterDonationSettingsQuery, GetShelterDonationSettingsQueryVariables>;
+export const ListPetDonationPoliciesDocument = gql`
+    query listPetDonationPolicies($shelter_id: ID!) {
+  listPetDonationPolicies(shelter_id: $shelter_id) {
+    success
+    error {
+      code
+      message
+    }
+    items {
+      id
+      pet_id
+      shelter_id
+      custom_monthly_limit_cents
+      is_active
+      temporary_override_cents
+      temporary_override_reason
+      temporary_override_effective_at
+      temporary_override_expires_at
+      updated_at
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPetDonationPoliciesQuery__
+ *
+ * To run a query within a React component, call `useListPetDonationPoliciesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPetDonationPoliciesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPetDonationPoliciesQuery({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *   },
+ * });
+ */
+export function useListPetDonationPoliciesQuery(baseOptions: Apollo.QueryHookOptions<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables> & ({ variables: ListPetDonationPoliciesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>(ListPetDonationPoliciesDocument, options);
+      }
+export function useListPetDonationPoliciesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>(ListPetDonationPoliciesDocument, options);
+        }
+export function useListPetDonationPoliciesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>(ListPetDonationPoliciesDocument, options);
+        }
+export type ListPetDonationPoliciesQueryHookResult = ReturnType<typeof useListPetDonationPoliciesQuery>;
+export type ListPetDonationPoliciesLazyQueryHookResult = ReturnType<typeof useListPetDonationPoliciesLazyQuery>;
+export type ListPetDonationPoliciesSuspenseQueryHookResult = ReturnType<typeof useListPetDonationPoliciesSuspenseQuery>;
+export type ListPetDonationPoliciesQueryResult = Apollo.QueryResult<ListPetDonationPoliciesQuery, ListPetDonationPoliciesQueryVariables>;
+export const ListShelterDonationsDocument = gql`
+    query listShelterDonations($shelter_id: ID!, $commonSearch: CommonSearch) {
+  listShelterDonations(shelter_id: $shelter_id, commonSearch: $commonSearch) {
+    success
+    error {
+      code
+      message
+    }
+    pagination {
+      total_items
+      total_pages
+      current_page
+      page_size
+    }
+    items {
+      id
+      target_type
+      pet_id
+      donor_type
+      donor_email
+      currency
+      gross_amount_cents
+      platform_fee_amount_cents
+      processing_fee_amount_cents
+      shelter_net_amount_cents
+      status
+      refund_status
+      dispute_status
+      is_test
+      created_at
+    }
+  }
+}
+    `;
+
+/**
+ * __useListShelterDonationsQuery__
+ *
+ * To run a query within a React component, call `useListShelterDonationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListShelterDonationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListShelterDonationsQuery({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *      commonSearch: // value for 'commonSearch'
+ *   },
+ * });
+ */
+export function useListShelterDonationsQuery(baseOptions: Apollo.QueryHookOptions<ListShelterDonationsQuery, ListShelterDonationsQueryVariables> & ({ variables: ListShelterDonationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>(ListShelterDonationsDocument, options);
+      }
+export function useListShelterDonationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>(ListShelterDonationsDocument, options);
+        }
+export function useListShelterDonationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>(ListShelterDonationsDocument, options);
+        }
+export type ListShelterDonationsQueryHookResult = ReturnType<typeof useListShelterDonationsQuery>;
+export type ListShelterDonationsLazyQueryHookResult = ReturnType<typeof useListShelterDonationsLazyQuery>;
+export type ListShelterDonationsSuspenseQueryHookResult = ReturnType<typeof useListShelterDonationsSuspenseQuery>;
+export type ListShelterDonationsQueryResult = Apollo.QueryResult<ListShelterDonationsQuery, ListShelterDonationsQueryVariables>;
+export const RefreshShelterStripeAccountDocument = gql`
+    mutation refreshShelterStripeAccount($shelter_id: ID!) {
+  refreshShelterStripeAccount(shelter_id: $shelter_id) {
+    success
+    error {
+      code
+      message
+    }
+    requirements
+    connected_account {
+      id
+      onboarding_status
+      verification_status
+      charges_enabled
+      payouts_enabled
+      details_submitted
+      donations_enabled
+      environment
+    }
+  }
+}
+    `;
+export type RefreshShelterStripeAccountMutationFn = Apollo.MutationFunction<RefreshShelterStripeAccountMutation, RefreshShelterStripeAccountMutationVariables>;
+
+/**
+ * __useRefreshShelterStripeAccountMutation__
+ *
+ * To run a mutation, you first call `useRefreshShelterStripeAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRefreshShelterStripeAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [refreshShelterStripeAccountMutation, { data, loading, error }] = useRefreshShelterStripeAccountMutation({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *   },
+ * });
+ */
+export function useRefreshShelterStripeAccountMutation(baseOptions?: Apollo.MutationHookOptions<RefreshShelterStripeAccountMutation, RefreshShelterStripeAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RefreshShelterStripeAccountMutation, RefreshShelterStripeAccountMutationVariables>(RefreshShelterStripeAccountDocument, options);
+      }
+export type RefreshShelterStripeAccountMutationHookResult = ReturnType<typeof useRefreshShelterStripeAccountMutation>;
+export type RefreshShelterStripeAccountMutationResult = Apollo.MutationResult<RefreshShelterStripeAccountMutation>;
+export type RefreshShelterStripeAccountMutationOptions = Apollo.BaseMutationOptions<RefreshShelterStripeAccountMutation, RefreshShelterStripeAccountMutationVariables>;
+export const StartShelterStripeOnboardingDocument = gql`
+    mutation startShelterStripeOnboarding($shelter_id: ID!, $refresh_url: String!, $return_url: String!) {
+  startShelterStripeOnboarding(
+    shelter_id: $shelter_id
+    refresh_url: $refresh_url
+    return_url: $return_url
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    onboarding_url
+    connected_account {
+      id
+      onboarding_status
+      verification_status
+      charges_enabled
+      payouts_enabled
+      details_submitted
+      donations_enabled
+      environment
+    }
+  }
+}
+    `;
+export type StartShelterStripeOnboardingMutationFn = Apollo.MutationFunction<StartShelterStripeOnboardingMutation, StartShelterStripeOnboardingMutationVariables>;
+
+/**
+ * __useStartShelterStripeOnboardingMutation__
+ *
+ * To run a mutation, you first call `useStartShelterStripeOnboardingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartShelterStripeOnboardingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startShelterStripeOnboardingMutation, { data, loading, error }] = useStartShelterStripeOnboardingMutation({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *      refresh_url: // value for 'refresh_url'
+ *      return_url: // value for 'return_url'
+ *   },
+ * });
+ */
+export function useStartShelterStripeOnboardingMutation(baseOptions?: Apollo.MutationHookOptions<StartShelterStripeOnboardingMutation, StartShelterStripeOnboardingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartShelterStripeOnboardingMutation, StartShelterStripeOnboardingMutationVariables>(StartShelterStripeOnboardingDocument, options);
+      }
+export type StartShelterStripeOnboardingMutationHookResult = ReturnType<typeof useStartShelterStripeOnboardingMutation>;
+export type StartShelterStripeOnboardingMutationResult = Apollo.MutationResult<StartShelterStripeOnboardingMutation>;
+export type StartShelterStripeOnboardingMutationOptions = Apollo.BaseMutationOptions<StartShelterStripeOnboardingMutation, StartShelterStripeOnboardingMutationVariables>;
+export const UpdatePetDonationLimitDocument = gql`
+    mutation updatePetDonationLimit($data: PetDonationLimitInput!) {
+  updatePetDonationLimit(data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    policy {
+      id
+      pet_id
+      shelter_id
+      custom_monthly_limit_cents
+      is_active
+      updated_at
+    }
+  }
+}
+    `;
+export type UpdatePetDonationLimitMutationFn = Apollo.MutationFunction<UpdatePetDonationLimitMutation, UpdatePetDonationLimitMutationVariables>;
+
+/**
+ * __useUpdatePetDonationLimitMutation__
+ *
+ * To run a mutation, you first call `useUpdatePetDonationLimitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePetDonationLimitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePetDonationLimitMutation, { data, loading, error }] = useUpdatePetDonationLimitMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePetDonationLimitMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePetDonationLimitMutation, UpdatePetDonationLimitMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePetDonationLimitMutation, UpdatePetDonationLimitMutationVariables>(UpdatePetDonationLimitDocument, options);
+      }
+export type UpdatePetDonationLimitMutationHookResult = ReturnType<typeof useUpdatePetDonationLimitMutation>;
+export type UpdatePetDonationLimitMutationResult = Apollo.MutationResult<UpdatePetDonationLimitMutation>;
+export type UpdatePetDonationLimitMutationOptions = Apollo.BaseMutationOptions<UpdatePetDonationLimitMutation, UpdatePetDonationLimitMutationVariables>;
+export const UpdateShelterDonationSettingsDocument = gql`
+    mutation updateShelterDonationSettings($shelter_id: ID!, $data: ShelterDonationSettingsInput!) {
+  updateShelterDonationSettings(shelter_id: $shelter_id, data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    settings {
+      donations_enabled
+      default_pet_monthly_limit_cents
+      environment
+    }
+  }
+}
+    `;
+export type UpdateShelterDonationSettingsMutationFn = Apollo.MutationFunction<UpdateShelterDonationSettingsMutation, UpdateShelterDonationSettingsMutationVariables>;
+
+/**
+ * __useUpdateShelterDonationSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateShelterDonationSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateShelterDonationSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateShelterDonationSettingsMutation, { data, loading, error }] = useUpdateShelterDonationSettingsMutation({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateShelterDonationSettingsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShelterDonationSettingsMutation, UpdateShelterDonationSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateShelterDonationSettingsMutation, UpdateShelterDonationSettingsMutationVariables>(UpdateShelterDonationSettingsDocument, options);
+      }
+export type UpdateShelterDonationSettingsMutationHookResult = ReturnType<typeof useUpdateShelterDonationSettingsMutation>;
+export type UpdateShelterDonationSettingsMutationResult = Apollo.MutationResult<UpdateShelterDonationSettingsMutation>;
+export type UpdateShelterDonationSettingsMutationOptions = Apollo.BaseMutationOptions<UpdateShelterDonationSettingsMutation, UpdateShelterDonationSettingsMutationVariables>;
 export const AddPetToUserBoDocument = gql`
     mutation addPetToUserBO($pet: PetCreate!, $userId: String!, $custodyLevel: CustodyLevel) {
   addPetToUser(pet: $pet, userId: $userId, custodyLevel: $custodyLevel) {
@@ -4424,6 +5820,47 @@ export function useAddPetToUserBoMutation(baseOptions?: Apollo.MutationHookOptio
 export type AddPetToUserBoMutationHookResult = ReturnType<typeof useAddPetToUserBoMutation>;
 export type AddPetToUserBoMutationResult = Apollo.MutationResult<AddPetToUserBoMutation>;
 export type AddPetToUserBoMutationOptions = Apollo.BaseMutationOptions<AddPetToUserBoMutation, AddPetToUserBoMutationVariables>;
+export const CreatePetBoDocument = gql`
+    mutation createPetBO($data: PetCreate!) {
+  createPet(data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    pet {
+      id
+      name
+    }
+  }
+}
+    `;
+export type CreatePetBoMutationFn = Apollo.MutationFunction<CreatePetBoMutation, CreatePetBoMutationVariables>;
+
+/**
+ * __useCreatePetBoMutation__
+ *
+ * To run a mutation, you first call `useCreatePetBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePetBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPetBoMutation, { data, loading, error }] = useCreatePetBoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreatePetBoMutation(baseOptions?: Apollo.MutationHookOptions<CreatePetBoMutation, CreatePetBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePetBoMutation, CreatePetBoMutationVariables>(CreatePetBoDocument, options);
+      }
+export type CreatePetBoMutationHookResult = ReturnType<typeof useCreatePetBoMutation>;
+export type CreatePetBoMutationResult = Apollo.MutationResult<CreatePetBoMutation>;
+export type CreatePetBoMutationOptions = Apollo.BaseMutationOptions<CreatePetBoMutation, CreatePetBoMutationVariables>;
 export const DeletePetOwnershipDocument = gql`
     mutation deletePetOwnership($id: ID!) {
   deleteOwnership(id: $id) {
@@ -4711,6 +6148,45 @@ export type GetPetTreatmentsQueryHookResult = ReturnType<typeof useGetPetTreatme
 export type GetPetTreatmentsLazyQueryHookResult = ReturnType<typeof useGetPetTreatmentsLazyQuery>;
 export type GetPetTreatmentsSuspenseQueryHookResult = ReturnType<typeof useGetPetTreatmentsSuspenseQuery>;
 export type GetPetTreatmentsQueryResult = Apollo.QueryResult<GetPetTreatmentsQuery, GetPetTreatmentsQueryVariables>;
+export const LinkPetToUserBoDocument = gql`
+    mutation linkPetToUserBO($userId: ID!, $petId: ID!, $custodyLevel: CustodyLevel) {
+  linkPetToUser(userId: $userId, petId: $petId, custodyLevel: $custodyLevel) {
+    success
+    error {
+      code
+      message
+    }
+  }
+}
+    `;
+export type LinkPetToUserBoMutationFn = Apollo.MutationFunction<LinkPetToUserBoMutation, LinkPetToUserBoMutationVariables>;
+
+/**
+ * __useLinkPetToUserBoMutation__
+ *
+ * To run a mutation, you first call `useLinkPetToUserBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLinkPetToUserBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [linkPetToUserBoMutation, { data, loading, error }] = useLinkPetToUserBoMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      petId: // value for 'petId'
+ *      custodyLevel: // value for 'custodyLevel'
+ *   },
+ * });
+ */
+export function useLinkPetToUserBoMutation(baseOptions?: Apollo.MutationHookOptions<LinkPetToUserBoMutation, LinkPetToUserBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LinkPetToUserBoMutation, LinkPetToUserBoMutationVariables>(LinkPetToUserBoDocument, options);
+      }
+export type LinkPetToUserBoMutationHookResult = ReturnType<typeof useLinkPetToUserBoMutation>;
+export type LinkPetToUserBoMutationResult = Apollo.MutationResult<LinkPetToUserBoMutation>;
+export type LinkPetToUserBoMutationOptions = Apollo.BaseMutationOptions<LinkPetToUserBoMutation, LinkPetToUserBoMutationVariables>;
 export const UpdatePetDocument = gql`
     mutation UpdatePet($id: ID!, $data: PetUpdate!) {
   updatePet(id: $id, data: $data) {
@@ -6299,6 +7775,48 @@ export function useDeleteShelterTaskBoMutation(baseOptions?: Apollo.MutationHook
 export type DeleteShelterTaskBoMutationHookResult = ReturnType<typeof useDeleteShelterTaskBoMutation>;
 export type DeleteShelterTaskBoMutationResult = Apollo.MutationResult<DeleteShelterTaskBoMutation>;
 export type DeleteShelterTaskBoMutationOptions = Apollo.BaseMutationOptions<DeleteShelterTaskBoMutation, DeleteShelterTaskBoMutationVariables>;
+export const UpdateShelterBoDocument = gql`
+    mutation updateShelterBO($id: ID!, $data: ShelterUpdate!) {
+  updateShelter(id: $id, data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    shelter {
+      id
+      public_story_html
+    }
+  }
+}
+    `;
+export type UpdateShelterBoMutationFn = Apollo.MutationFunction<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>;
+
+/**
+ * __useUpdateShelterBoMutation__
+ *
+ * To run a mutation, you first call `useUpdateShelterBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateShelterBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateShelterBoMutation, { data, loading, error }] = useUpdateShelterBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateShelterBoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>(UpdateShelterBoDocument, options);
+      }
+export type UpdateShelterBoMutationHookResult = ReturnType<typeof useUpdateShelterBoMutation>;
+export type UpdateShelterBoMutationResult = Apollo.MutationResult<UpdateShelterBoMutation>;
+export type UpdateShelterBoMutationOptions = Apollo.BaseMutationOptions<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>;
 export const ListSheltersDocument = gql`
     query listShelters($search: CommonSearch!) {
   listShelters(commonSearch: $search) {
@@ -6375,10 +7893,13 @@ export const GetShelterDocument = gql`
       province_code
       postal_code
       region
+      district
       type
       verification_status
       visibility
       accepts_volunteers
+      public_description
+      public_story_html
       public_contact_email
       public_contact_phone
       created_at
@@ -6567,6 +8088,10 @@ export const ListShelterPetsBoDocument = gql`
       created_at
       is_active
       left_at
+      shelter {
+        id
+        name
+      }
       pet {
         id
         name

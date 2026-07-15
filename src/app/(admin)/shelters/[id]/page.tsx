@@ -7,17 +7,16 @@ import toast from "react-hot-toast";
 
 import { useGetShelterQuery } from "@/graphql/__generated__/queries.generated";
 import { Tabs } from "@/components/ui/Tabs";
-import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/cells";
-import { MembersTab } from "@/components/shelters/MembersTab";
-import { PeopleTab } from "@/components/shelters/PeopleTab";
+import { ShelterInfoPanel } from "@/components/shelters/ShelterInfoPanel";
+import { MembersPeopleTab } from "@/components/shelters/MembersPeopleTab";
 import { PetsTab } from "@/components/shelters/PetsTab";
 import { TasksTab } from "@/components/shelters/TasksTab";
 import { WalksTab } from "@/components/shelters/WalksTab";
 import { InventoryTab } from "@/components/shelters/InventoryTab";
-import { MapTab } from "@/components/shelters/MapTab";
-import { BoxesTab } from "@/components/shelters/BoxesTab";
+import { MapBoxesTab } from "@/components/shelters/MapBoxesTab";
+import { PublicProfileTab } from "@/components/shelters/PublicProfileTab";
 import { $color, $uw } from "@/theme";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -30,12 +29,6 @@ const VERIFICATION_LABEL: Record<string, string> = {
 	PENDING_CLAIM: "In verifica",
 	VERIFIED: "Verificato",
 	REJECTED: "Rifiutato",
-};
-
-const VISIBILITY_LABEL: Record<string, string> = {
-	PRIVATE: "Privato",
-	UNLISTED: "Non in elenco",
-	PUBLIC: "Pubblico",
 };
 
 export default function ShelterDetailPage({
@@ -72,70 +65,19 @@ export default function ShelterDetailPage({
 			<Tabs
 				entries={[
 					{
+						value: "public-profile",
+						label: "Profilo pubblico",
+						node: <PublicProfileTab shelterId={id} />,
+					},
+					{
 						value: "info",
 						label: "Informazioni",
-						node: (
-							<Card>
-								<InfoGrid>
-									<div>
-										<InfoLabel>Indirizzo</InfoLabel>
-										<InfoValue>
-											{[
-												shelter.street,
-												shelter.street_number,
-												shelter.postal_code,
-												shelter.city,
-												shelter.province_code,
-												shelter.region,
-											]
-												.filter(Boolean)
-												.join(", ") || "—"}
-										</InfoValue>
-									</div>
-									<div>
-										<InfoLabel>Visibilità</InfoLabel>
-										<InfoValue>
-											{VISIBILITY_LABEL[shelter.visibility] ??
-												shelter.visibility}
-										</InfoValue>
-									</div>
-									<div>
-										<InfoLabel>Accetta volontari</InfoLabel>
-										<InfoValue>
-											{shelter.accepts_volunteers ? "Sì" : "No"}
-										</InfoValue>
-									</div>
-									<div>
-										<InfoLabel>Email pubblica</InfoLabel>
-										<InfoValue>
-											{shelter.public_contact_email ?? "—"}
-										</InfoValue>
-									</div>
-									<div>
-										<InfoLabel>Telefono pubblico</InfoLabel>
-										<InfoValue>
-											{shelter.public_contact_phone ?? "—"}
-										</InfoValue>
-									</div>
-									<div>
-										<InfoLabel>Creato</InfoLabel>
-										<InfoValue>
-											{dayjs(shelter.created_at).format("DD/MM/YYYY HH:mm")}
-										</InfoValue>
-									</div>
-								</InfoGrid>
-							</Card>
-						),
+						node: <ShelterInfoPanel shelterId={id} />,
 					},
 					{
 						value: "members",
-						label: "Membri",
-						node: <MembersTab shelterId={id} />,
-					},
-					{
-						value: "people",
-						label: "Persone",
-						node: <PeopleTab shelterId={id} />,
+						label: "Membri e persone",
+						node: <MembersPeopleTab shelterId={id} />,
 					},
 					{
 						value: "pets",
@@ -158,14 +100,9 @@ export default function ShelterDetailPage({
 						node: <InventoryTab shelterId={id} />,
 					},
 					{
-						value: "boxes",
-						label: "Box",
-						node: <BoxesTab shelterId={id} />,
-					},
-					{
-						value: "map",
-						label: "Mappa",
-						node: <MapTab shelterId={id} />,
+						value: "map-boxes",
+						label: "Mappa e box",
+						node: <MapBoxesTab shelterId={id} />,
 					},
 				]}
 			/>
@@ -197,27 +134,6 @@ const PageSub = styled.p`
 	margin: ${$uw(0.25)} 0 0;
 	font-size: 1.3rem;
 	color: ${$color("dim")};
-`;
-
-const InfoGrid = styled.dl`
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: ${$uw(1)};
-	margin: 0;
-	font-size: 1.4rem;
-	@media (min-width: 768px) {
-		grid-template-columns: repeat(2, 1fr);
-	}
-`;
-
-const InfoLabel = styled.dt`
-	color: ${$color("dim")};
-`;
-
-const InfoValue = styled.dd`
-	margin: ${$uw(0.2)} 0 0;
-	font-weight: 500;
-	color: ${$color("text")};
 `;
 
 const EmptyText = styled.p`

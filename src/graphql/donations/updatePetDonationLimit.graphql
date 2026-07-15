@@ -1,0 +1,17 @@
+mutation updatePetDonationLimit($data: PetDonationLimitInput!) {
+	updatePetDonationLimit(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		policy {
+			id
+			pet_id
+			shelter_id
+			custom_monthly_limit_cents
+			is_active
+			updated_at
+		}
+	}
+}

@@ -162,6 +162,14 @@ export type DeleteShelterTaskBoMutationVariables = Types.Exact<{
 
 export type DeleteShelterTaskBoMutation = { __typename?: 'Mutation', deleteShelterTask: { __typename?: 'DeleteResult', success?: boolean | null, id?: string | null, error?: { __typename?: 'Error', code: string, message: string } | null } };
 
+export type UpdateShelterBoMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.ShelterUpdate;
+}>;
+
+
+export type UpdateShelterBoMutation = { __typename?: 'Mutation', updateShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, public_story_html?: string | null } | null } };
+
 
 export const CreateShelterPersonBoDocument = gql`
     mutation createShelterPersonBO($data: CreateShelterPersonInput!) {
@@ -1045,3 +1053,45 @@ export function useDeleteShelterTaskBoMutation(baseOptions?: Apollo.MutationHook
 export type DeleteShelterTaskBoMutationHookResult = ReturnType<typeof useDeleteShelterTaskBoMutation>;
 export type DeleteShelterTaskBoMutationResult = Apollo.MutationResult<DeleteShelterTaskBoMutation>;
 export type DeleteShelterTaskBoMutationOptions = Apollo.BaseMutationOptions<DeleteShelterTaskBoMutation, DeleteShelterTaskBoMutationVariables>;
+export const UpdateShelterBoDocument = gql`
+    mutation updateShelterBO($id: ID!, $data: ShelterUpdate!) {
+  updateShelter(id: $id, data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    shelter {
+      id
+      public_story_html
+    }
+  }
+}
+    `;
+export type UpdateShelterBoMutationFn = Apollo.MutationFunction<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>;
+
+/**
+ * __useUpdateShelterBoMutation__
+ *
+ * To run a mutation, you first call `useUpdateShelterBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateShelterBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateShelterBoMutation, { data, loading, error }] = useUpdateShelterBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateShelterBoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>(UpdateShelterBoDocument, options);
+      }
+export type UpdateShelterBoMutationHookResult = ReturnType<typeof useUpdateShelterBoMutation>;
+export type UpdateShelterBoMutationResult = Apollo.MutationResult<UpdateShelterBoMutation>;
+export type UpdateShelterBoMutationOptions = Apollo.BaseMutationOptions<UpdateShelterBoMutation, UpdateShelterBoMutationVariables>;

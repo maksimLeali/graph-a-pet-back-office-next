@@ -1,0 +1,24 @@
+mutation startShelterStripeOnboarding($shelter_id: ID!, $refresh_url: String!, $return_url: String!) {
+	startShelterStripeOnboarding(
+		shelter_id: $shelter_id
+		refresh_url: $refresh_url
+		return_url: $return_url
+	) {
+		success
+		error {
+			code
+			message
+		}
+		onboarding_url
+		connected_account {
+			id
+			onboarding_status
+			verification_status
+			charges_enabled
+			payouts_enabled
+			details_submitted
+			donations_enabled
+			environment
+		}
+	}
+}

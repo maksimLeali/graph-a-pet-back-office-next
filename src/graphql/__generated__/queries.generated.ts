@@ -15,7 +15,7 @@ export type GetShelterQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetShelterQuery = { __typename?: 'Query', getShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, name: string, street: string, street_number: string, city: string, province_code: string, postal_code: string, region?: string | null, type: Types.ShelterType, verification_status: Types.ShelterVerificationStatus, visibility: Types.ShelterVisibility, accepts_volunteers: boolean, public_contact_email?: string | null, public_contact_phone?: string | null, created_at: string } | null } };
+export type GetShelterQuery = { __typename?: 'Query', getShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, name: string, street: string, street_number: string, city: string, province_code: string, postal_code: string, region?: string | null, district?: string | null, type: Types.ShelterType, verification_status: Types.ShelterVerificationStatus, visibility: Types.ShelterVisibility, accepts_volunteers: boolean, public_description?: string | null, public_story_html?: string | null, public_contact_email?: string | null, public_contact_phone?: string | null, created_at: string } | null } };
 
 export type ListShelterPeopleQueryVariables = Types.Exact<{
   shelter_id: Types.Scalars['ID']['input'];
@@ -37,7 +37,7 @@ export type ListShelterPetsBoQueryVariables = Types.Exact<{
 }>;
 
 
-export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, pet: { __typename?: 'Pet', id: string, name: string, gender?: Types.Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
+export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Types.Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
 
 export type ListShelterInventoryItemsBoQueryVariables = Types.Exact<{
   search: Types.CommonSearch;
@@ -144,10 +144,13 @@ export const GetShelterDocument = gql`
       province_code
       postal_code
       region
+      district
       type
       verification_status
       visibility
       accepts_volunteers
+      public_description
+      public_story_html
       public_contact_email
       public_contact_phone
       created_at
@@ -336,6 +339,10 @@ export const ListShelterPetsBoDocument = gql`
       created_at
       is_active
       left_at
+      shelter {
+        id
+        name
+      }
       pet {
         id
         name

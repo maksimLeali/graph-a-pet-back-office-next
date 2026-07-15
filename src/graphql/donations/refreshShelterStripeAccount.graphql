@@ -1,0 +1,20 @@
+mutation refreshShelterStripeAccount($shelter_id: ID!) {
+	refreshShelterStripeAccount(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		requirements
+		connected_account {
+			id
+			onboarding_status
+			verification_status
+			charges_enabled
+			payouts_enabled
+			details_submitted
+			donations_enabled
+			environment
+		}
+	}
+}

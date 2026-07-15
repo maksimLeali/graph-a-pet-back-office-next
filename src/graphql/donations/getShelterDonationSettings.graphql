@@ -1,0 +1,24 @@
+query getShelterDonationSettings($shelter_id: ID!) {
+	getShelterDonationSettings(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		settings {
+			donations_enabled
+			default_pet_monthly_limit_cents
+			environment
+			connected_account {
+				id
+				onboarding_status
+				verification_status
+				charges_enabled
+				payouts_enabled
+				details_submitted
+				donations_enabled
+				environment
+			}
+		}
+	}
+}

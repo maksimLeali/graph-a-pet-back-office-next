@@ -2,7 +2,7 @@
 
 import styled from "styled-components";
 
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar, SIDEBAR_WIDTH } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { $uw } from "@/theme";
 
@@ -20,20 +20,25 @@ export default function AdminLayout({
 	);
 }
 
+// Sidebar è position:fixed (vedi Sidebar.tsx): Shell resta ancorato al viewport
+// e non scrolla mai, solo Main scrolla il proprio contenuto.
 const Shell = styled.div`
-	display: flex;
-	min-height: 100dvh;
+	height: 100dvh;
+	overflow: hidden;
 `;
 
 const Column = styled.div`
 	display: flex;
+	height: 100%;
 	min-width: 0;
-	flex: 1;
+	margin-left: ${SIDEBAR_WIDTH};
 	flex-direction: column;
 `;
 
 const Main = styled.main`
 	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
+	overflow-x: hidden;
 	padding: ${$uw(1.5)};
 `;

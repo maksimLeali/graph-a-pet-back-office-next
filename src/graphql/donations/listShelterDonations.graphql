@@ -1,0 +1,32 @@
+query listShelterDonations($shelter_id: ID!, $commonSearch: CommonSearch) {
+	listShelterDonations(shelter_id: $shelter_id, commonSearch: $commonSearch) {
+		success
+		error {
+			code
+			message
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+		items {
+			id
+			target_type
+			pet_id
+			donor_type
+			donor_email
+			currency
+			gross_amount_cents
+			platform_fee_amount_cents
+			processing_fee_amount_cents
+			shelter_net_amount_cents
+			status
+			refund_status
+			dispute_status
+			is_test
+			created_at
+		}
+	}
+}

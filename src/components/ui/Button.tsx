@@ -45,7 +45,7 @@ const variants = {
 		color: ${$color("danger")};
 		border: 1px solid ${$color("danger-strong")};
 		&:hover:not(:disabled) {
-			background: rgba(185, 28, 28, 0.15);
+			background: ${$color("danger-soft")};
 		}
 	`,
 };

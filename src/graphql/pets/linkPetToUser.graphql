@@ -1,0 +1,9 @@
+mutation linkPetToUserBO($userId: ID!, $petId: ID!, $custodyLevel: CustodyLevel) {
+	linkPetToUser(userId: $userId, petId: $petId, custodyLevel: $custodyLevel) {
+		success
+		error {
+			code
+			message
+		}
+	}
+}

@@ -12,6 +12,11 @@ import { useUpdatePetMutation } from "@/graphql/__generated__/updatePet.generate
 import { useGetPetOwnershipQuery } from "@/graphql/__generated__/getPetOwnerships.generated";
 import { useDeletePetOwnershipMutation } from "@/graphql/__generated__/delete-pet-ownsership.generated";
 import { useGetPetTreatmentsQuery } from "@/graphql/__generated__/getPetTreatments.generated";
+import { useListSheltersQuery, useListShelterPetsBoQuery } from "@/graphql/__generated__/queries.generated";
+import {
+	useCreateShelterPetBoMutation,
+	useDeleteShelterPetBoMutation,
+} from "@/graphql/__generated__/mutations.generated";
 import { FullPetFragment } from "@/graphql/__generated__/full-pet.generated";
 import { Tabs } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
@@ -215,6 +220,126 @@ const PetOwnersTab: React.FC<{ petId: string }> = ({ petId }) => {
 	);
 };
 
+type AssignShelterForm = {
+	shelter_id: string;
+};
+
+const PetShelterTab: React.FC<{ petId: string }> = ({ petId }) => {
+	const { register, handleSubmit, reset } = useForm<AssignShelterForm>();
+
+	const { data, loading, refetch } = useListShelterPetsBoQuery({
+		variables: {
+			search: {
+				page: 0,
+				page_size: 50,
+				order_by: "created_at",
+				filters: { fixed: [{ key: "pet_id", value: petId }] },
+			},
+		},
+		onError: () => toast.error("Errore nel caricamento dei rifugi"),
+	});
+
+	const { data: sheltersData } = useListSheltersQuery({
+		variables: {
+			search: {
+				page: 0,
+				page_size: 100,
+				order_by: "name",
+				order_direction: "asc",
+				filters: null,
+			},
+		},
+	});
+
+	const shelterOptions = (sheltersData?.listShelters?.items ?? [])
+		.filter((s) => !!s)
+		.map((s) => ({ value: s!.id, label: s!.name }));
+
+	const [assignShelter, { loading: assigning }] = useCreateShelterPetBoMutation({
+		onCompleted: ({ createShelterPet }) => {
+			if (!createShelterPet.success) {
+				toast.error(
+					createShelterPet.error?.message ?? "Errore nell'assegnazione"
+				);
+				return;
+			}
+			toast.success("Rifugio assegnato");
+			reset();
+			refetch();
+		},
+		onError: () => toast.error("Errore nell'assegnazione"),
+	});
+
+	const [removeShelter] = useDeleteShelterPetBoMutation({
+		onCompleted: ({ deleteShelterPet }) => {
+			if (!deleteShelterPet.success) {
+				toast.error(deleteShelterPet.error?.message ?? "Errore nella rimozione");
+				return;
+			}
+			toast.success("Rifugio rimosso");
+			refetch();
+		},
+		onError: () => toast.error("Errore nella rimozione"),
+	});
+
+	if (loading) return <Spinner />;
+	const items = data?.listShelterPets?.items ?? [];
+
+	return (
+		<>
+			<AssignForm
+				onSubmit={handleSubmit((v) =>
+					assignShelter({
+						variables: { data: { shelter_id: v.shelter_id, pet_id: petId } },
+					})
+				)}
+			>
+				<Select
+					label="Rifugio"
+					placeholder="Seleziona rifugio"
+					options={shelterOptions}
+					{...register("shelter_id", { required: true })}
+				/>
+				<Button type="submit" loading={assigning}>
+					Assegna
+				</Button>
+			</AssignForm>
+
+			<List>
+				{items.length === 0 && <EmptyText>Nessun rifugio assegnato</EmptyText>}
+				{items.map(
+					(sp) =>
+						sp && (
+							<RowCard key={sp.id}>
+								<div>
+									<RowLink href={`/shelters/${sp.shelter.id}`}>
+										{sp.shelter.name}
+									</RowLink>
+									<RowSub>
+										dal {dayjs(sp.created_at).format("DD/MM/YYYY")}
+									</RowSub>
+								</div>
+								<RowActions>
+									<Badge>{sp.is_active ? "Attivo" : "Uscito"}</Badge>
+									<RowButton
+										variant="danger"
+										onClick={() => {
+											if (confirm("Rimuovere questo animale dal rifugio?")) {
+												removeShelter({ variables: { id: sp.id } });
+											}
+										}}
+									>
+										Rimuovi
+									</RowButton>
+								</RowActions>
+							</RowCard>
+						)
+				)}
+			</List>
+		</>
+	);
+};
+
 const PetTreatmentsTab: React.FC<{ petId: string }> = ({ petId }) => {
 	const [page, setPage] = useState(0);
 	const { data, loading } = useGetPetTreatmentsQuery({
@@ -303,6 +428,11 @@ export default function PetDetailPage({
 						node: <PetOwnersTab petId={id} />,
 					},
 					{
+						value: "shelter",
+						label: "Rifugio",
+						node: <PetShelterTab petId={id} />,
+					},
+					{
 						value: "treatments",
 						label: "Trattamenti",
 						node: <PetTreatmentsTab petId={id} />,
@@ -380,6 +510,13 @@ const List = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: ${$uw(0.75)};
+`;
+
+const AssignForm = styled.form`
+	display: flex;
+	align-items: flex-end;
+	gap: ${$uw(1)};
+	margin-bottom: ${$uw(1.5)};
 `;
 
 const EmptyText = styled.p`

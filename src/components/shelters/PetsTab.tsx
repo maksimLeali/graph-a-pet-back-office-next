@@ -12,12 +12,16 @@ import {
 	useCreateShelterPetsWithDataBoMutation,
 	useDeleteShelterPetBoMutation,
 } from "@/graphql/__generated__/mutations.generated";
+import { useListPetDonationPoliciesQuery } from "@/graphql/__generated__/listPetDonationPolicies.generated";
 import { Gender } from "@/types";
+import { useShelterAuthorization } from "@/lib/useShelterAuthorization";
+import { ShelterPermissions } from "@/lib/permissions";
 import { Spinner } from "@/components/ui/Spinner";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Badge, RowButton } from "@/components/cells";
+import { PetLimitInline } from "./PetLimitInline";
 import { $color } from "@/theme";
 
 import {
@@ -56,6 +60,8 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 	});
 	const linkForm = useForm<LinkPetForm>();
 
+	const shelterAuth = useShelterAuthorization(shelterId);
+
 	const { data, loading, refetch } = useListShelterPetsBoQuery({
 		variables: {
 			search: {
@@ -67,6 +73,21 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 		},
 		onError: () => toast.error("Errore nel caricamento degli animali"),
 	});
+
+	// limiti di donazione per singolo animale, mostrati inline in ogni riga
+	const {
+		data: policiesData,
+		refetch: refetchPolicies,
+	} = useListPetDonationPoliciesQuery({
+		fetchPolicy: "cache-and-network",
+		variables: { shelter_id: shelterId },
+	});
+	const limitByPetId = new Map(
+		(policiesData?.listPetDonationPolicies?.items ?? [])
+			.filter((p): p is NonNullable<typeof p> => !!p)
+			.map((p) => [p.pet_id, p.custom_monthly_limit_cents ?? null])
+	);
+	const canManageLimits = shelterAuth.can(ShelterPermissions.FUNDING_LIMITS_MANAGE);
 
 	const [createPetWithData, { loading: creating }] =
 		useCreateShelterPetsWithDataBoMutation({
@@ -218,6 +239,14 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 										<RowSub>
 											uscito il {dayjs(sp.left_at).format("DD/MM/YYYY")}
 										</RowSub>
+									)}
+									{sp.is_active && canManageLimits && (
+										<PetLimitInline
+											shelterId={shelterId}
+											petId={sp.pet.id}
+											currentCents={limitByPetId.get(sp.pet.id) ?? null}
+											onSaved={refetchPolicies}
+										/>
 									)}
 									<RowButton
 										variant="danger"

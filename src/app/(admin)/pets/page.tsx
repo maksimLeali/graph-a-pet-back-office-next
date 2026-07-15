@@ -8,7 +8,10 @@ import { useForm } from "react-hook-form";
 
 import { useGetPaginatedPetsQuery } from "@/graphql/__generated__/getPaginatedPets.generated";
 import { useGetPaginatedUsersQuery } from "@/graphql/__generated__/getPaginatedUsers.generated";
-import { useAddPetToUserBoMutation } from "@/graphql/__generated__/addPetToUser.generated";
+import { useListSheltersQuery } from "@/graphql/__generated__/queries.generated";
+import { useCreatePetBoMutation } from "@/graphql/__generated__/createPet.generated";
+import { useLinkPetToUserBoMutation } from "@/graphql/__generated__/linkPetToUser.generated";
+import { useCreateShelterPetBoMutation } from "@/graphql/__generated__/mutations.generated";
 import { useDeletePetMutation } from "@/graphql/__generated__/delete-pet.generated";
 import { SimplePetFragment } from "@/graphql/__generated__/list-pets.generated";
 import { Gender, CustodyLevel } from "@/types";
@@ -37,6 +40,7 @@ const GENDER_OPTIONS = [
 type PetForm = {
 	name: string;
 	owner_id: string;
+	shelter_id: string;
 	breed: string;
 	gender: string;
 	birthday: string;
@@ -93,20 +97,90 @@ export default function PetsPage() {
 			label: `${u!.first_name} ${u!.last_name} (${u!.email})`,
 		}));
 
-	const [addPet, { loading: creating }] = useAddPetToUserBoMutation({
-		onCompleted: ({ addPetToUser }) => {
-			if (!addPetToUser.success) {
+	const { data: sheltersData } = useListSheltersQuery({
+		variables: {
+			search: {
+				page: 0,
+				page_size: 100,
+				order_by: "name",
+				order_direction: "asc",
+				filters: null,
+			},
+		},
+	});
+
+	const shelterOptions = (sheltersData?.listShelters?.items ?? [])
+		.filter((s) => !!s)
+		.map((s) => ({ value: s!.id, label: s!.name }));
+
+	const [createPet, { loading: creating }] = useCreatePetBoMutation();
+	const [linkPetToUser] = useLinkPetToUserBoMutation();
+	const [linkPetToShelter] = useCreateShelterPetBoMutation();
+
+	const onCreatePet = async (v: PetForm) => {
+		try {
+			const { data: created } = await createPet({
+				variables: {
+					data: {
+						name: v.name,
+						breed: v.breed || undefined,
+						gender: v.gender ? (v.gender as Gender) : undefined,
+						birthday: v.birthday
+							? new Date(v.birthday).toISOString()
+							: undefined,
+						chip_code: v.chip_code || undefined,
+						weight_kg: v.weight_kg ? parseFloat(v.weight_kg) : undefined,
+					},
+				},
+			});
+
+			if (!created?.createPet.success || !created.createPet.pet) {
 				toast.error(
-					addPetToUser.error?.message ?? "Errore nella creazione dell'animale"
+					created?.createPet.error?.message ??
+						"Errore nella creazione dell'animale"
 				);
 				return;
 			}
+
+			const petId = created.createPet.pet.id;
+
+			if (v.owner_id) {
+				const { data: linked } = await linkPetToUser({
+					variables: {
+						petId,
+						userId: v.owner_id,
+						custodyLevel: CustodyLevel.Owner,
+					},
+				});
+				if (!linked?.linkPetToUser.success) {
+					toast.error(
+						linked?.linkPetToUser.error?.message ??
+							"Errore nell'assegnazione del proprietario"
+					);
+				}
+			}
+
+			if (v.shelter_id) {
+				const { data: shelterLink } = await linkPetToShelter({
+					variables: {
+						data: { shelter_id: v.shelter_id, pet_id: petId },
+					},
+				});
+				if (!shelterLink?.createShelterPet.success) {
+					toast.error(
+						shelterLink?.createShelterPet.error?.message ??
+							"Errore nell'assegnazione al rifugio"
+					);
+				}
+			}
+
 			toast.success("Animale creato");
 			form.reset({ gender: "NOT_SAID" } as PetForm);
 			refetch();
-		},
-		onError: () => toast.error("Errore nella creazione dell'animale"),
-	});
+		} catch {
+			toast.error("Errore nella creazione dell'animale");
+		}
+	};
 
 	const [deletePet, { loading: deleting }] = useDeletePetMutation({
 		onCompleted: () => refetch(),
@@ -176,28 +250,7 @@ export default function PetsPage() {
 	return (
 		<TabWrap>
 			<AddSection label="Nuovo animale">
-				<form
-					onSubmit={form.handleSubmit((v) =>
-						addPet({
-							variables: {
-								userId: v.owner_id,
-								custodyLevel: CustodyLevel.Owner,
-								pet: {
-									name: v.name,
-									breed: v.breed || undefined,
-									gender: v.gender ? (v.gender as Gender) : undefined,
-									birthday: v.birthday
-										? new Date(v.birthday).toISOString()
-										: undefined,
-									chip_code: v.chip_code || undefined,
-									weight_kg: v.weight_kg
-										? parseFloat(v.weight_kg)
-										: undefined,
-								},
-							},
-						})
-					)}
-				>
+				<form onSubmit={form.handleSubmit(onCreatePet)}>
 					<FormGrid>
 						<Input
 							label="Nome"
@@ -205,9 +258,15 @@ export default function PetsPage() {
 						/>
 						<Select
 							label="Proprietario"
-							placeholder="Seleziona utente"
+							placeholder="Nessuno"
 							options={ownerOptions}
-							{...form.register("owner_id", { required: true })}
+							{...form.register("owner_id")}
+						/>
+						<Select
+							label="Rifugio"
+							placeholder="Nessuno"
+							options={shelterOptions}
+							{...form.register("shelter_id")}
 						/>
 						<Input label="Razza" {...form.register("breed")} />
 						<Select

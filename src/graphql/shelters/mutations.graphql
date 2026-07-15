@@ -280,3 +280,17 @@ mutation deleteShelterTaskBO($id: ID!) {
 		id
 	}
 }
+
+mutation updateShelterBO($id: ID!, $data: ShelterUpdate!) {
+	updateShelter(id: $id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter {
+			id
+			public_story_html
+		}
+	}
+}

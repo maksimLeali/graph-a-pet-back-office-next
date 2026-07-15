@@ -1,0 +1,21 @@
+query listPetDonationPolicies($shelter_id: ID!) {
+	listPetDonationPolicies(shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			pet_id
+			shelter_id
+			custom_monthly_limit_cents
+			is_active
+			temporary_override_cents
+			temporary_override_reason
+			temporary_override_effective_at
+			temporary_override_expires_at
+			updated_at
+		}
+	}
+}

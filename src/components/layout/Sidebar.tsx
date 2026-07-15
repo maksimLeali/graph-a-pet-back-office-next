@@ -5,9 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import styled from "styled-components";
 
 import { auth } from "@/lib/auth";
+import { useHasDonationsSidebarAccess } from "@/lib/donations/useHasDonationsSidebarAccess";
 import { $color, $uw } from "@/theme";
 
-const NAV = [
+const BASE_NAV = [
 	{ href: "/dashboard", label: "Dashboard", icon: "◧" },
 	{ href: "/pets", label: "Animali", icon: "◔" },
 	{ href: "/users", label: "Utenti", icon: "◉" },
@@ -18,9 +19,17 @@ const NAV = [
 	{ href: "/me", label: "Profilo", icon: "◍" },
 ];
 
+const DONATIONS_ITEM = { href: "/donations", label: "Donazioni", icon: "♥" };
+
 export const Sidebar: React.FC = () => {
 	const pathname = usePathname();
 	const router = useRouter();
+	// permission-key-based (never a role name) — see useHasDonationsSidebarAccess
+	const hasDonationsAccess = useHasDonationsSidebarAccess();
+
+	const nav = hasDonationsAccess
+		? [...BASE_NAV.slice(0, 4), DONATIONS_ITEM, ...BASE_NAV.slice(4)]
+		: BASE_NAV;
 
 	return (
 		<Aside>
@@ -30,7 +39,7 @@ export const Sidebar: React.FC = () => {
 			</Brand>
 
 			<Nav>
-				{NAV.map(({ href, label, icon }) => {
+				{nav.map(({ href, label, icon }) => {
 					const active =
 						pathname === href || pathname.startsWith(`${href}/`);
 					return (
@@ -63,11 +72,19 @@ export const Sidebar: React.FC = () => {
 	);
 };
 
+export const SIDEBAR_WIDTH = $uw(16);
+
 const Aside = styled.aside`
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 20;
 	display: flex;
-	width: ${$uw(16)};
+	width: ${SIDEBAR_WIDTH};
+	height: 100dvh;
 	flex-shrink: 0;
 	flex-direction: column;
+	overflow-y: auto;
 	border-right: 1px solid ${$color("border")};
 	background: ${$color("background")};
 `;
@@ -111,11 +128,10 @@ const NavItem = styled(Link)<{ $active: boolean }>`
 	font-weight: 500;
 	transition: background 0.15s ease, color 0.15s ease;
 	color: ${({ $active }) => ($active ? $color("primary") : $color("muted"))};
-	background: ${({ $active }) =>
-		$active ? "rgba(52, 211, 153, 0.1)" : "transparent"};
+	background: ${({ $active }) => ($active ? $color("primary-soft") : "transparent")};
 	&:hover {
 		background: ${({ $active }) =>
-			$active ? "rgba(52, 211, 153, 0.1)" : $color("surface")};
+			$active ? $color("primary-soft") : $color("surface")};
 		color: ${({ $active }) => ($active ? $color("primary") : $color("text"))};
 	}
 `;

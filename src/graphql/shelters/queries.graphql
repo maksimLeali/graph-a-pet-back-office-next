@@ -39,10 +39,13 @@ query getShelter($id: ID!) {
 			province_code
 			postal_code
 			region
+			district
 			type
 			verification_status
 			visibility
 			accepts_volunteers
+			public_description
+			public_story_html
 			public_contact_email
 			public_contact_phone
 			created_at
@@ -128,6 +131,10 @@ query listShelterPetsBO($search: CommonSearch!) {
 			created_at
 			is_active
 			left_at
+			shelter {
+				id
+				name
+			}
 			pet {
 				id
 				name
