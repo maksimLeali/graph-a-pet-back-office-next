@@ -150,7 +150,6 @@ export default function RoleDetailPage({
 									const allKeys = catalog.map((p) => p.key);
 									const allOn = allKeys.every((k) => selected.has(k));
 									setSelected(allOn ? new Set() : new Set(allKeys));
-									setDirty(true);
 								}}
 							>
 								{catalog.every((p) => selected.has(p.key))
