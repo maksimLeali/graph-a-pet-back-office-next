@@ -1,0 +1,66 @@
+query listFundingNeeds($shelter_id: ID!, $status: FundingNeedStatus) {
+	listFundingNeeds(shelter_id: $shelter_id, status: $status) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			shelter_id
+			pet_id
+			title
+			description
+			category
+			currency
+			target_amount_cents
+			collected_amount_cents
+			remaining_amount_cents
+			status
+			urgency
+			is_recurring_monthly
+			last_reset_at
+			closed_at
+			created_at
+		}
+	}
+}
+
+mutation createFundingNeed($data: FundingNeedCreateInput!) {
+	createFundingNeed(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		funding_need {
+			id
+		}
+	}
+}
+
+mutation updateFundingNeed($id: ID!, $data: FundingNeedUpdateInput!) {
+	updateFundingNeed(id: $id, data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		funding_need {
+			id
+		}
+	}
+}
+
+mutation closeFundingNeed($id: ID!) {
+	closeFundingNeed(id: $id) {
+		success
+		error {
+			code
+			message
+		}
+		funding_need {
+			id
+		}
+	}
+}

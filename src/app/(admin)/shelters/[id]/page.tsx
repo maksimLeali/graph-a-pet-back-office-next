@@ -18,6 +18,7 @@ import { InventoryTab } from "@/components/shelters/InventoryTab";
 import { MapBoxesTab } from "@/components/shelters/MapBoxesTab";
 import { PublicProfileTab } from "@/components/shelters/PublicProfileTab";
 import { ShelterDonationsTable } from "@/components/donations/ShelterDonationsTable";
+import { FundingNeedsTab } from "@/components/shelters/FundingNeedsTab";
 import { $color, $uw } from "@/theme";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -109,6 +110,11 @@ export default function ShelterDetailPage({
 						value: "donations",
 						label: "Donazioni",
 						node: <ShelterDonationsTable shelterId={id} />,
+					},
+					{
+						value: "funding-needs",
+						label: "Traguardi",
+						node: <FundingNeedsTab shelterId={id} />,
 					},
 				]}
 			/>

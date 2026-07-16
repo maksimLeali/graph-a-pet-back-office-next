@@ -1,14 +1,36 @@
 "use client";
 
-import { ShelterScopedPage } from "@/components/donations/ShelterScopedPage";
-import { ShelterPermissions } from "@/lib/permissions";
+import Link from "next/link";
+import styled from "styled-components";
 
+import { useDonationScope } from "@/lib/donations/DonationScopeContext";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { $uw } from "@/theme";
+
+/**
+ * I traguardi di raccolta si gestiscono dal dettaglio del singolo rifugio
+ * (tab "Traguardi") — questa pagina resta solo come puntatore per i
+ * vecchi link, come pet-limits.
+ */
 export default function FundingNeedsPage() {
+	const { shelterId } = useDonationScope();
+
 	return (
-		<ShelterScopedPage
-			requiredPermission={ShelterPermissions.FUNDING_NEEDS_READ}
-			title="Fabbisogni di raccolta"
-			missingBackendDescription='Il backend non espone ancora un tipo FundingNeed né le operazioni listShelterFundingNeeds, getShelterFundingNeed, createShelterFundingNeed, updateShelterFundingNeed, closeShelterFundingNeed.'
-		/>
+		<Wrap>
+			<EmptyState
+				title="Spostato"
+				description='I traguardi di raccolta si gestiscono dal dettaglio del rifugio, tab "Traguardi".'
+			/>
+			{shelterId && (
+				<Link href={`/shelters/${shelterId}`}>Vai al dettaglio del rifugio</Link>
+			)}
+		</Wrap>
 	);
 }
+
+const Wrap = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: ${$uw(1)};
+`;

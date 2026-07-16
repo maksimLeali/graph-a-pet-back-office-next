@@ -1,3299 +1,3039 @@
-############################
-# Scalars & Directives
-############################
-scalar JSON
-scalar Upload
-
-directive @subset(of: String!, values: [String!]!) on ENUM
-
-
-############################
-# Schema root
-############################
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
+scalar JSON
+
+scalar Upload
+
 type Query {
-    # User
-    listUsers(commonSearch: CommonSearch = {}): PaginatedUsers!
-    getUser(id: ID!): UserResult!
-    me: UserResult!
-    getUserDashboard: UserDashboardResult!
-
-    # Pet
-    listPets(commonSearch: CommonSearch = {}): PaginatedPets!
-    listMyPets(commonSearch: CommonSearch = {}): PaginatedPets!
-    getPet(id: ID!): PetResult!
-
-    # Ownership
-    getOwnership(id: ID!): OwnershipResult!
-    listOwnerships(commonSearch: CommonSearch = {}): PaginatedOwnerships!
-
-    # HealthCard
-    listHealthCards(commonSearch: CommonSearch = {}): PaginatedHealthCards!
-    getHealthCard(id: ID!): HealthCardResult
-
-    # Treatment
-    getTreatment(id: ID!): TreatmentResult
-    listTreatments(commonSearch: CommonSearch = {}): PaginatedTreatments!
-    listMyTreatments(commonSearch: CommonSearch = {}): PaginatedTreatments!
-
-    # Walk
-    listWalks(commonSearch: CommonSearch = {}): PaginatedWalks!
-    getWalk(id: ID!): Walk!
-
-    # WalkRating
-    listWalkRatings(commonSearch: CommonSearch = {}): PaginatedWalkRatings!
-    getWalkRating(id: ID!): WalkRatingResult!
-
-    # Cure
-    listCures(commonSearch: CommonSearch = {}): PaginatedCures!
-    getCure(id: ID!): Cure!
-
-    # Report
-    getReport(id: ID!): ReportResult
-    listReports(commonSearch: CommonSearch = {}): PaginatedReports!
-
-    # Media
-    getMedia(id: ID!): MediaResult!
-    listMedias(commonSearch: CommonSearch = {}): PaginatedMedias!
-
-    # Code
-    getCode(id: ID!): CodeResult!
-    listCodes(commonSearch: CommonSearch = {}): PaginatedCodes!
-    getOrCreateCode(
-        ref_id: String!
-        ref_table: String!
-        code: String
-    ): CodeResult
-
-    # Statistics
-    getDashboard: DashboardResult!
-    getRealTimeStatistic: RealTimeStatisticResult!
-    getGroupedStatistics(
-        date_from: String!
-        date_to: String
-        group: String
-    ): StatisticsResult!
-
-    # DamnatioMemoriae
-    getDamnatioMemoriae(id: ID!): DamnatioMemoriaeResult
-    listDamnationesMemoriae(
-        commonSearch: CommonSearch = {}
-    ): PaginatedDamnationesMemoriae
-
-    # Shelter
-    getShelter(id: ID!): ShelterResult!
-    listShelters(commonSearch: CommonSearch = {}): PaginatedShelters!
-    discoverShelters(search: PublicShelterSearchInput): PaginatedPublicShelters!
-    getPublicShelter(id: ID!): PublicShelter
-
-    # ShelterRole
-    getShelterRole(id: ID!): ShelterRoleResult!
-    listShelterRoles(commonSearch: CommonSearch = {}): PaginatedShelterRoles!
-
-    # Authorization (RBAC)
-    myShelterAuthorization(shelter_id: ID!): ShelterAuthorizationResult!
-    listRbacRoles: RbacRolesResult!
-    getUserRbacRoles(user_id: ID!): UserRbacResult!
-    listPermissionCatalog: [RbacPermission!]!
-    getShelterInvite(id: ID!): ShelterInviteResult!
-    listShelterPeople(shelter_id: ID!, search: CommonSearch = {}): PaginatedShelterPeople!
-    getShelterPerson(id: ID!): ShelterPerson
-    listMyOwnershipTransfers(search: CommonSearch = {}): PaginatedShelterOwnershipTransfers!
-    listShelterOwnershipTransfers(shelter_id: ID!, search: CommonSearch = {}): PaginatedShelterOwnershipTransfers!
-    listMyShelterClaimRequests(search: CommonSearch = {}): PaginatedShelterClaimRequests!
-    getMyShelterJoinRequest(shelter_id: ID!): ShelterJoinRequestResult!
-    listShelterJoinRequests(shelter_id: ID!, status: ShelterJoinRequestStatus): ShelterJoinRequestListResult!
-    listShelterClaimRequests(shelter_id: ID!, search: CommonSearch = {}): PaginatedShelterClaimRequests!
-
-    # ShelterPet
-    getShelterPet(id: ID!): ShelterPetResult!
-    listShelterPets(commonSearch: CommonSearch = {}): PaginatedShelterPets!
-
-    # ShelterTask
-    getShelterTask(id: ID!): ShelterTaskResult!
-    listShelterTasks(commonSearch: CommonSearch = {}): PaginatedShelterTasks!
-    listOperationalShelterTasks(shelter_id: ID!): PaginatedShelterTasks!
-
-    # ShelterWalk
-    getShelterWalk(id: ID!): ShelterWalkResult!
-    listShelterWalks(commonSearch: CommonSearch = {}): PaginatedShelterWalks!
-    listOperationalShelterWalks(shelter_id: ID!): PaginatedShelterWalks!
-    listPetsNeedingWalk(shelter_id: ID!, hours: Int = 24): PaginatedShelterPets!
-
-    # WalkingStats (chart.js-ready walk rating trend)
-    getPetWalkingStats(pet_id: ID!, period: StatsPeriod!): WalkRatingChartResult!
-    getShelterPetWalkingStats(shelter_pet_id: ID!, period: StatsPeriod!): WalkRatingChartResult!
-
-    # PetWeight (shared by personal + shelter pets, both are `pets` rows)
-    getLatestPetWeight(pet_id: ID!): PetWeightResult!
-    getPetWeightStats(pet_id: ID!, period: StatsPeriod!): PetWeightChartResult!
-
-    # ShelterMap / Box / Occupancy
-    getShelterMap(id: ID!): ShelterMapResult!
-    listShelterMaps(commonSearch: CommonSearch = {}): PaginatedShelterMaps!
-    getShelterBox(id: ID!): ShelterBoxResult!
-    listShelterBoxes(commonSearch: CommonSearch = {}): PaginatedShelterBoxes!
-    listShelterBoxOccupancies(commonSearch: CommonSearch = {}): PaginatedBoxOccupancies!
-    getCurrentBoxForPet(shelter_pet_id: ID!): ShelterBoxResult!
-
-    # ShelterArea
-    getShelterArea(id: ID!): ShelterAreaResult!
-    listShelterAreas(commonSearch: CommonSearch = {}): PaginatedShelterAreas!
-
-    # ShelterZone
-    getShelterZone(id: ID!): ShelterZoneResult!
-    listShelterZones(commonSearch: CommonSearch = {}): PaginatedShelterZones!
-
-    # ShelterMapElement
-    getShelterMapElement(id: ID!): ShelterMapElementResult!
-    listShelterMapElements(commonSearch: CommonSearch = {}): PaginatedMapElements!
-
-    # ShelterInventory
-    getShelterInventoryItem(id: ID!): ShelterInventoryItemResult!
-    listShelterInventoryItems(commonSearch: CommonSearch = {}): PaginatedInventoryItems!
-    listShelterInventoryMovements(commonSearch: CommonSearch = {}): PaginatedInventoryMovements!
-    listLowStockItems(shelter_id: ID!): PaginatedInventoryItems!
-
-    # Shelter dashboard operativa
-    getShelterOperationalDashboard(shelter_id: ID!): ShelterOperationalDashboardResult!
-    listShelterKpiHistory(shelter_id: ID!, days: Int = 30): ShelterKpiHistoryResult!
-    getMyShelterDashboard(date_from: String!, date_to: String!): MyShelterDashboardResult!
-
-    # Notifications
-    listMyNotifications(search: CommonSearch = {}): PaginatedNotifications!
-    getUnreadNotificationCount: Int!
-
-    # Donations — public (no authentication required).
-    # NOTE: the task asked for a query named `getPublicShelter`, but that
-    # name already exists (shelter discovery, api/shelters/queries.py) with
-    # a different, @auth_middleware-gated resolver. Renaming/repointing it
-    # would be an unrelated behavior change to an existing query, so this
-    # domain exposes its own name instead — see the Donations report for
-    # this deliberate deviation.
-    discoverPublicShelters(search: PublicShelterSearchInput): PaginatedPublicShelters!
-    getPublicDonationShelter(shelter_id: ID!): PublicShelter
-    listPublicShelterPets(shelter_id: ID!): PublicShelterPetsResult!
-    getPublicShelterPet(shelter_id: ID!, pet_id: ID!): PublicShelterPetResult!
-    getPublicPetFundingNeeds(pet_id: ID!): PetFundingNeedsResult!
-    getPublicDonationAvailability(shelter_id: ID!, pet_id: ID, funding_need_id: ID): DonationAvailabilityResult!
-
-    # Donations — donor (authenticated)
-    listMyDonations(commonSearch: CommonSearch = {}): PaginatedDonations!
-    # polled client-side (app pending-confirmation screen) every ~20s while a
-    # donation is PENDING/PROCESSING — scoped to the caller's own donation,
-    # 404s (via NotFoundError) if the id doesn't belong to them
-    getMyDonationStatus(donation_id: ID!): DonationResult!
-    listMySavedPaymentMethods: UserPaymentMethodsResult!
-
-    # Donations — shelter operations
-    getShelterDonationOverview(shelter_id: ID!): ShelterDonationOverviewResult!
-    listShelterDonations(shelter_id: ID!, commonSearch: CommonSearch = {}): PaginatedDonations!
-    listFundingNeeds(shelter_id: ID!, status: FundingNeedStatus): PetFundingNeedsResult!
-    listPetDonationPolicies(shelter_id: ID!): PetDonationPoliciesResult!
-    getPetDonationLimitHistory(pet_id: ID!): DonationLimitReservationsResult!
-    listShelterExpenses(shelter_id: ID!, status: ExpenseStatus): ShelterExpensesResult!
-    getShelterDonationSettings(shelter_id: ID!): ShelterDonationSettingsResult!
-    getShelterMonthlyDonationReport(shelter_id: ID!, year: Int!, month: Int!): ShelterMonthlyReportResult!
-
-    # Donations — platform operations
-    listPlatformDonations(commonSearch: CommonSearch = {}, shelter_id: ID, status: DonationStatus, donor_type: DonorType): PaginatedDonations!
-    listDisputes(commonSearch: CommonSearch = {}): PaginatedDonations!
-    listConnectedAccounts(environment: ConnectedAccountEnvironment): PaginatedStripeConnectedAccounts!
-    listFinancialMovements(commonSearch: CommonSearch = {}, shelter_id: ID, movement_type: FinancialMovementType): PaginatedFinancialMovements!
-    listStripeWebhookEvents(commonSearch: CommonSearch = {}, status: WebhookEventStatus, event_type: String): PaginatedStripeWebhookEvents!
+  listUsers(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedUsers!
+  getUser(id: ID!): UserResult!
+  me: UserResult!
+  getUserDashboard: UserDashboardResult!
+  listPets(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedPets!
+  listMyPets(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedPets!
+  getPet(id: ID!): PetResult!
+  getOwnership(id: ID!): OwnershipResult!
+  listOwnerships(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedOwnerships!
+  listHealthCards(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedHealthCards!
+  getHealthCard(id: ID!): HealthCardResult
+  getTreatment(id: ID!): TreatmentResult
+  listTreatments(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedTreatments!
+  listMyTreatments(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedTreatments!
+  listWalks(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedWalks!
+  getWalk(id: ID!): Walk!
+  listWalkRatings(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedWalkRatings!
+  getWalkRating(id: ID!): WalkRatingResult!
+  listCures(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedCures!
+  getCure(id: ID!): Cure!
+  getReport(id: ID!): ReportResult
+  listReports(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedReports!
+  getMedia(id: ID!): MediaResult!
+  listMedias(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedMedias!
+  getCode(id: ID!): CodeResult!
+  listCodes(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedCodes!
+  getOrCreateCode(ref_id: String!, ref_table: String!, code: String): CodeResult
+  getDashboard: DashboardResult!
+  getRealTimeStatistic: RealTimeStatisticResult!
+  getGroupedStatistics(date_from: String!, date_to: String, group: String): StatisticsResult!
+  getDamnatioMemoriae(id: ID!): DamnatioMemoriaeResult
+  listDamnationesMemoriae(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedDamnationesMemoriae
+  getShelter(id: ID!): ShelterResult!
+  listShelters(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelters!
+  discoverShelters(search: PublicShelterSearchInput): PaginatedPublicShelters!
+  getPublicShelter(id: ID!): PublicShelter
+  getShelterRole(id: ID!): ShelterRoleResult!
+  listShelterRoles(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterRoles!
+  myShelterAuthorization(shelter_id: ID!): ShelterAuthorizationResult!
+  listRbacRoles: RbacRolesResult!
+  getUserRbacRoles(user_id: ID!): UserRbacResult!
+  listPermissionCatalog: [RbacPermission!]!
+  getShelterInvite(id: ID!): ShelterInviteResult!
+  listShelterPeople(shelter_id: ID!, search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterPeople!
+  getShelterPerson(id: ID!): ShelterPerson
+  listMyOwnershipTransfers(search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterOwnershipTransfers!
+  listShelterOwnershipTransfers(shelter_id: ID!, search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterOwnershipTransfers!
+  listMyShelterClaimRequests(search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterClaimRequests!
+  getMyShelterJoinRequest(shelter_id: ID!): ShelterJoinRequestResult!
+  listShelterJoinRequests(shelter_id: ID!, status: ShelterJoinRequestStatus): ShelterJoinRequestListResult!
+  listShelterClaimRequests(shelter_id: ID!, search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterClaimRequests!
+  getShelterPet(id: ID!): ShelterPetResult!
+  listShelterPets(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterPets!
+  getShelterTask(id: ID!): ShelterTaskResult!
+  listShelterTasks(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterTasks!
+  listOperationalShelterTasks(shelter_id: ID!): PaginatedShelterTasks!
+  getShelterWalk(id: ID!): ShelterWalkResult!
+  listShelterWalks(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterWalks!
+  listOperationalShelterWalks(shelter_id: ID!): PaginatedShelterWalks!
+  listPetsNeedingWalk(shelter_id: ID!, hours: Int = 24): PaginatedShelterPets!
+  getPetWalkingStats(pet_id: ID!, period: StatsPeriod!): WalkRatingChartResult!
+  getShelterPetWalkingStats(shelter_pet_id: ID!, period: StatsPeriod!): WalkRatingChartResult!
+  getLatestPetWeight(pet_id: ID!): PetWeightResult!
+  getPetWeightStats(pet_id: ID!, period: StatsPeriod!): PetWeightChartResult!
+  getShelterMap(id: ID!): ShelterMapResult!
+  listShelterMaps(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterMaps!
+  getShelterBox(id: ID!): ShelterBoxResult!
+  listShelterBoxes(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterBoxes!
+  listShelterBoxOccupancies(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedBoxOccupancies!
+  getCurrentBoxForPet(shelter_pet_id: ID!): ShelterBoxResult!
+  getShelterArea(id: ID!): ShelterAreaResult!
+  listShelterAreas(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterAreas!
+  getShelterZone(id: ID!): ShelterZoneResult!
+  listShelterZones(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterZones!
+  getShelterMapElement(id: ID!): ShelterMapElementResult!
+  listShelterMapElements(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedMapElements!
+  getShelterInventoryItem(id: ID!): ShelterInventoryItemResult!
+  listShelterInventoryItems(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedInventoryItems!
+  listShelterInventoryMovements(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedInventoryMovements!
+  listLowStockItems(shelter_id: ID!): PaginatedInventoryItems!
+  getShelterOperationalDashboard(shelter_id: ID!): ShelterOperationalDashboardResult!
+  listShelterKpiHistory(shelter_id: ID!, days: Int = 30): ShelterKpiHistoryResult!
+  getMyShelterDashboard(date_from: String!, date_to: String!): MyShelterDashboardResult!
+  listMyNotifications(search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedNotifications!
+  getUnreadNotificationCount: Int!
+  discoverPublicShelters(search: PublicShelterSearchInput): PaginatedPublicShelters!
+  getPublicDonationShelter(shelter_id: ID!): PublicShelter
+  listPublicShelterPets(shelter_id: ID!): PublicShelterPetsResult!
+  getPublicShelterPet(shelter_id: ID!, pet_id: ID!): PublicShelterPetResult!
+  getPublicPetFundingNeeds(pet_id: ID!): PetFundingNeedsResult!
+  getPublicDonationAvailability(shelter_id: ID!, pet_id: ID, funding_need_id: ID): DonationAvailabilityResult!
+  listMyDonations(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedDonations!
+  getMyDonationStatus(donation_id: ID!): DonationResult!
+  listMySavedPaymentMethods: UserPaymentMethodsResult!
+  getShelterDonationOverview(shelter_id: ID!): ShelterDonationOverviewResult!
+  listShelterDonations(shelter_id: ID!, commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedDonations!
+  listFundingNeeds(shelter_id: ID!, status: FundingNeedStatus): PetFundingNeedsResult!
+  listPetDonationPolicies(shelter_id: ID!): PetDonationPoliciesResult!
+  getPetDonationLimitHistory(pet_id: ID!): DonationLimitReservationsResult!
+  listShelterExpenses(shelter_id: ID!, status: ExpenseStatus): ShelterExpensesResult!
+  getShelterDonationSettings(shelter_id: ID!): ShelterDonationSettingsResult!
+  getShelterMonthlyDonationReport(shelter_id: ID!, year: Int!, month: Int!): ShelterMonthlyReportResult!
+  listPlatformDonations(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}, shelter_id: ID, status: DonationStatus, donor_type: DonorType): PaginatedDonations!
+  listDisputes(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedDonations!
+  listConnectedAccounts(environment: ConnectedAccountEnvironment): PaginatedStripeConnectedAccounts!
+  listFinancialMovements(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}, shelter_id: ID, movement_type: FinancialMovementType): PaginatedFinancialMovements!
+  listStripeWebhookEvents(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}, status: WebhookEventStatus, event_type: String): PaginatedStripeWebhookEvents!
 }
 
 type Mutation {
-    # User
-    createUser(data: UserCreate!): UserResult!
-    signUp(data: UserCreate!): UserResult!
-    updateUser(id: ID!, data: UserUpdate!): UserResult!
-    deleteUser(id: ID!): DeleteResult!
-    updateMe(data: UserUpdate!): UserResult!
-    login(email: String!, password: String!): NewTokenResult!
-    logout: Boolean!
-    refreshToken: NewTokenResult!
-    verifyUser(email: String!, code: String): NewTokenResult!
-    resendCode(email: String!): GenericResult!
-
-    # Pet
-    createPet(data: PetCreate!): PetResult!
-    updatePet(id: ID!, data: PetUpdate!): PetResult!
-    deletePet(id: ID!): DeleteResult!
-    addPet(pet: PetCreate!): PetResult!
-    addPetToUser(pet: PetCreate!, userId: String!, custodyLevel: CustodyLevel): PetAddedResult!
-    addPetToMe(pet: PetCreate!, custodyLevel: CustodyLevel): PetAddedResult!
-
-    # Ownership
-    deleteOwnership(id: ID!): DeleteResult!
-    updateOwnership(id: ID!, data: OwnershipUpdate!): OwnershipResult!
-    linkPetToUser(
-        userId: ID!
-        petId: ID!
-        custodyLevel: CustodyLevel
-    ): OwnershipResult!
-    linkPetToMe(petId: ID!, custodyLevel: CustodyLevel): OwnershipResult!
-    invitePetOwnership(petId: ID!, userId: ID!, custodyLevel: CustodyLevel!): OwnershipResult!
-    acceptPetOwnershipInvite(id: ID!): OwnershipResult!
-    rejectPetOwnershipInvite(id: ID!): OwnershipResult!
-
-    # HealthCard
-    createHealthCard(data: HealthCardCreate!): HealthCardResult!
-    updateHealthCard(id: ID!, data: HealthCardUpdate!): HealthCardResult!
-
-    # Treatment
-    createTreatment(data: TreatmentCreate!): TreatmentResult!
-    updateTreatment(id: ID!, data: TreatmentUpdate!): TreatmentResult!
-    deleteTreatment(id: ID!): DeleteResult!
-
-    # Walk
-    createWalk(data: WalkCreate!): WalkResult!
-    updateWalk(id: ID!, data: WalkUpdate!): WalkResult!
-    deleteWalk(id: ID!): DeleteResult!
-
-    # WalkRating
-    createWalkRating(data: WalkRatingCreate!): WalkRatingResult!
-    updateWalkRating(id: ID!, data: WalkRatingUpdate!): WalkRatingResult!
-    deleteWalkRating(id: ID!): DeleteResult!
-
-    # Cure
-    createCure(data: CureCreate!): CureResult!
-    updateCure(id: ID!, data: CureUpdate!): CureResult!
-    deleteCure(id: ID!): DeleteResult!
-
-    # Report
-    createReport(data: ReportCreate!): ReportResult!
-    updateReport(id: ID!, data: ReportUpdate!): ReportResult!
-    respondToReport(id: ID!, reporter: ReporterCreate!): ReportResult!
-
-    # Media
-    updateMedia(id: ID!, data: MediaUpdate!): MediaResult!
-    createMedia(data: MediaCreate!): MediaResult!
-
-    # Code
-    createCode(data: CodeCreate!): CodeResult!
-    checkCode(code: String!): CodeValidationResult!
-
-    # DamnatioMemoriae
-    restoreMemoriae(id: ID!): RestoredResult!
-
-    # Shelter
-    createShelter(data: ShelterCreate!): ShelterResult!
-    createPersonalWorkspace(data: CreatePersonalWorkspaceInput!): ShelterResult!
-    updateShelter(id: ID!, data: ShelterUpdate!): ShelterResult!
-    deleteShelter(id: ID!): DeleteResult!
-
-    # ShelterRole
-    createShelterRole(data: ShelterRoleCreate!): ShelterRoleResult!
-    updateShelterRole(id: ID!, data: ShelterRoleUpdate!): ShelterRoleResult!
-    deleteShelterRole(id: ID!): DeleteResult!
-    createShelterInvite(data: ShelterInviteCreate!): ShelterInviteResult!
-    acceptShelterInvite(id: ID!): ShelterInviteResult!
-    rejectShelterInvite(id: ID!): ShelterInviteResult!
-    createShelterPerson(data: CreateShelterPersonInput!): ShelterPersonResult!
-    updateShelterPerson(id: ID!, data: UpdateShelterPersonInput!): ShelterPersonResult!
-    archiveShelterPerson(id: ID!): ShelterPersonResult!
-    linkShelterPersonToUser(person_id: ID!, user_id: ID!): ShelterPersonResult!
-    requestShelterOwnershipTransfer(shelter_id: ID!, to_user_id: ID!, new_role_for_previous_owner: RoleLevel): ShelterOwnershipTransferResult!
-    acceptShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
-    rejectShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
-    cancelShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
-    requestShelterClaim(shelter_id: ID!, data: ShelterClaimInput!): ShelterClaimRequestResult!
-    cancelShelterClaim(id: ID!): ShelterClaimRequestResult!
-    approveShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
-    rejectShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
-    applyToShelterAsVolunteer(shelter_id: ID!, message: String): ShelterJoinRequestResult!
-    approveShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
-    rejectShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
-
-    # ShelterPet
-    createShelterPet(data: ShelterPetCreate!): ShelterPetResult!
-    createShelterPets(data: ShelterPetsCreate!): ShelterPetsResult!
-    createShelterPetsWithData(data: ShelterPetsWithDataCreate!): ShelterPetsResult!
-    changeShelter(data: ChangeShelterInput!): ShelterPetResult!
-    deleteShelterPet(id: ID!): DeleteResult!
-    # replace-all: collega membri (utenti e/o shelter people) a un pet del canile
-    setShelterPetAssignees(shelter_pet_id: ID!, user_ids: [ID!], shelter_person_ids: [ID!]): ShelterPetResult!
-    # gate visibilità pubblica (vetrina/donazioni) del pet del canile
-    setShelterPetPublished(shelter_pet_id: ID!, is_published: Boolean!): ShelterPetResult!
-
-    # ShelterTask
-    createShelterTask(data: ShelterTaskCreate!): ShelterTaskResult!
-    updateShelterTask(id: ID!, data: ShelterTaskUpdate!): ShelterTaskResult!
-    completeShelterTask(id: ID!, notes: String): ShelterTaskResult!
-    skipShelterTask(id: ID!, reason: String): ShelterTaskResult!
-    deleteShelterTask(id: ID!): DeleteResult!
-
-    # ShelterWalk
-    createShelterWalk(data: ShelterWalkCreate!): ShelterWalkResult!
-    updateShelterWalk(id: ID!, data: ShelterWalkUpdate!): ShelterWalkResult!
-    setShelterWalkManualDuration(id: ID!, duration_minutes: Int!): ShelterWalkResult!
-    startShelterWalk(id: ID!): ShelterWalkResult!
-    completeShelterWalk(id: ID!, notes: String): ShelterWalkResult!
-    cancelShelterWalk(id: ID!, reason: String): ShelterWalkResult!
-    deleteShelterWalk(id: ID!): DeleteResult!
-    createShelterWalkRating(data: ShelterWalkRatingCreate!): ShelterWalkRatingResult!
-    createPetWeight(data: PetWeightCreate!): PetWeightResult!
-
-    # ShelterMap / Box / Occupancy
-    createShelterMap(data: ShelterMapCreate!): ShelterMapResult!
-    updateShelterMap(id: ID!, data: ShelterMapUpdate!): ShelterMapResult!
-    deleteShelterMap(id: ID!): DeleteResult!
-    createShelterBox(data: ShelterBoxCreate!): ShelterBoxResult!
-    updateShelterBox(id: ID!, data: ShelterBoxUpdate!): ShelterBoxResult!
-    deleteShelterBox(id: ID!): DeleteResult!
-    assignPetToBox(box_id: ID!, shelter_pet_id: ID!, reason: String): ShelterBoxOccupancyResult!
-    releasePetFromBox(occupancy_id: ID!, reason: String): ShelterBoxOccupancyResult!
-    movePetBetweenBoxes(shelter_pet_id: ID!, to_box_id: ID!, reason: String): ShelterBoxOccupancyResult!
-    markBoxCleaned(box_id: ID!): ShelterBoxResult!
-    setBoxOutOfService(box_id: ID!, out_of_service: Boolean!): ShelterBoxResult!
-
-    # ShelterArea + layout batch
-    createShelterArea(data: ShelterAreaCreate!): ShelterAreaResult!
-    updateShelterArea(id: ID!, data: ShelterAreaUpdate!): ShelterAreaResult!
-    deleteShelterArea(id: ID!): DeleteResult!
-
-    # ShelterZone
-    createShelterZone(data: ShelterZoneCreate!): ShelterZoneResult!
-    updateShelterZone(id: ID!, data: ShelterZoneUpdate!): ShelterZoneResult!
-    deleteShelterZone(id: ID!): DeleteResult!
-
-    saveShelterMapLayout(map_id: ID!, data: ShelterMapLayoutInput!): ShelterMapResult!
-
-    # ShelterMapElement
-    createShelterMapElement(data: ShelterMapElementCreate!): ShelterMapElementResult!
-    updateShelterMapElement(id: ID!, data: ShelterMapElementUpdate!): ShelterMapElementResult!
-    deleteShelterMapElement(id: ID!): DeleteResult!
-
-    # ShelterInventory
-    createShelterInventoryItem(data: ShelterInventoryItemCreate!): ShelterInventoryItemResult!
-    updateShelterInventoryItem(id: ID!, data: ShelterInventoryItemUpdate!): ShelterInventoryItemResult!
-    archiveShelterInventoryItem(id: ID!): ShelterInventoryItemResult!
-    deleteShelterInventoryItem(id: ID!): DeleteResult!
-    createShelterInventoryMovement(data: ShelterInventoryMovementCreate!): ShelterInventoryMovementResult!
-
-    # Notifications
-    markNotificationAsRead(id: ID!): NotificationResult!
-    markAllNotificationsAsRead: NotificationResult!
-    dismissNotification(id: ID!): NotificationResult!
-
-    # RBAC role management (back-office)
-    createRbacRole(input: CreateRbacRoleInput!): RbacRoleMutationResult!
-    updateRbacRolePermissions(input: UpdateRbacRolePermissionsInput!): RbacRoleMutationResult!
-    assignRbacRoleToUser(user_id: ID!, role_id: ID!, shelter_id: ID): UserRbacAssignmentResult!
-    revokeRbacRoleAssignment(assignment_id: ID!): UserRbacAssignmentResult!
-    archiveRbacRole(role_id: ID!): RbacRoleMutationResult!
-
-    # Donations — donor mutations (guest or authenticated)
-    createGuestDonationCheckout(data: GuestDonationCheckoutInput!): DonationCheckoutResult!
-    createAuthenticatedDonation(data: AuthenticatedDonationInput!): DonationCheckoutResult!
-    createPaymentMethodSetup(data: PaymentMethodSetupInput!): PaymentMethodSetupResult!
-    removeSavedPaymentMethod(id: ID!): GenericResult!
-    setDefaultPaymentMethod(id: ID!): UserPaymentMethodResult!
-
-    # Donations — shelter mutations
-    startShelterStripeOnboarding(shelter_id: ID!, refresh_url: String!, return_url: String!): StripeOnboardingResult!
-    refreshShelterStripeAccount(shelter_id: ID!): StripeAccountRefreshResult!
-    updateShelterDonationSettings(shelter_id: ID!, data: ShelterDonationSettingsInput!): ShelterDonationSettingsResult!
-    createFundingNeed(data: FundingNeedCreateInput!): PetFundingNeedResult!
-    updateFundingNeed(id: ID!, data: FundingNeedUpdateInput!): PetFundingNeedResult!
-    closeFundingNeed(id: ID!): PetFundingNeedResult!
-    updatePetDonationLimit(data: PetDonationLimitInput!): PetDonationPolicyResult!
-    createTemporaryPetLimitOverride(data: TemporaryPetLimitOverrideInput!): PetDonationPolicyResult!
-    createShelterExpense(data: ShelterExpenseCreateInput!): ShelterExpenseResult!
-    updateShelterExpense(id: ID!, data: ShelterExpenseUpdateInput!): ShelterExpenseResult!
-    submitShelterExpense(id: ID!): ShelterExpenseResult!
-    approveShelterExpense(id: ID!): ShelterExpenseResult!
-    rejectShelterExpense(id: ID!, reason: String!): ShelterExpenseResult!
-
-    # Donations — platform mutations
-    refundDonation(donation_id: ID!, reason: String): DonationResult!
-    partiallyRefundDonation(donation_id: ID!, amount_cents: Int!, reason: String!): DonationResult!
-    suspendConnectedAccount(connected_account_id: ID!): StripeConnectedAccountResult!
-    reconcileFinancialTransaction(donation_id: ID!): ReconciliationResult!
-    retryStripeWebhookEvent(id: ID!): StripeWebhookEventResult!
+  createUser(data: UserCreate!): UserResult!
+  signUp(data: UserCreate!): UserResult!
+  updateUser(id: ID!, data: UserUpdate!): UserResult!
+  deleteUser(id: ID!): DeleteResult!
+  updateMe(data: UserUpdate!): UserResult!
+  login(email: String!, password: String!): NewTokenResult!
+  logout: Boolean!
+  refreshToken: NewTokenResult!
+  verifyUser(email: String!, code: String): NewTokenResult!
+  resendCode(email: String!): GenericResult!
+  createPet(data: PetCreate!): PetResult!
+  updatePet(id: ID!, data: PetUpdate!): PetResult!
+  deletePet(id: ID!): DeleteResult!
+  addPet(pet: PetCreate!): PetResult!
+  addPetToUser(pet: PetCreate!, userId: String!, custodyLevel: CustodyLevel): PetAddedResult!
+  addPetToMe(pet: PetCreate!, custodyLevel: CustodyLevel): PetAddedResult!
+  deleteOwnership(id: ID!): DeleteResult!
+  updateOwnership(id: ID!, data: OwnershipUpdate!): OwnershipResult!
+  linkPetToUser(userId: ID!, petId: ID!, custodyLevel: CustodyLevel): OwnershipResult!
+  linkPetToMe(petId: ID!, custodyLevel: CustodyLevel): OwnershipResult!
+  invitePetOwnership(petId: ID!, userId: ID!, custodyLevel: CustodyLevel!): OwnershipResult!
+  acceptPetOwnershipInvite(id: ID!): OwnershipResult!
+  rejectPetOwnershipInvite(id: ID!): OwnershipResult!
+  createHealthCard(data: HealthCardCreate!): HealthCardResult!
+  updateHealthCard(id: ID!, data: HealthCardUpdate!): HealthCardResult!
+  createTreatment(data: TreatmentCreate!): TreatmentResult!
+  updateTreatment(id: ID!, data: TreatmentUpdate!): TreatmentResult!
+  deleteTreatment(id: ID!): DeleteResult!
+  createWalk(data: WalkCreate!): WalkResult!
+  updateWalk(id: ID!, data: WalkUpdate!): WalkResult!
+  deleteWalk(id: ID!): DeleteResult!
+  createWalkRating(data: WalkRatingCreate!): WalkRatingResult!
+  updateWalkRating(id: ID!, data: WalkRatingUpdate!): WalkRatingResult!
+  deleteWalkRating(id: ID!): DeleteResult!
+  createCure(data: CureCreate!): CureResult!
+  updateCure(id: ID!, data: CureUpdate!): CureResult!
+  deleteCure(id: ID!): DeleteResult!
+  createReport(data: ReportCreate!): ReportResult!
+  updateReport(id: ID!, data: ReportUpdate!): ReportResult!
+  respondToReport(id: ID!, reporter: ReporterCreate!): ReportResult!
+  updateMedia(id: ID!, data: MediaUpdate!): MediaResult!
+  createMedia(data: MediaCreate!): MediaResult!
+  createCode(data: CodeCreate!): CodeResult!
+  checkCode(code: String!): CodeValidationResult!
+  restoreMemoriae(id: ID!): RestoredResult!
+  createShelter(data: ShelterCreate!): ShelterResult!
+  createPersonalWorkspace(data: CreatePersonalWorkspaceInput!): ShelterResult!
+  updateShelter(id: ID!, data: ShelterUpdate!): ShelterResult!
+  deleteShelter(id: ID!): DeleteResult!
+  createShelterRole(data: ShelterRoleCreate!): ShelterRoleResult!
+  updateShelterRole(id: ID!, data: ShelterRoleUpdate!): ShelterRoleResult!
+  deleteShelterRole(id: ID!): DeleteResult!
+  createShelterInvite(data: ShelterInviteCreate!): ShelterInviteResult!
+  acceptShelterInvite(id: ID!): ShelterInviteResult!
+  rejectShelterInvite(id: ID!): ShelterInviteResult!
+  createShelterPerson(data: CreateShelterPersonInput!): ShelterPersonResult!
+  updateShelterPerson(id: ID!, data: UpdateShelterPersonInput!): ShelterPersonResult!
+  archiveShelterPerson(id: ID!): ShelterPersonResult!
+  linkShelterPersonToUser(person_id: ID!, user_id: ID!): ShelterPersonResult!
+  requestShelterOwnershipTransfer(shelter_id: ID!, to_user_id: ID!, new_role_for_previous_owner: RoleLevel): ShelterOwnershipTransferResult!
+  acceptShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
+  rejectShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
+  cancelShelterOwnershipTransfer(id: ID!): ShelterOwnershipTransferResult!
+  requestShelterClaim(shelter_id: ID!, data: ShelterClaimInput!): ShelterClaimRequestResult!
+  cancelShelterClaim(id: ID!): ShelterClaimRequestResult!
+  approveShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
+  rejectShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
+  applyToShelterAsVolunteer(shelter_id: ID!, message: String): ShelterJoinRequestResult!
+  approveShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
+  rejectShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
+  createShelterPet(data: ShelterPetCreate!): ShelterPetResult!
+  createShelterPets(data: ShelterPetsCreate!): ShelterPetsResult!
+  createShelterPetsWithData(data: ShelterPetsWithDataCreate!): ShelterPetsResult!
+  changeShelter(data: ChangeShelterInput!): ShelterPetResult!
+  deleteShelterPet(id: ID!): DeleteResult!
+  setShelterPetAssignees(shelter_pet_id: ID!, user_ids: [ID!], shelter_person_ids: [ID!]): ShelterPetResult!
+  setShelterPetPublished(shelter_pet_id: ID!, is_published: Boolean!): ShelterPetResult!
+  createShelterTask(data: ShelterTaskCreate!): ShelterTaskResult!
+  updateShelterTask(id: ID!, data: ShelterTaskUpdate!): ShelterTaskResult!
+  completeShelterTask(id: ID!, notes: String): ShelterTaskResult!
+  skipShelterTask(id: ID!, reason: String): ShelterTaskResult!
+  deleteShelterTask(id: ID!): DeleteResult!
+  createShelterWalk(data: ShelterWalkCreate!): ShelterWalkResult!
+  updateShelterWalk(id: ID!, data: ShelterWalkUpdate!): ShelterWalkResult!
+  setShelterWalkManualDuration(id: ID!, duration_minutes: Int!): ShelterWalkResult!
+  startShelterWalk(id: ID!): ShelterWalkResult!
+  completeShelterWalk(id: ID!, notes: String): ShelterWalkResult!
+  cancelShelterWalk(id: ID!, reason: String): ShelterWalkResult!
+  deleteShelterWalk(id: ID!): DeleteResult!
+  createShelterWalkRating(data: ShelterWalkRatingCreate!): ShelterWalkRatingResult!
+  createPetWeight(data: PetWeightCreate!): PetWeightResult!
+  createShelterMap(data: ShelterMapCreate!): ShelterMapResult!
+  updateShelterMap(id: ID!, data: ShelterMapUpdate!): ShelterMapResult!
+  deleteShelterMap(id: ID!): DeleteResult!
+  createShelterBox(data: ShelterBoxCreate!): ShelterBoxResult!
+  updateShelterBox(id: ID!, data: ShelterBoxUpdate!): ShelterBoxResult!
+  deleteShelterBox(id: ID!): DeleteResult!
+  assignPetToBox(box_id: ID!, shelter_pet_id: ID!, reason: String): ShelterBoxOccupancyResult!
+  releasePetFromBox(occupancy_id: ID!, reason: String): ShelterBoxOccupancyResult!
+  movePetBetweenBoxes(shelter_pet_id: ID!, to_box_id: ID!, reason: String): ShelterBoxOccupancyResult!
+  markBoxCleaned(box_id: ID!): ShelterBoxResult!
+  setBoxOutOfService(box_id: ID!, out_of_service: Boolean!): ShelterBoxResult!
+  createShelterArea(data: ShelterAreaCreate!): ShelterAreaResult!
+  updateShelterArea(id: ID!, data: ShelterAreaUpdate!): ShelterAreaResult!
+  deleteShelterArea(id: ID!): DeleteResult!
+  createShelterZone(data: ShelterZoneCreate!): ShelterZoneResult!
+  updateShelterZone(id: ID!, data: ShelterZoneUpdate!): ShelterZoneResult!
+  deleteShelterZone(id: ID!): DeleteResult!
+  saveShelterMapLayout(map_id: ID!, data: ShelterMapLayoutInput!): ShelterMapResult!
+  createShelterMapElement(data: ShelterMapElementCreate!): ShelterMapElementResult!
+  updateShelterMapElement(id: ID!, data: ShelterMapElementUpdate!): ShelterMapElementResult!
+  deleteShelterMapElement(id: ID!): DeleteResult!
+  createShelterInventoryItem(data: ShelterInventoryItemCreate!): ShelterInventoryItemResult!
+  updateShelterInventoryItem(id: ID!, data: ShelterInventoryItemUpdate!): ShelterInventoryItemResult!
+  archiveShelterInventoryItem(id: ID!): ShelterInventoryItemResult!
+  deleteShelterInventoryItem(id: ID!): DeleteResult!
+  createShelterInventoryMovement(data: ShelterInventoryMovementCreate!): ShelterInventoryMovementResult!
+  markNotificationAsRead(id: ID!): NotificationResult!
+  markAllNotificationsAsRead: NotificationResult!
+  dismissNotification(id: ID!): NotificationResult!
+  createRbacRole(input: CreateRbacRoleInput!): RbacRoleMutationResult!
+  updateRbacRolePermissions(input: UpdateRbacRolePermissionsInput!): RbacRoleMutationResult!
+  assignRbacRoleToUser(user_id: ID!, role_id: ID!, shelter_id: ID): UserRbacAssignmentResult!
+  revokeRbacRoleAssignment(assignment_id: ID!): UserRbacAssignmentResult!
+  archiveRbacRole(role_id: ID!): RbacRoleMutationResult!
+  createGuestDonationCheckout(data: GuestDonationCheckoutInput!): DonationCheckoutResult!
+  createAuthenticatedDonation(data: AuthenticatedDonationInput!): DonationCheckoutResult!
+  createPaymentMethodSetup(data: PaymentMethodSetupInput!): PaymentMethodSetupResult!
+  removeSavedPaymentMethod(id: ID!): GenericResult!
+  setDefaultPaymentMethod(id: ID!): UserPaymentMethodResult!
+  startShelterStripeOnboarding(shelter_id: ID!, refresh_url: String!, return_url: String!): StripeOnboardingResult!
+  refreshShelterStripeAccount(shelter_id: ID!): StripeAccountRefreshResult!
+  updateShelterDonationSettings(shelter_id: ID!, data: ShelterDonationSettingsInput!): ShelterDonationSettingsResult!
+  createFundingNeed(data: FundingNeedCreateInput!): PetFundingNeedResult!
+  updateFundingNeed(id: ID!, data: FundingNeedUpdateInput!): PetFundingNeedResult!
+  closeFundingNeed(id: ID!): PetFundingNeedResult!
+  updatePetDonationLimit(data: PetDonationLimitInput!): PetDonationPolicyResult!
+  createTemporaryPetLimitOverride(data: TemporaryPetLimitOverrideInput!): PetDonationPolicyResult!
+  createShelterExpense(data: ShelterExpenseCreateInput!): ShelterExpenseResult!
+  updateShelterExpense(id: ID!, data: ShelterExpenseUpdateInput!): ShelterExpenseResult!
+  submitShelterExpense(id: ID!): ShelterExpenseResult!
+  approveShelterExpense(id: ID!): ShelterExpenseResult!
+  rejectShelterExpense(id: ID!, reason: String!): ShelterExpenseResult!
+  refundDonation(donation_id: ID!, reason: String): DonationResult!
+  partiallyRefundDonation(donation_id: ID!, amount_cents: Int!, reason: String!): DonationResult!
+  suspendConnectedAccount(connected_account_id: ID!): StripeConnectedAccountResult!
+  reconcileFinancialTransaction(donation_id: ID!): ReconciliationResult!
+  retryStripeWebhookEvent(id: ID!): StripeWebhookEventResult!
 }
-
-
-############################
-# Common
-############################
 
 type Error {
-    code: String!
-    errorCode: String
-    message: String!
-    extra: String
+  code: String!
+  errorCode: String
+  message: String!
+  extra: String
 }
 
-# Authorization (RBAC): effective permissions of the caller on one shelter.
-# The frontend must consume these keys, never derive capabilities from role names.
 type ShelterAuthorization {
-    shelter_id: ID!
-    membership_status: String
-    permissions: [String!]!
+  shelter_id: ID!
+  membership_status: String
+  permissions: [String!]!
 }
 
 type ShelterAuthorizationResult {
-    success: Boolean!
-    error: Error
-    authorization: ShelterAuthorization
+  success: Boolean!
+  error: Error
+  authorization: ShelterAuthorization
 }
 
 type RbacRole {
-    id: ID!
-    code: String!
-    name: String!
-    scope_type: String!
-    is_system: Boolean!
-    grants_all_permissions: Boolean!
-    permissions: [String!]!
+  id: ID!
+  code: String!
+  name: String!
+  scope_type: String!
+  is_system: Boolean!
+  grants_all_permissions: Boolean!
+  permissions: [String!]!
 }
 
 type RbacRolesResult {
-    success: Boolean!
-    error: Error
-    roles: [RbacRole!]!
+  success: Boolean!
+  error: Error
+  roles: [RbacRole!]!
 }
 
 type UserRbacAssignment {
-    id: ID!
-    role_id: ID!
-    role_code: String!
-    role_name: String!
-    scope_type: String!
-    shelter_id: ID
-    status: String!
-    valid_from: String
-    valid_until: String
-    assigned_at: String!
+  id: ID!
+  role_id: ID!
+  role_code: String!
+  role_name: String!
+  scope_type: String!
+  shelter_id: ID
+  status: String!
+  valid_from: String
+  valid_until: String
+  assigned_at: String!
 }
 
 type UserRbacAssignmentResult {
-    success: Boolean!
-    error: Error
-    assignment: UserRbacAssignment
+  success: Boolean!
+  error: Error
+  assignment: UserRbacAssignment
 }
 
 type UserRbacResult {
-    success: Boolean!
-    error: Error
-    assignments: [UserRbacAssignment!]!
-    effective_platform_permissions: [String!]!
+  success: Boolean!
+  error: Error
+  assignments: [UserRbacAssignment!]!
+  effective_platform_permissions: [String!]!
 }
 
 type RbacPermission {
-    key: String!
-    domain: String!
-    scope_type: String!
-    risk_level: String!
+  key: String!
+  domain: String!
+  scope_type: String!
+  risk_level: String!
 }
 
 type RbacRoleMutationResult {
-    success: Boolean!
-    error: Error
-    role: RbacRole
-}
-
-input CreateRbacRoleInput {
-    code: String!
-    name: String!
-    description: String
-    scope_type: String!
-    permission_keys: [String!]!
-}
-
-input UpdateRbacRolePermissionsInput {
-    role_id: ID!
-    permission_keys: [String!]!
+  success: Boolean!
+  error: Error
+  role: RbacRole
 }
 
 type GenericResult {
-    success: Boolean!
-    error: Error
+  success: Boolean!
+  error: Error
 }
 
 type DefaultResult {
-    success: Boolean
-    error: Error
+  success: Boolean
+  error: Error
 }
 
 type DeleteResult {
-    success: Boolean
-    id: ID
-    error: Error
+  success: Boolean
+  id: ID
+  error: Error
 }
 
 type Coordinates {
-    latitude: Float
-    longitude: Float
+  latitude: Float
+  longitude: Float
 }
 
 """
 how a list is owganized by how many items has been found, in which page we are, the number of element per page and how many pages there are
 """
 type Pagination {
-    total_items: Int
-    total_pages: Int
-    current_page: Int
-    page_size: Int
+  total_items: Int
+  total_pages: Int
+  current_page: Int
+  page_size: Int
 }
 
 type Tag {
-    id: ID!
-    text: String!
-}
-
-input CommonSearch {
-    page: Int = 0
-    page_size: Int = 20
-    order_by: String = "created_at"
-    order_direction: String = "desc"
-    filters: DeepFilters = {
-        fixed: []
-        ranges: []
-        lists: []
-        join: []
-        and: null
-        or: null
-        not: null
-    }
-}
-
-input DeepFilters {
-    and: DeepFilters
-    or: DeepFilters
-    not: DeepFilters
-    fixed: [FixedFilter] = []
-    ranges: [RangeFilter] = []
-    search: SearchFilter = { value: "", fields: [] }
-    lists: [ListFilter] = []
-    join: [Join] = []
-}
-
-input FixedFilter {
-    key: String!
-    value: String!
-}
-
-input Filters {
-    fixed: [FixedFilter] = []
-    ranges: [RangeFilter] = []
-    lists: [ListFilter] = []
-    join: [Join] = []
-    search: [SearchFilter]
-}
-
-input ListFilter {
-    key: String
-    value: [String]!
-}
-
-input RangeFilter {
-    key: String!
-    value: RangeFilterValue
-}
-
-input RangeFilterValue {
-    min: String
-    max: String
-}
-
-input SearchFilter {
-    value: String = ""
-    fields: [String] = []
-}
-
-"""
-just see
-"""
-input Join {
-    key: String!
-    value: DeepFilters!
-}
-
-
-############################
-# User
-############################
-
-enum UserRole {
-    USER
-    ADMIN
+  id: ID!
+  text: String!
 }
 
 type User {
-    id: ID!
-    first_name: String!
-    last_name: String!
-    email: String!
-    role: UserRole!
-    verified: Boolean!
-    created_at: String!
-    ownerships(commonSearch: CommonSearch = {}): PaginatedOwnerships
-    pets_owned: Int!
-    pets_on_loan: Int!
-    last_activity: String
-    profile_picture: Media
-    reports(commonSearch: CommonSearch = {}): PaginatedReports
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  role: UserRole!
+  verified: Boolean!
+  created_at: String!
+  ownerships(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedOwnerships
+  pets_owned: Int!
+  pets_on_loan: Int!
+  last_activity: String
+  profile_picture: Media
+  reports(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedReports
 }
 
 type UserResult {
-    success: Boolean!
-    error: Error
-    user: User
+  success: Boolean!
+  error: Error
+  user: User
 }
 
 type UsersResult {
-    success: Boolean!
-    error: Error
-    users: [User]!
+  success: Boolean!
+  error: Error
+  users: [User]!
 }
 
 type PaginatedUsers {
-    success: Boolean
-    error: Error
-    items: [User]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [User]!
+  pagination: Pagination!
 }
 
 type UserDashboard {
-    user_id: String
-    ownerships(commonSearch: CommonSearch = {}): PaginatedOwnerships
-    reports(commonSearch: CommonSearch = {}): PaginatedReports
+  user_id: String
+  ownerships(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedOwnerships
+  reports(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedReports
 }
 
 type UserDashboardResult {
-    dashboard: UserDashboard
-    error: Error
-    success: Boolean
+  dashboard: UserDashboard
+  error: Error
+  success: Boolean
 }
 
 type NewTokenResult {
-    success: Boolean!
-    error: Error
-    token: String
-    user: User
-}
-
-input UserCreate {
-    first_name: String!
-    last_name: String!
-    email: String!
-    password: String!
-}
-
-input UserUpdate {
-    first_name: String
-    last_name: String
-    email: String
-    last_activity: String
-    # solo ADMIN (updateUser): verifica manuale di un utente
-    verified: Boolean
-}
-
-
-############################
-# Pet
-############################
-
-enum CoatLength {
-    SHORT
-    MEDIUM
-    LONG
-    HAIRLESS
-}
-
-enum Gender {
-    MALE
-    FEMALE
-    NOT_SAID
-}
-
-enum PetFamily {
-    REPTILE
-    CANINE
-    FELINE
-    BIRDS
-    FISH
+  success: Boolean!
+  error: Error
+  token: String
+  user: User
 }
 
 type Pet {
-    id: ID!
-    name: String!
-    ownerships(commonSearch: CommonSearch = {}): PaginatedOwnerships
-    birthday: String
-    neutered: Boolean
-    gender: Gender
-    health_card: HealthCard
-    chip_code: String
-    weight_kg: Float
-    temperament: String
-    coat_length: CoatLength
-    breed: String
-    years: Int
-    diet: [String]
-    intollerance: [String]
-    disciplines: [String]
-    main_picture: Media
-    pictures(commonSearch: CommonSearch = {}): PaginatedMedias
-    report: Report
+  id: ID!
+  name: String!
+  ownerships(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedOwnerships
+  birthday: String
+  neutered: Boolean
+  gender: Gender
+  health_card: HealthCard
+  chip_code: String
+  weight_kg: Float
+  temperament: String
+  coat_length: CoatLength
+  breed: String
+  years: Int
+  diet: [String]
+  intollerance: [String]
+  disciplines: [String]
+  main_picture: Media
+  pictures(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedMedias
+  report: Report
 }
 
 type PetResult {
-    success: Boolean!
-    error: Error
-    pet: Pet
+  success: Boolean!
+  error: Error
+  pet: Pet
 }
 
 type PetsResult {
-    success: Boolean!
-    error: Error
-    pets: [Pet]!
+  success: Boolean!
+  error: Error
+  pets: [Pet]!
 }
 
 type PaginatedPets {
-    success: Boolean!
-    error: Error
-    items: [Pet]!
-    pagination: Pagination!
+  success: Boolean!
+  error: Error
+  items: [Pet]!
+  pagination: Pagination!
 }
 
 type PetAddedResult {
-    success: Boolean!
-    error: Error
-    data: NewOwnership
+  success: Boolean!
+  error: Error
+  data: NewOwnership
 }
 
 type NewOwnership {
-    pet: Pet!
-    ownership: Ownership!
-}
-
-input PetCreate {
-    name: String!
-    birthday: String
-    neutered: Boolean
-    gender: Gender
-    chip_code: String
-    weight_kg: Float
-    breed: String
-    coat_length: CoatLength
-    temperament: String
-    diet: [String]
-    intollerance: [String]
-    disciplines: [String]
-}
-
-input PetUpdate {
-    name: String
-    birthday: String
-    neutered: Boolean
-    gender: Gender
-    chip_code: String
-    weight_kg: Float
-    temperament: String
-    breed: String
-    coat_length: CoatLength
-    diet: [String]
-    intollerance: [String]
-    disciplines: [String]
-}
-
-
-############################
-# Ownership
-############################
-
-enum CustodyLevel {
-    SUB_OWNER
-    OWNER
-    PET_SITTER
-}
-
-enum OwnershipStatus {
-    PENDING
-    ACCEPTED
-    REJECTED
+  pet: Pet!
+  ownership: Ownership!
 }
 
 type Ownership {
-    id: ID!
-    user: User!
-    pet: Pet!
-    custody_level: CustodyLevel!
-    status: OwnershipStatus!
+  id: ID!
+  user: User!
+  pet: Pet!
+  custody_level: CustodyLevel!
+  status: OwnershipStatus!
 }
 
 type OwnershipResult {
-    success: Boolean!
-    error: Error
-    ownership: Ownership
+  success: Boolean!
+  error: Error
+  ownership: Ownership
 }
 
 type OwnershipsResult {
-    success: Boolean!
-    error: Error
-    ownerships: [Ownership]!
+  success: Boolean!
+  error: Error
+  ownerships: [Ownership]!
 }
 
 type PaginatedOwnerships {
-    success: Boolean
-    error: Error
-    items: [Ownership]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Ownership]!
+  pagination: Pagination!
 }
-
-input OwnershipUpdate {
-    custody_level: CustodyLevel!
-}
-
-
-############################
-# HealthCard
-############################
 
 type HealthCard {
-    id: ID!
-    pet: Pet!
-    treatments(commonSearch: CommonSearch = {}): PaginatedTreatments!
-    notes: [String]!
+  id: ID!
+  pet: Pet!
+  treatments(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedTreatments!
+  notes: [String]!
 }
 
 type HealthCardResult {
-    health_card: HealthCard
-    success: Boolean
-    error: Error
+  health_card: HealthCard
+  success: Boolean
+  error: Error
 }
 
 type PaginatedHealthCards {
-    success: Boolean
-    error: Error
-    items: [HealthCard]!
-    pagination: Pagination!
-}
-
-input HealthCardCreate {
-    pet_id: ID!
-}
-
-input HealthCardUpdate {
-    notes: [String]!
-}
-
-
-############################
-# Treatment
-############################
-
-enum TreatmentType {
-    VACCINE
-    ANTIPARASITIC
-    TABLET
-    OPERATION
-    REMINDER
-    TRAINING
-    WALK
-    CHECK
-    CURE
-}
-
-enum treatmentDuration {
-    TEN_MINUTES
-    QUARTER_HOUR
-    THREE_QUARTER
-    HALF_HOUR
-    HOUR
-    HOUR_AND_HALF
-    TWO_HOURS
+  success: Boolean
+  error: Error
+  items: [HealthCard]!
+  pagination: Pagination!
 }
 
 type Treatment {
-    id: ID!
-    created_at: String!
-    type: TreatmentType!
-    name: String!
-    date: String!
-    logs: [String]
-    duration: treatmentDuration
-    booster: Treatment
-    health_card: HealthCard
-    related: [MinTreatment]
+  id: ID!
+  created_at: String!
+  type: TreatmentType!
+  name: String!
+  date: String!
+  logs: [String]
+  duration: treatmentDuration
+  booster: Treatment
+  health_card: HealthCard
+  related: [MinTreatment]
 }
 
 type MinTreatment {
-    id: ID!
-    type: TreatmentType!
-    name: String!
-    date: String!
-    duration: treatmentDuration
+  id: ID!
+  type: TreatmentType!
+  name: String!
+  date: String!
+  duration: treatmentDuration
 }
 
 type TreatmentResult {
-    treatment: Treatment
-    success: Boolean
-    error: Error
+  treatment: Treatment
+  success: Boolean
+  error: Error
 }
 
 type PaginatedTreatments {
-    success: Boolean
-    error: Error
-    items: [Treatment]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Treatment]!
+  pagination: Pagination!
 }
-
-input TreatmentCreate {
-    health_card_id: ID!
-    name: String!
-    date: String!
-    type: TreatmentType!
-    duration: treatmentDuration
-    logs: [String]
-    booster_date: String
-}
-
-input TreatmentUpdate {
-    logs: [String]
-    date: String
-    name: String
-    delete_old: Boolean
-    booster_date: String
-    treatmentDuration: treatmentDuration
-    type: TreatmentType
-}
-
-
-############################
-# Walk
-############################
 
 type Walk {
-    id: ID!
-    created_at: String!
-    date: String!
-    distance_km: Float!
-    treatment: MinTreatment!
-    ratings(commonSearch: CommonSearch = {}): PaginatedWalkRatings
+  id: ID!
+  created_at: String!
+  date: String!
+  distance_km: Float!
+  treatment: MinTreatment!
+  ratings(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedWalkRatings
 }
 
 type WalkResult {
-    walk: Walk
-    success: Boolean
-    error: Error
+  walk: Walk
+  success: Boolean
+  error: Error
 }
 
 type PaginatedWalks {
-    success: Boolean
-    error: Error
-    items: [Walk]!
-    pagination: Pagination!
-}
-
-input WalkCreate {
-    date: String!
-    distance_km: Float!
-    health_card_id: ID!
-    name: String
-    notes: [String]
-    duration: treatmentDuration
-}
-
-input WalkUpdate {
-    date: String
-    distance_km: Float
-    duration: treatmentDuration
-    notes: [String]
-}
-
-
-############################
-# WalkRating
-############################
-
-enum WalkRatingType {
-    OVERALL
-    LEASH_PULLING
-    BEHAVIOR
-    AGGRESSION
-    CALM
+  success: Boolean
+  error: Error
+  items: [Walk]!
+  pagination: Pagination!
 }
 
 type WalkRating {
-    id: ID!
-    created_at: String!
-    type: WalkRatingType!
-    rating: Int!
-    walk: Walk!
+  id: ID!
+  created_at: String!
+  type: WalkRatingType!
+  rating: Int!
+  walk: Walk!
 }
 
 type WalkRatingResult {
-    success: Boolean!
-    error: Error
-    walk_rating: WalkRating
+  success: Boolean!
+  error: Error
+  walk_rating: WalkRating
 }
 
 type PaginatedWalkRatings {
-    success: Boolean
-    error: Error
-    items: [WalkRating]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [WalkRating]!
+  pagination: Pagination!
 }
-
-input WalkRatingCreate {
-    walk_id: ID!
-    type: WalkRatingType!
-    rating: Int!
-}
-
-input WalkRatingUpdate {
-    type: WalkRatingType
-    rating: Int
-}
-
-############################
-# WalkingStats (chart.js-ready)
-############################
-
-enum StatsPeriod { WEEKLY MONTHLY YEARLY }
 
 type WalkRatingSeries {
-    type: WalkRatingType!
-    # one entry per WalkRatingChartData.labels, null where no rating exists
-    # for that bucket (chart.js renders a gap instead of a false 0 dip)
-    data: [Float]!
+  type: WalkRatingType!
+  data: [Float]!
 }
 
 type WalkRatingChartData {
-    labels: [String!]!
-    series: [WalkRatingSeries!]!
+  labels: [String!]!
+  series: [WalkRatingSeries!]!
 }
 
 type WalkRatingChartResult {
-    success: Boolean!
-    error: Error
-    chart: WalkRatingChartData
+  success: Boolean!
+  error: Error
+  chart: WalkRatingChartData
 }
 
-############################
-# PetWeight
-############################
-
 type PetWeight {
-    id: ID!
-    created_at: String!
-    pet_id: ID!
-    weight_kg: Float!
+  id: ID!
+  created_at: String!
+  pet_id: ID!
+  weight_kg: Float!
 }
 
 type PetWeightResult {
-    success: Boolean!
-    error: Error
-    weight: PetWeight
-}
-
-input PetWeightCreate {
-    pet_id: ID!
-    weight_kg: Float!
+  success: Boolean!
+  error: Error
+  weight: PetWeight
 }
 
 type PetWeightChartData {
-    labels: [String!]!
-    # one entry per label, null where no weight was logged in that bucket
-    data: [Float]!
+  labels: [String!]!
+  data: [Float]!
 }
 
 type PetWeightChartResult {
-    success: Boolean!
-    error: Error
-    chart: PetWeightChartData
-}
-
-
-############################
-# Cure
-############################
-
-enum FrequencyUnit {
-    DAILY
-    WEEKLY
-    MONTHLY
-    YEARLY
+  success: Boolean!
+  error: Error
+  chart: PetWeightChartData
 }
 
 type Cure {
-    id: ID!
-    created_at: String!
-    date: String!
-    treatment: MinTreatment!
-    frequency_times: Int
-    frequency_value: Int
-    frequency_unit: FrequencyUnit
+  id: ID!
+  created_at: String!
+  date: String!
+  treatment: MinTreatment!
+  frequency_times: Int
+  frequency_value: Int
+  frequency_unit: FrequencyUnit
 }
 
 type CureResult {
-    cure: Cure
-    success: Boolean
-    error: Error
+  cure: Cure
+  success: Boolean
+  error: Error
 }
 
 type PaginatedCures {
-    success: Boolean
-    error: Error
-    items: [Cure]!
-    pagination: Pagination!
-}
-
-input CureCreate {
-    name: String!
-    date: String!
-    health_card_id: ID!
-    frequency_times: Int
-    frequency_value: Int
-    frequency_unit: FrequencyUnit
-    notes: [String]
-}
-
-input CureUpdate {
-    date: String
-    frequency_times: Int
-    frequency_value: Int
-    frequency_unit: FrequencyUnit
-    notes: [String]
-}
-
-
-############################
-# Report
-############################
-
-enum ReportType {
-    MISSING
-    FOUND
+  success: Boolean
+  error: Error
+  items: [Cure]!
+  pagination: Pagination!
 }
 
 type Report {
-    id: ID!
-    created_at: String!
-    date: String!
-    updated_at: String!
-    type: ReportType!
-    place: String!
-    coordinates: Coordinates!
-    latitude: Float!
-    longitude: Float!
-    reporter: Reporter!
-    responders: [Reporter]!
-    notes: [String]
-    pet: Pet
-    medias: [Media]
+  id: ID!
+  created_at: String!
+  date: String!
+  updated_at: String!
+  type: ReportType!
+  place: String!
+  coordinates: Coordinates!
+  latitude: Float!
+  longitude: Float!
+  reporter: Reporter!
+  responders: [Reporter]!
+  notes: [String]
+  pet: Pet
+  medias: [Media]
 }
 
 type Reporter {
-    email: String!
-    first_name: String!
-    last_name: String!
-    user_id: String
+  email: String!
+  first_name: String!
+  last_name: String!
+  user_id: String
 }
 
 type ReportResult {
-    success: Boolean!
-    error: Error
-    report: Report
+  success: Boolean!
+  error: Error
+  report: Report
 }
 
 type PaginatedReports {
-    success: Boolean
-    error: Error
-    items: [Report]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Report]!
+  pagination: Pagination!
 }
-
-input ReportCreate {
-    type: ReportType!
-    place: String!
-    latitude: Float!
-    longitude: Float!
-    reporter: ReporterCreate!
-    notes: [String]
-    pet_id: String
-    date: String
-}
-
-input ReportUpdate {
-    place: String
-    latitude: Float
-    longitude: Float
-    notes: [String]
-    responders: [ReporterCreate]
-}
-
-input ReporterCreate {
-    email: String!
-    first_name: String!
-    last_name: String!
-    user_id: String
-}
-
-
-############################
-# Media
-############################
 
 type Media {
-    id: ID!
-    url: String!
-    type: String!
-    scope: String!
-    main_color: MainColor
-    main_colors: [MainColor!]
-    ref_id: String!
+  id: ID!
+  url: String!
+  type: String!
+  scope: String!
+  main_color: MainColor
+  main_colors: [MainColor!]
+  ref_id: String!
 }
 
 type MainColor {
-    color: String!
-    contrast: String!
+  color: String!
+  contrast: String!
 }
 
 type MediaResult {
-    success: Boolean!
-    error: Error
-    media: Media
+  success: Boolean!
+  error: Error
+  media: Media
 }
 
 type PaginatedMedias {
-    success: Boolean
-    error: Error
-    items: [Media]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Media]!
+  pagination: Pagination!
 }
-
-input MediaCreate {
-    url: String!
-    scope: String!
-    ref_id: String!
-    main_colors: [MainColorCreate] = []
-    main_color: MainColorCreate
-    type: String!
-}
-
-input MediaUpdate {
-    url: String
-    scope: String
-    ref_id: String
-    main_colors: [MainColorCreate] = []
-    main_color: MainColorCreate
-    type: String
-}
-
-input MainColorCreate {
-    color: String!
-    contrast: String
-}
-
-
-############################
-# Code
-############################
 
 type Code {
-    id: ID!
-    code: String!
-    ref_id: ID!
-    scope: String!
-    valid: Boolean!
-    ref_table: String!
-    created_by: String!
-    created_at: String!
+  id: ID!
+  code: String!
+  ref_id: ID!
+  scope: String!
+  valid: Boolean!
+  ref_table: String!
+  created_by: String!
+  created_at: String!
 }
 
 type CodeResult {
-    success: Boolean!
-    error: Error
-    code: Code
+  success: Boolean!
+  error: Error
+  code: Code
 }
 
 type CodeValidationResult {
-    success: Boolean!
-    error: Error
-    is_valid: Boolean
-    code: Code
+  success: Boolean!
+  error: Error
+  is_valid: Boolean
+  code: Code
 }
 
 type PaginatedCodes {
-    success: Boolean
-    error: Error
-    items: [Code]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Code]!
+  pagination: Pagination!
 }
-
-input CodeCreate {
-    code: String!
-    ref_id: String!
-    ref_table: String!
-}
-
-
-############################
-# Statistics & Dashboard
-############################
 
 type Statistic {
-    id: ID!
-    date: String!
-    all_user: Int!
-    all_pets: Int!
-    all_active_users: Int!
+  id: ID!
+  date: String!
+  all_user: Int!
+  all_pets: Int!
+  all_active_users: Int!
 }
 
 type StatisticResult {
-    success: Boolean!
-    error: Error
-    statistic: Statistic
+  success: Boolean!
+  error: Error
+  statistic: Statistic
 }
 
 type Statistics {
-    labels: [String!]!
-    active_users_mean: [Float!]!
-    active_users_min: [Float!]!
-    active_users_max: [Float!]!
-    all_users: [Float!]!
-    all_pets: [Float!]!
+  labels: [String!]!
+  active_users_mean: [Float!]!
+  active_users_min: [Float!]!
+  active_users_max: [Float!]!
+  all_users: [Float!]!
+  all_pets: [Float!]!
 }
 
 type StatisticsResult {
-    success: Boolean!
-    error: Error
-    statistics: Statistics
+  success: Boolean!
+  error: Error
+  statistics: Statistics
 }
 
 type DailyStats {
-    all_users: Int!
-    active_users: Int!
-    all_pets: Int!
-    all_reports: Int!
-    daily_reports: Int!
-    active_users_percent: Float!
+  all_users: Int!
+  active_users: Int!
+  all_pets: Int!
+  all_reports: Int!
+  daily_reports: Int!
+  active_users_percent: Float!
 }
 
 type RealTimeStatisticResult {
-    success: Boolean!
-    error: Error
-    statistics: DailyStats
+  success: Boolean!
+  error: Error
+  statistics: DailyStats
 }
 
 type Dashboard {
-    active_users: Int!
-    active_users_percent: Float!
-    all_users: Int!
-    all_pets: Int!
-    labels: [String!]!
-    active_users_mean: Int!
-    active_users_percent_stats: [Float!]!
-    active_users_stats: [Int!]!
-    all_pet_stats: [Int!]!
-    all_users_stats: [Int!]!
+  active_users: Int!
+  active_users_percent: Float!
+  all_users: Int!
+  all_pets: Int!
+  labels: [String!]!
+  active_users_mean: Int!
+  active_users_percent_stats: [Float!]!
+  active_users_stats: [Int!]!
+  all_pet_stats: [Int!]!
+  all_users_stats: [Int!]!
 }
 
 type DashboardResult {
-    success: Boolean!
-    error: Error
-    dashboard: Dashboard
+  success: Boolean!
+  error: Error
+  dashboard: Dashboard
 }
 
-
-############################
-# DamnatioMemoriae
-############################
-
 type DamnatioMemoriae {
-    id: ID!
-    created_at: String!
-    original_table: String!
-    original_data: JSON
+  id: ID!
+  created_at: String!
+  original_table: String!
+  original_data: JSON
 }
 
 type DamnatioMemoriaeResult {
-    success: Boolean!
-    error: Error
-    DamnatioMemoriae: DamnatioMemoriae
+  success: Boolean!
+  error: Error
+  DamnatioMemoriae: DamnatioMemoriae
 }
 
 type PaginatedDamnationesMemoriae {
-    success: Boolean!
-    error: Error
-    items: [DamnatioMemoriae]!
-    pagination: Pagination!
+  success: Boolean!
+  error: Error
+  items: [DamnatioMemoriae]!
+  pagination: Pagination!
 }
 
 type RestoredResult {
-    success: Boolean!
-    error: Error
-    table: String
-    restored: JSON
-}
-
-
-############################
-# Shelter
-############################
-
-enum ShelterType {
-    OFFICIAL_SHELTER
-    PERSONAL_WORKSPACE
-}
-
-enum ShelterVerificationStatus {
-    UNVERIFIED
-    PENDING_CLAIM
-    VERIFIED
-    REJECTED
-}
-
-enum ShelterVisibility {
-    PRIVATE
-    UNLISTED
-    PUBLIC
+  success: Boolean!
+  error: Error
+  table: String
+  restored: JSON
 }
 
 type Shelter {
-    id: ID!
-    created_at: String!
-    name: String!
-    street: String!
-    street_number: String!
-    city: String!
-    province_code: String!
-    postal_code: String!
-    region: String
-    district: String
-    contacts: [ShelterContact]
-    type: ShelterType!
-    verification_status: ShelterVerificationStatus!
-    visibility: ShelterVisibility!
-    public_description: String
-    # sanitized rich-text (WYSIWYG) story, HTML; see PublicShelter
-    public_story_html: String
-    public_contact_email: String
-    public_contact_phone: String
-    accepts_volunteers: Boolean!
-    public_location_label: String
-    public_lat: Float
-    public_lng: Float
-    roles(commonSearch: CommonSearch = {}): PaginatedShelterRoles
-    pets(commonSearch: CommonSearch = {}): PaginatedShelterPets
+  id: ID!
+  created_at: String!
+  name: String!
+  street: String!
+  street_number: String!
+  city: String!
+  province_code: String!
+  postal_code: String!
+  region: String
+  district: String
+  contacts: [ShelterContact]
+  type: ShelterType!
+  verification_status: ShelterVerificationStatus!
+  visibility: ShelterVisibility!
+  public_description: String
+  public_story_html: String
+  public_contact_email: String
+  public_contact_phone: String
+  accepts_volunteers: Boolean!
+  public_location_label: String
+  public_lat: Float
+  public_lng: Float
+  roles(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterRoles
+  pets(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterPets
 }
 
 type ShelterContact {
-    type: String
-    value: String
+  type: String
+  value: String
 }
 
 type ShelterResult {
-    success: Boolean!
-    error: Error
-    shelter: Shelter
+  success: Boolean!
+  error: Error
+  shelter: Shelter
 }
 
-# Read-only public-discovery projection of Shelter: only PUBLIC + VERIFIED
-# shelters are ever returned as this type, and only their public fields are
-# exposed (no roles, pets, tasks, inventory, boxes or dashboard data).
 type PublicShelter {
-    id: ID!
-    name: String!
-    city: String
-    region: String
-    public_description: String
-    # sanitized rich-text HTML composed in the backoffice WYSIWYG, safe to
-    # render directly (sanitized server-side on write, see utils/html_sanitize)
-    public_story_html: String
-    public_contact_email: String
-    public_contact_phone: String
-    logo_media_id: ID
-    accepts_volunteers: Boolean!
-    public_location_label: String
-    public_lat: Float
-    public_lng: Float
-}
-
-input PublicShelterSearchInput {
-    name: String
-    city: String
-    province_code: String
-    accepts_volunteers: Boolean
-    page: Int = 0
-    page_size: Int = 20
+  id: ID!
+  name: String!
+  city: String
+  region: String
+  public_description: String
+  public_story_html: String
+  public_contact_email: String
+  public_contact_phone: String
+  logo_media_id: ID
+  accepts_volunteers: Boolean!
+  public_location_label: String
+  public_lat: Float
+  public_lng: Float
 }
 
 type PaginatedPublicShelters {
-    success: Boolean
-    error: Error
-    items: [PublicShelter]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [PublicShelter]!
+  pagination: Pagination!
 }
 
 type PaginatedShelters {
-    success: Boolean
-    error: Error
-    items: [Shelter]!
-    pagination: Pagination!
-}
-
-input ShelterCreate {
-    name: String!
-    street: String!
-    street_number: String!
-    city: String!
-    province_code: String!
-    postal_code: String!
-    region: String
-    district: String
-    contacts: [ShelterContactInput] = []
-}
-
-input CreatePersonalWorkspaceInput {
-    name: String!
-    street: String
-    street_number: String
-    city: String
-    province_code: String
-    postal_code: String
-    region: String
-    district: String
-    contacts: [ShelterContactInput] = []
-}
-
-input ShelterUpdate {
-    name: String
-    street: String
-    street_number: String
-    city: String
-    province_code: String
-    postal_code: String
-    region: String
-    district: String
-    contacts: [ShelterContactInput]
-    public_description: String
-    # raw WYSIWYG HTML; sanitized server-side before persisting
-    public_story_html: String
-    public_contact_email: String
-    public_contact_phone: String
-    accepts_volunteers: Boolean
-    public_location_label: String
-    public_lat: Float
-    public_lng: Float
-}
-
-input ShelterContactInput {
-    type: String!
-    value: String!
-}
-
-
-############################
-# ShelterRole
-############################
-
-enum RoleLevel {
-    OWNER
-    MANAGER
-    STAFF
-    VOLUNTEER
+  success: Boolean
+  error: Error
+  items: [Shelter]!
+  pagination: Pagination!
 }
 
 type ShelterRole {
-    id: ID!
-    created_at: String!
-    user: User!
-    shelter: Shelter!
-    role: RoleLevel!
+  id: ID!
+  created_at: String!
+  user: User!
+  shelter: Shelter!
+  role: RoleLevel!
 }
 
 type ShelterRoleResult {
-    success: Boolean!
-    error: Error
-    shelter_role: ShelterRole
+  success: Boolean!
+  error: Error
+  shelter_role: ShelterRole
 }
 
 type PaginatedShelterRoles {
-    success: Boolean
-    error: Error
-    items: [ShelterRole]!
-    pagination: Pagination!
-}
-
-input ShelterRoleCreate {
-    user_id: ID!
-    shelter_id: ID!
-    role: RoleLevel!
-}
-
-input ShelterRoleUpdate {
-    role: RoleLevel
-}
-
-enum ShelterInviteStatus {
-    PENDING
-    ACCEPTED
-    REJECTED
+  success: Boolean
+  error: Error
+  items: [ShelterRole]!
+  pagination: Pagination!
 }
 
 type ShelterInvite {
-    id: ID!
-    created_at: String!
-    user: User!
-    shelter: Shelter!
-    role: RoleLevel!
-    status: ShelterInviteStatus!
-    invited_by: User
+  id: ID!
+  created_at: String!
+  user: User!
+  shelter: Shelter!
+  role: RoleLevel!
+  status: ShelterInviteStatus!
+  invited_by: User
 }
 
 type ShelterInviteResult {
-    success: Boolean!
-    error: Error
-    shelter_invite: ShelterInvite
-}
-
-input ShelterInviteCreate {
-    shelter_id: ID!
-    user_id: ID!
-    role: RoleLevel!
-}
-
-enum ShelterPersonStatus {
-    VISITOR
-    VOLUNTEER
-    PENDING_INVITE
-    ACTIVE_USER
-    ARCHIVED
-}
-
-enum ShelterPersonSource {
-    MANUAL
-    INVITE
-    VISIT
-    VOLUNTEER_REQUEST
-    IMPORT
+  success: Boolean!
+  error: Error
+  shelter_invite: ShelterInvite
 }
 
 type ShelterPerson {
-    id: ID!
-    created_at: String!
-    updated_at: String
-    shelter: Shelter!
-    user: User
-    first_name: String
-    last_name: String
-    email: String
-    phone: String
-    status: ShelterPersonStatus!
-    source: ShelterPersonSource!
-    notes: String
-    created_by: User
-    archived_at: String
-    archived_by: User
+  id: ID!
+  created_at: String!
+  updated_at: String
+  shelter: Shelter!
+  user: User
+  first_name: String
+  last_name: String
+  email: String
+  phone: String
+  status: ShelterPersonStatus!
+  source: ShelterPersonSource!
+  notes: String
+  created_by: User
+  archived_at: String
+  archived_by: User
 }
 
 type ShelterPersonResult {
-    success: Boolean!
-    error: Error
-    shelter_person: ShelterPerson
+  success: Boolean!
+  error: Error
+  shelter_person: ShelterPerson
 }
 
 type PaginatedShelterPeople {
-    success: Boolean
-    error: Error
-    items: [ShelterPerson]!
-    pagination: Pagination!
-}
-
-input CreateShelterPersonInput {
-    shelter_id: ID!
-    user_id: ID
-    first_name: String
-    last_name: String
-    email: String
-    phone: String
-    status: ShelterPersonStatus
-    source: ShelterPersonSource
-    notes: String
-}
-
-input UpdateShelterPersonInput {
-    first_name: String
-    last_name: String
-    email: String
-    phone: String
-    status: ShelterPersonStatus
-    source: ShelterPersonSource
-    notes: String
-}
-
-
-############################
-# ShelterOwnershipTransfer
-############################
-
-enum ShelterOwnershipTransferStatus {
-    PENDING
-    ACCEPTED
-    REJECTED
-    CANCELLED
-    EXPIRED
+  success: Boolean
+  error: Error
+  items: [ShelterPerson]!
+  pagination: Pagination!
 }
 
 type ShelterOwnershipTransfer {
-    id: ID!
-    created_at: String!
-    updated_at: String
-    shelter: Shelter!
-    from_user: User!
-    to_user: User!
-    new_role_for_previous_owner: RoleLevel
-    status: ShelterOwnershipTransferStatus!
-    accepted_at: String
-    rejected_at: String
-    cancelled_at: String
-    expires_at: String
+  id: ID!
+  created_at: String!
+  updated_at: String
+  shelter: Shelter!
+  from_user: User!
+  to_user: User!
+  new_role_for_previous_owner: RoleLevel
+  status: ShelterOwnershipTransferStatus!
+  accepted_at: String
+  rejected_at: String
+  cancelled_at: String
+  expires_at: String
 }
 
 type ShelterOwnershipTransferResult {
-    success: Boolean!
-    error: Error
-    shelter_ownership_transfer: ShelterOwnershipTransfer
+  success: Boolean!
+  error: Error
+  shelter_ownership_transfer: ShelterOwnershipTransfer
 }
 
 type PaginatedShelterOwnershipTransfers {
-    success: Boolean
-    error: Error
-    items: [ShelterOwnershipTransfer]!
-    pagination: Pagination!
-}
-
-
-############################
-# ShelterClaimRequest
-############################
-
-enum ShelterClaimRequestStatus {
-    PENDING
-    APPROVED
-    REJECTED
-    CANCELLED
-}
-
-input ShelterClaimInput {
-    proof_data: JSON
-    message: String
+  success: Boolean
+  error: Error
+  items: [ShelterOwnershipTransfer]!
+  pagination: Pagination!
 }
 
 type ShelterClaimRequest {
-    id: ID!
-    created_at: String!
-    updated_at: String
-    shelter: Shelter!
-    requester: User!
-    status: ShelterClaimRequestStatus!
-    proof_data: JSON
-    message: String
-    reviewed_by: User
-    reviewed_at: String
-    decision_note: String
+  id: ID!
+  created_at: String!
+  updated_at: String
+  shelter: Shelter!
+  requester: User!
+  status: ShelterClaimRequestStatus!
+  proof_data: JSON
+  message: String
+  reviewed_by: User
+  reviewed_at: String
+  decision_note: String
 }
 
 type ShelterClaimRequestResult {
-    success: Boolean!
-    error: Error
-    shelter_claim_request: ShelterClaimRequest
-}
-
-enum ShelterJoinRequestStatus {
-    PENDING
-    APPROVED
-    REJECTED
-    CANCELLED
+  success: Boolean!
+  error: Error
+  shelter_claim_request: ShelterClaimRequest
 }
 
 type ShelterJoinRequest {
-    id: ID!
-    created_at: String!
-    updated_at: String
-    shelter: Shelter!
-    user: User!
-    status: ShelterJoinRequestStatus!
-    message: String
-    reviewed_by: User
-    reviewed_at: String
+  id: ID!
+  created_at: String!
+  updated_at: String
+  shelter: Shelter!
+  user: User!
+  status: ShelterJoinRequestStatus!
+  message: String
+  reviewed_by: User
+  reviewed_at: String
 }
 
 type ShelterJoinRequestResult {
-    success: Boolean!
-    error: Error
-    shelter_join_request: ShelterJoinRequest
+  success: Boolean!
+  error: Error
+  shelter_join_request: ShelterJoinRequest
 }
 
 type ShelterJoinRequestListResult {
-    success: Boolean!
-    error: Error
-    items: [ShelterJoinRequest]!
+  success: Boolean!
+  error: Error
+  items: [ShelterJoinRequest]!
 }
 
 type PaginatedShelterClaimRequests {
-    success: Boolean
-    error: Error
-    items: [ShelterClaimRequest]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterClaimRequest]!
+  pagination: Pagination!
 }
 
-
-############################
-# ShelterPet
-############################
-
 type ShelterPet {
-    id: ID!
-    created_at: String!
-    shelter: Shelter!
-    pet: Pet!
-    is_active: Boolean!
-    left_at: String
-    is_published: Boolean!
-    # membri collegati al pet: default suggerito quando si pianifica una walk
-    assigned_members: [User!]!
-    assigned_shelter_people: [ShelterPerson!]!
+  id: ID!
+  created_at: String!
+  shelter: Shelter!
+  pet: Pet!
+  is_active: Boolean!
+  left_at: String
+  is_published: Boolean!
+  assigned_members: [User!]!
+  assigned_shelter_people: [ShelterPerson!]!
 }
 
 type ShelterPetResult {
-    success: Boolean!
-    error: Error
-    shelter_pet: ShelterPet
+  success: Boolean!
+  error: Error
+  shelter_pet: ShelterPet
 }
 
 type ShelterPetsResult {
-    success: Boolean!
-    error: Error
-    shelter_pets: [ShelterPet]
+  success: Boolean!
+  error: Error
+  shelter_pets: [ShelterPet]
 }
 
 type PaginatedShelterPets {
-    success: Boolean
-    error: Error
-    items: [ShelterPet]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterPet]!
+  pagination: Pagination!
 }
 
-input ShelterPetCreate {
-    shelter_id: ID!
-    pet_id: ID!
-}
-
-input ShelterPetsCreate {
-    shelter_id: ID!
-    pet_ids: [ID!]!
-}
-
-# dati di un nuovo pet creato direttamente nel canile (bulk)
-input ShelterPetData {
-    name: String!
-    birthday: String!
-    gender: Gender
-    breed: String
-    neutered: Boolean
-    chip_code: String
-    weight_kg: Float
-    coat_length: CoatLength
-    temperament: String
-}
-
-# crea più pet nuovi e li associa in blocco a un canile
-input ShelterPetsWithDataCreate {
-    shelter_id: ID!
-    pets: [ShelterPetData!]!
-}
-
-input ChangeShelterInput {
-    pet_id: ID!
-    shelter_id_from: ID!
-    shelter_id_to: ID!
-}
-
-# ShelterTask
-############################
-
-enum ShelterTaskType { CLEANING DEEP_CLEANING FEEDING MEDICATION GROOMING OTHER }
-enum TaskStatus { PENDING IN_PROGRESS COMPLETED SKIPPED CANCELLED OVERDUE }
-enum RecurrenceFreq { DAILY WEEKLY MONTHLY }
-enum Weekday { MON TUE WED THU FRI SAT SUN }
-
-# config ricorrenza (es: ogni settimana il sabato; ogni mese il primo mercoledì)
 type Recurrence {
-    freq: RecurrenceFreq!
-    interval: Int!            # ogni N (giorni/settimane/mesi)
-    weekdays: [Weekday!]      # WEEKLY: giorni; MONTHLY: giorno-settimana target
-    week_ordinal: Int         # MONTHLY: 1..5 = primo..quinto, -1 = ultimo
-    time_of_day: String       # "HH:MM"
-    start_at: String          # data inizio (ISO)
-}
-
-input RecurrenceInput {
-    freq: RecurrenceFreq!
-    interval: Int = 1
-    weekdays: [Weekday!]
-    week_ordinal: Int
-    time_of_day: String
-    start_at: String
+  freq: RecurrenceFreq!
+  interval: Int!
+  weekdays: [Weekday!]
+  week_ordinal: Int
+  time_of_day: String
+  start_at: String
 }
 
 type ShelterTask {
-    id: ID!
-    created_at: String!
-    shelter: Shelter!
-    shelter_pet: ShelterPet
-    task_type: ShelterTaskType!
-    area: String
-    status: TaskStatus!
-    assignees: [User!]!
-    assignee_shelter_people: [ShelterPerson!]!
-    scheduled_at: String
-    scheduled_date: String
-    completed_at: String
-    completed_by: User
-    skipped_at: String
-    skipped_by: User
-    is_recurring: Boolean!
-    recurrence: Recurrence
-    notes: String
+  id: ID!
+  created_at: String!
+  shelter: Shelter!
+  shelter_pet: ShelterPet
+  task_type: ShelterTaskType!
+  area: String
+  status: TaskStatus!
+  assignees: [User!]!
+  assignee_shelter_people: [ShelterPerson!]!
+  scheduled_at: String
+  scheduled_date: String
+  completed_at: String
+  completed_by: User
+  skipped_at: String
+  skipped_by: User
+  is_recurring: Boolean!
+  recurrence: Recurrence
+  notes: String
 }
 
 type ShelterTaskResult {
-    success: Boolean!
-    error: Error
-    shelter_task: ShelterTask
+  success: Boolean!
+  error: Error
+  shelter_task: ShelterTask
 }
 
 type PaginatedShelterTasks {
-    success: Boolean
-    error: Error
-    items: [ShelterTask]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterTask]!
+  pagination: Pagination!
 }
-
-input ShelterTaskCreate {
-    shelter_id: ID!
-    shelter_pet_id: ID
-    shelter_box_id: ID
-    task_type: ShelterTaskType!
-    area: String
-    assignee_ids: [ID!]
-    assignee_shelter_person_ids: [ID!]
-    scheduled_at: String
-    is_recurring: Boolean = false
-    recurrence: RecurrenceInput
-    notes: String
-}
-
-input ShelterTaskUpdate {
-    task_type: ShelterTaskType
-    area: String
-    assignee_ids: [ID!]
-    assignee_shelter_person_ids: [ID!]
-    scheduled_at: String
-    is_recurring: Boolean
-    recurrence: RecurrenceInput
-    notes: String
-}
-
-# ShelterWalk
-############################
-
-enum ShelterWalkStatus { PLANNED IN_PROGRESS COMPLETED CANCELLED }
 
 type ShelterWalk {
-    id: ID!
-    created_at: String!
-    shelter_pet: ShelterPet!
-    walker: User
-    walker_shelter_person: ShelterPerson
-    status: ShelterWalkStatus!
-    scheduled_at: String
-    started_at: String
-    ended_at: String
-    cancelled_at: String
-    duration_minutes: Int
-    notes: String
-    ratings: [ShelterWalkRating]
+  id: ID!
+  created_at: String!
+  shelter_pet: ShelterPet!
+  walker: User
+  walker_shelter_person: ShelterPerson
+  status: ShelterWalkStatus!
+  scheduled_at: String
+  started_at: String
+  ended_at: String
+  cancelled_at: String
+  duration_minutes: Int
+  notes: String
+  ratings: [ShelterWalkRating]
 }
 
 type ShelterWalkResult {
-    success: Boolean!
-    error: Error
-    shelter_walk: ShelterWalk
+  success: Boolean!
+  error: Error
+  shelter_walk: ShelterWalk
 }
 
 type PaginatedShelterWalks {
-    success: Boolean
-    error: Error
-    items: [ShelterWalk]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterWalk]!
+  pagination: Pagination!
 }
-
-input ShelterWalkCreate {
-    shelter_pet_id: ID!
-    walker_id: ID
-    shelter_person_id: ID
-    scheduled_at: String
-    notes: String
-}
-
-input ShelterWalkUpdate {
-    scheduled_at: String
-    notes: String
-}
-
-############################
-# ShelterWalkRating (reuses WalkRatingType)
-############################
 
 type ShelterWalkRating {
-    id: ID!
-    created_at: String!
-    type: WalkRatingType!
-    rating: Int!
-    walk: ShelterWalk!
+  id: ID!
+  created_at: String!
+  type: WalkRatingType!
+  rating: Int!
+  walk: ShelterWalk!
 }
 
 type ShelterWalkRatingResult {
-    success: Boolean!
-    error: Error
-    walk_rating: ShelterWalkRating
+  success: Boolean!
+  error: Error
+  walk_rating: ShelterWalkRating
 }
-
-input ShelterWalkRatingCreate {
-    walk_id: ID!
-    type: WalkRatingType!
-    rating: Int!
-}
-
-# ShelterMap / ShelterBox / ShelterBoxOccupancy
-############################
-
-enum MapUnit { METERS PIXELS }
-enum BoxStatus { AVAILABLE OCCUPIED FULL OUT_OF_SERVICE NEEDS_CLEANING }
 
 type ShelterMap {
-    id: ID!
-    created_at: String!
-    shelter: Shelter!
-    name: String!
-    width: Float!
-    height: Float!
-    unit: MapUnit!
-    background_media: Media
-    zones: [ShelterZone!]!
-    areas: [ShelterArea!]!
-    boxes: [ShelterBox!]!
-    elements: [ShelterMapElement!]!
+  id: ID!
+  created_at: String!
+  shelter: Shelter!
+  name: String!
+  width: Float!
+  height: Float!
+  unit: MapUnit!
+  background_media: Media
+  zones: [ShelterZone!]!
+  areas: [ShelterArea!]!
+  boxes: [ShelterBox!]!
+  elements: [ShelterMapElement!]!
 }
 
 type ShelterMapResult {
-    success: Boolean!
-    error: Error
-    map: ShelterMap
+  success: Boolean!
+  error: Error
+  map: ShelterMap
 }
 
 type PaginatedShelterMaps {
-    success: Boolean
-    error: Error
-    items: [ShelterMap]!
-    pagination: Pagination!
-}
-
-input ShelterMapCreate {
-    shelter_id: ID!
-    name: String!
-    width: Float!
-    height: Float!
-    unit: MapUnit = METERS
-    background_media_id: ID
-}
-
-input ShelterMapUpdate {
-    name: String
-    width: Float
-    height: Float
-    unit: MapUnit
-    background_media_id: ID
+  success: Boolean
+  error: Error
+  items: [ShelterMap]!
+  pagination: Pagination!
 }
 
 type ShelterBox {
-    id: ID!
-    created_at: String!
-    map_id: ID!
-    zone_id: ID!
-    zone: ShelterZone
-    area: ShelterArea
-    label: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float!
-    capacity: Int!
-    status: BoxStatus!
-    is_out_of_service: Boolean!
-    current_occupants: [ShelterPet!]!
-    occupancy_history(commonSearch: CommonSearch = {}): PaginatedBoxOccupancies
-    last_cleaned_at: String
-    notes: String
+  id: ID!
+  created_at: String!
+  map_id: ID!
+  zone_id: ID!
+  zone: ShelterZone
+  area: ShelterArea
+  label: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float!
+  capacity: Int!
+  status: BoxStatus!
+  is_out_of_service: Boolean!
+  current_occupants: [ShelterPet!]!
+  occupancy_history(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedBoxOccupancies
+  last_cleaned_at: String
+  notes: String
 }
 
 type ShelterBoxResult {
-    success: Boolean!
-    error: Error
-    box: ShelterBox
+  success: Boolean!
+  error: Error
+  box: ShelterBox
 }
 
 type PaginatedShelterBoxes {
-    success: Boolean
-    error: Error
-    items: [ShelterBox]!
-    pagination: Pagination!
-}
-
-input ShelterBoxCreate {
-    map_id: ID!
-    zone_id: ID!
-    area_id: ID
-    label: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float = 0
-    capacity: Int = 1
-    notes: String
-}
-
-input ShelterBoxUpdate {
-    zone_id: ID
-    area_id: ID
-    label: String
-    x: Float
-    y: Float
-    width: Float
-    height: Float
-    rotation: Float
-    capacity: Int
-    is_out_of_service: Boolean
-    notes: String
+  success: Boolean
+  error: Error
+  items: [ShelterBox]!
+  pagination: Pagination!
 }
 
 type ShelterBoxOccupancy {
-    id: ID!
-    created_at: String!
-    box: ShelterBox!
-    shelter_pet: ShelterPet!
-    entered_at: String!
-    exited_at: String
-    moved_by: User
-    reason: String
+  id: ID!
+  created_at: String!
+  box: ShelterBox!
+  shelter_pet: ShelterPet!
+  entered_at: String!
+  exited_at: String
+  moved_by: User
+  reason: String
 }
 
 type ShelterBoxOccupancyResult {
-    success: Boolean!
-    error: Error
-    occupancy: ShelterBoxOccupancy
+  success: Boolean!
+  error: Error
+  occupancy: ShelterBoxOccupancy
 }
 
 type PaginatedBoxOccupancies {
-    success: Boolean
-    error: Error
-    items: [ShelterBoxOccupancy]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterBoxOccupancy]!
+  pagination: Pagination!
 }
 
-# ShelterArea
-############################
-
-enum AreaType { KENNEL QUARANTINE PLAYGROUND MEDICAL STORAGE OFFICE COMMON OUTDOOR OTHER }
-
 type ShelterArea {
-    id: ID!
-    created_at: String!
-    map_id: ID!
-    zone_id: ID!
-    zone: ShelterZone
-    name: String!
-    area_type: AreaType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-    boxes: [ShelterBox!]!
+  id: ID!
+  created_at: String!
+  map_id: ID!
+  zone_id: ID!
+  zone: ShelterZone
+  name: String!
+  area_type: AreaType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+  boxes: [ShelterBox!]!
 }
 
 type ShelterAreaResult {
-    success: Boolean!
-    error: Error
-    area: ShelterArea
+  success: Boolean!
+  error: Error
+  area: ShelterArea
 }
 
 type PaginatedShelterAreas {
-    success: Boolean
-    error: Error
-    items: [ShelterArea]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterArea]!
+  pagination: Pagination!
 }
-
-input ShelterAreaCreate {
-    map_id: ID!
-    zone_id: ID!
-    name: String!
-    area_type: AreaType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-}
-
-input ShelterAreaUpdate {
-    zone_id: ID
-    name: String
-    area_type: AreaType
-    x: Float
-    y: Float
-    width: Float
-    height: Float
-    color: String
-}
-
-# saveShelterMapLayout — batch atomico dell'editor
-input ShelterMapLayoutInput {
-    zones: [ShelterZoneUpsert!]
-    areas: [ShelterAreaUpsert!]!
-    boxes: [ShelterBoxUpsert!]!
-    elements: [ShelterMapElementUpsert!]
-    deleted_zone_ids: [ID!]
-    deleted_area_ids: [ID!]
-    deleted_box_ids: [ID!]
-    deleted_element_ids: [ID!]
-}
-
-input ShelterZoneUpsert {
-    id: ID
-    name: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-}
-
-input ShelterAreaUpsert {
-    id: ID
-    zone_id: ID!
-    name: String!
-    area_type: AreaType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-}
-
-input ShelterBoxUpsert {
-    id: ID
-    zone_id: ID!
-    area_id: ID
-    label: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float = 0
-    capacity: Int = 1
-}
-
-# ShelterZone
-############################
 
 type ShelterZone {
-    id: ID!
-    created_at: String!
-    map_id: ID!
-    name: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-    areas: [ShelterArea!]!
-    boxes: [ShelterBox!]!
+  id: ID!
+  created_at: String!
+  map_id: ID!
+  name: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+  areas: [ShelterArea!]!
+  boxes: [ShelterBox!]!
 }
 
 type ShelterZoneResult {
-    success: Boolean!
-    error: Error
-    zone: ShelterZone
+  success: Boolean!
+  error: Error
+  zone: ShelterZone
 }
 
 type PaginatedShelterZones {
-    success: Boolean
-    error: Error
-    items: [ShelterZone]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterZone]!
+  pagination: Pagination!
 }
-
-input ShelterZoneCreate {
-    map_id: ID!
-    name: String!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    color: String
-}
-
-input ShelterZoneUpdate {
-    name: String
-    x: Float
-    y: Float
-    width: Float
-    height: Float
-    color: String
-}
-
-# ShelterMapElement
-############################
-
-enum MapElementType { WALL DOOR GATE WATER_POINT FEEDING_POINT BENCH TREE OTHER }
 
 type ShelterMapElement {
-    id: ID!
-    created_at: String!
-    map_id: ID!
-    element_type: MapElementType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float!
-    color: String
-    label: String
+  id: ID!
+  created_at: String!
+  map_id: ID!
+  element_type: MapElementType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float!
+  color: String
+  label: String
 }
 
 type ShelterMapElementResult {
-    success: Boolean!
-    error: Error
-    element: ShelterMapElement
+  success: Boolean!
+  error: Error
+  element: ShelterMapElement
 }
 
 type PaginatedMapElements {
-    success: Boolean
-    error: Error
-    items: [ShelterMapElement]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterMapElement]!
+  pagination: Pagination!
 }
-
-input ShelterMapElementCreate {
-    map_id: ID!
-    element_type: MapElementType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float = 0
-    color: String
-    label: String
-}
-
-input ShelterMapElementUpdate {
-    element_type: MapElementType
-    x: Float
-    y: Float
-    width: Float
-    height: Float
-    rotation: Float
-    color: String
-    label: String
-}
-
-input ShelterMapElementUpsert {
-    id: ID
-    element_type: MapElementType!
-    x: Float!
-    y: Float!
-    width: Float!
-    height: Float!
-    rotation: Float = 0
-    color: String
-    label: String
-}
-
-# ShelterInventory
-############################
-
-enum InventoryCategory { FOOD_DRY FOOD_WET MEDICINE HYGIENE EQUIPMENT OTHER }
-enum MovementType { RESTOCK CONSUMPTION DONATION WASTE ADJUSTMENT }
 
 type ShelterInventoryItem {
-    id: ID!
-    created_at: String!
-    shelter: Shelter!
-    name: String!
-    category: InventoryCategory!
-    unit: String!
-    minimum_threshold: Float
-    current_quantity: Float!
-    is_below_threshold: Boolean!
-    is_active: Boolean!
-    archived_at: String
-    archived_by: User
-    notes: String
-    movements(commonSearch: CommonSearch = {}): PaginatedInventoryMovements
+  id: ID!
+  created_at: String!
+  shelter: Shelter!
+  name: String!
+  category: InventoryCategory!
+  unit: String!
+  minimum_threshold: Float
+  current_quantity: Float!
+  is_below_threshold: Boolean!
+  is_active: Boolean!
+  archived_at: String
+  archived_by: User
+  notes: String
+  movements(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedInventoryMovements
 }
 
 type ShelterInventoryMovement {
-    id: ID!
-    created_at: String!
-    item: ShelterInventoryItem!
-    movement_type: MovementType!
-    quantity: Float!
-    registered_by: User!
-    notes: String
+  id: ID!
+  created_at: String!
+  item: ShelterInventoryItem!
+  movement_type: MovementType!
+  quantity: Float!
+  registered_by: User!
+  notes: String
 }
 
 type ShelterInventoryItemResult {
-    success: Boolean!
-    error: Error
-    item: ShelterInventoryItem
+  success: Boolean!
+  error: Error
+  item: ShelterInventoryItem
 }
 
 type ShelterInventoryMovementResult {
-    success: Boolean!
-    error: Error
-    movement: ShelterInventoryMovement
+  success: Boolean!
+  error: Error
+  movement: ShelterInventoryMovement
 }
 
 type PaginatedInventoryItems {
-    success: Boolean
-    error: Error
-    items: [ShelterInventoryItem]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterInventoryItem]!
+  pagination: Pagination!
 }
 
 type PaginatedInventoryMovements {
-    success: Boolean
-    error: Error
-    items: [ShelterInventoryMovement]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [ShelterInventoryMovement]!
+  pagination: Pagination!
 }
-
-input ShelterInventoryItemCreate {
-    shelter_id: ID!
-    name: String!
-    category: InventoryCategory!
-    unit: String!
-    minimum_threshold: Float
-    notes: String
-    initial_quantity: Float
-}
-
-input ShelterInventoryItemUpdate {
-    name: String
-    category: InventoryCategory
-    unit: String
-    minimum_threshold: Float
-    notes: String
-}
-
-input ShelterInventoryMovementCreate {
-    item_id: ID!
-    movement_type: MovementType!
-    quantity: Float!
-    notes: String
-    # MANAGER+ only: permit a movement that drives stock below zero
-    allow_negative: Boolean
-}
-
-# Shelter dashboard operativa
-############################
 
 type ShelterOperationalDashboard {
-    shelter_id: ID!
-    walks_completed_today: Int!
-    walks_planned_today: Int!
-    walks_in_progress: Int!
-    pets_needing_walk: Int!
-    tasks_pending: Int!
-    tasks_overdue: Int!
-    tasks_completed_today: Int!
-    tasks_skipped_today: Int!
-    tasks_total: Int!
-    tasks_recurring: Int!
-    tasks_due_this_week: Int!
-    boxes_total: Int!
-    boxes_free: Int!
-    boxes_available: Int!
-    boxes_occupied: Int!
-    boxes_full: Int!
-    boxes_out_of_service: Int!
-    boxes_needing_cleaning: Int!
-    occupancy_rate: Float!
-    pets_total: Int!
-    pets_without_box: Int!
-    low_stock_count: Int!
-    low_stock_items: [ShelterInventoryItem!]!
+  shelter_id: ID!
+  walks_completed_today: Int!
+  walks_planned_today: Int!
+  walks_in_progress: Int!
+  pets_needing_walk: Int!
+  tasks_pending: Int!
+  tasks_overdue: Int!
+  tasks_completed_today: Int!
+  tasks_skipped_today: Int!
+  tasks_total: Int!
+  tasks_recurring: Int!
+  tasks_due_this_week: Int!
+  boxes_total: Int!
+  boxes_free: Int!
+  boxes_available: Int!
+  boxes_occupied: Int!
+  boxes_full: Int!
+  boxes_out_of_service: Int!
+  boxes_needing_cleaning: Int!
+  occupancy_rate: Float!
+  pets_total: Int!
+  pets_without_box: Int!
+  low_stock_count: Int!
+  low_stock_items: [ShelterInventoryItem!]!
 }
 
 type ShelterOperationalDashboardResult {
-    success: Boolean!
-    error: Error
-    dashboard: ShelterOperationalDashboard
+  success: Boolean!
+  error: Error
+  dashboard: ShelterOperationalDashboard
 }
 
-# snapshot KPI giornaliero (storico)
 type ShelterKpiSnapshot {
-    id: ID!
-    shelter_id: ID!
-    date: String!
-    walks_completed_today: Int!
-    walks_planned_today: Int!
-    pets_needing_walk: Int!
-    tasks_pending: Int!
-    tasks_overdue: Int!
-    tasks_completed_today: Int!
-    tasks_total: Int!
-    tasks_recurring: Int!
-    tasks_due_this_week: Int!
-    boxes_total: Int!
-    boxes_free: Int!
-    boxes_occupied: Int!
-    boxes_full: Int!
-    boxes_out_of_service: Int!
-    pets_total: Int!
-    pets_without_box: Int!
-    low_stock_count: Int!
+  id: ID!
+  shelter_id: ID!
+  date: String!
+  walks_completed_today: Int!
+  walks_planned_today: Int!
+  pets_needing_walk: Int!
+  tasks_pending: Int!
+  tasks_overdue: Int!
+  tasks_completed_today: Int!
+  tasks_total: Int!
+  tasks_recurring: Int!
+  tasks_due_this_week: Int!
+  boxes_total: Int!
+  boxes_free: Int!
+  boxes_occupied: Int!
+  boxes_full: Int!
+  boxes_out_of_service: Int!
+  pets_total: Int!
+  pets_without_box: Int!
+  low_stock_count: Int!
 }
 
 type ShelterKpiHistoryResult {
-    success: Boolean!
-    error: Error
-    items: [ShelterKpiSnapshot]!
+  success: Boolean!
+  error: Error
+  items: [ShelterKpiSnapshot]!
 }
 
-# Cross-shelter personal dashboard ("what do I have to do")
-############################
-
-enum ShelterInventoryAlertStatus { OUT_OF_STOCK LOW_STOCK }
-
 type MyShelterDashboardTask {
-    id: ID!
-    shelter_id: ID!
-    shelter_name: String!
-    task_type: ShelterTaskType!
-    area: String
-    status: TaskStatus!
-    is_overdue: Boolean!
-    scheduled_at: String
-    action_url: String!
+  id: ID!
+  shelter_id: ID!
+  shelter_name: String!
+  task_type: ShelterTaskType!
+  area: String
+  status: TaskStatus!
+  is_overdue: Boolean!
+  scheduled_at: String
+  action_url: String!
 }
 
 type MyShelterDashboardWalk {
-    id: ID!
-    shelter_id: ID!
-    shelter_name: String!
-    pet_name: String!
-    status: ShelterWalkStatus!
-    scheduled_at: String
-    action_url: String!
+  id: ID!
+  shelter_id: ID!
+  shelter_name: String!
+  pet_name: String!
+  status: ShelterWalkStatus!
+  scheduled_at: String
+  action_url: String!
 }
 
 type MyShelterDashboardInventoryAlert {
-    id: ID!
-    shelter_id: ID!
-    shelter_name: String!
-    name: String!
-    current_quantity: Float!
-    minimum_threshold: Float
-    status: ShelterInventoryAlertStatus!
-    action_url: String!
+  id: ID!
+  shelter_id: ID!
+  shelter_name: String!
+  name: String!
+  current_quantity: Float!
+  minimum_threshold: Float
+  status: ShelterInventoryAlertStatus!
+  action_url: String!
 }
 
 type MyShelterDashboard {
-    task_count: Int!
-    overdue_task_count: Int!
-    walk_count: Int!
-    in_progress_walk_count: Int!
-    low_stock_count: Int!
-    out_of_stock_count: Int!
-    tasks: [MyShelterDashboardTask!]!
-    walks: [MyShelterDashboardWalk!]!
-    inventory_alerts: [MyShelterDashboardInventoryAlert!]!
+  task_count: Int!
+  overdue_task_count: Int!
+  walk_count: Int!
+  in_progress_walk_count: Int!
+  low_stock_count: Int!
+  out_of_stock_count: Int!
+  tasks: [MyShelterDashboardTask!]!
+  walks: [MyShelterDashboardWalk!]!
+  inventory_alerts: [MyShelterDashboardInventoryAlert!]!
 }
 
 type MyShelterDashboardResult {
-    success: Boolean!
-    error: Error
-    dashboard: MyShelterDashboard
-}
-
-############################
-# Notifications
-############################
-
-enum NotificationType {
-    TREATMENT_REMINDER
-    PET_OWNERSHIP_INVITE
-    SHELTER_INVITE
-    SHELTER_TASK_INSTANCE
-    SHELTER_JOIN_REQUEST
-    PET_BIRTHDAY
-    SHELTER_OWNERSHIP_TRANSFER
-    SHELTER_CLAIM_REQUEST
-    DONATION_RECEIVED
-}
-
-enum NotificationStatus {
-    UNREAD
-    READ
-    DISMISSED
-    EXPIRED
-}
-
-enum NotificationPriority {
-    LOW
-    NORMAL
-    HIGH
-    URGENT
-}
-
-enum NotificationEntityType {
-    PET
-    TREATMENT
-    OWNERSHIP
-    SHELTER
-    SHELTER_INVITE
-    SHELTER_TASK
-    SHELTER_JOIN_REQUEST
-    SHELTER_OWNERSHIP_TRANSFER
-    SHELTER_CLAIM_REQUEST
-    DONATION
+  success: Boolean!
+  error: Error
+  dashboard: MyShelterDashboard
 }
 
 type Notification {
-    id: ID!
-    created_at: String!
-    updated_at: String
-    user_id: ID!
-    type: NotificationType!
-    status: NotificationStatus!
-    priority: NotificationPriority!
-    title: String!
-    message: String
-    entity_type: NotificationEntityType
-    entity_id: ID
-    action_url: String
-    actor_user_id: ID
-    shelter_id: ID
-    pet_id: ID
-    payload: JSON
-    dedupe_key: String
-    scheduled_at: String
-    read_at: String
-    dismissed_at: String
-    expires_at: String
+  id: ID!
+  created_at: String!
+  updated_at: String
+  user_id: ID!
+  type: NotificationType!
+  status: NotificationStatus!
+  priority: NotificationPriority!
+  title: String!
+  message: String
+  entity_type: NotificationEntityType
+  entity_id: ID
+  action_url: String
+  actor_user_id: ID
+  shelter_id: ID
+  pet_id: ID
+  payload: JSON
+  dedupe_key: String
+  scheduled_at: String
+  read_at: String
+  dismissed_at: String
+  expires_at: String
 }
 
 type NotificationResult {
-    success: Boolean!
-    error: Error
-    notification: Notification
+  success: Boolean!
+  error: Error
+  notification: Notification
 }
 
 type PaginatedNotifications {
-    success: Boolean
-    error: Error
-    items: [Notification]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Notification]!
+  pagination: Pagination!
 }
-
-
-############################
-# Donations
-############################
-# Graph-a-Pet donation domain (repository -> domain -> api, all frontend
-# access through this GraphQL API). Test-mode only for now — see
-# StripeConnectedAccount.environment and every Result's is_test-adjacent
-# fields. Money is always integer minor currency units (cents).
-
-enum DonationTargetType {
-    SHELTER
-    PET
-    PET_FUNDING_NEED
-}
-
-enum DonorType {
-    GUEST
-    AUTHENTICATED
-}
-
-enum DonationStatus {
-    PENDING
-    PROCESSING
-    SUCCEEDED
-    FAILED
-    CANCELED
-}
-
-enum RefundStatus {
-    NONE
-    PARTIAL
-    FULL
-}
-
-enum DisputeStatus {
-    NONE
-    OPEN
-    WON
-    LOST
-}
-
-enum FundingNeedStatus {
-    ACTIVE
-    CLOSED
-}
-
-enum ExpenseStatus {
-    DRAFT
-    SUBMITTED
-    APPROVED
-    REJECTED
-}
-
-enum FinancialMovementType {
-    GROSS_PAYMENT
-    PLATFORM_FEE
-    PROCESSING_FEE
-    SHELTER_NET
-    TRANSFER
-    PAYOUT
-    REFUND
-    DISPUTE
-    REVERSAL
-    ADJUSTMENT
-}
-
-enum WebhookEventStatus {
-    RECEIVED
-    PROCESSED
-    FAILED
-    IGNORED
-}
-
-enum ConnectedAccountEnvironment {
-    TEST
-    LIVE
-}
-
-# --- Connected accounts ---
 
 type StripeConnectedAccount {
-    id: ID!
-    shelter_id: ID!
-    # masked by the resolver for callers without shelters.donations.read_details
-    # / platform.donations.read_details — never exposed in a public URL.
-    stripe_account_id: String
-    environment: ConnectedAccountEnvironment!
-    onboarding_status: String!
-    verification_status: String!
-    charges_enabled: Boolean!
-    payouts_enabled: Boolean!
-    details_submitted: Boolean!
-    donations_enabled: Boolean!
-    # null = shelter uses the global platform default; see
-    # ShelterDonationSettings.default_pet_monthly_limit_cents for the
-    # resolved (never-null) effective value
-    default_pet_monthly_limit_cents: Int
-    is_active: Boolean!
-    last_synced_at: String
-    created_at: String!
-    updated_at: String
+  id: ID!
+  shelter_id: ID!
+  stripe_account_id: String
+  environment: ConnectedAccountEnvironment!
+  onboarding_status: String!
+  verification_status: String!
+  charges_enabled: Boolean!
+  payouts_enabled: Boolean!
+  details_submitted: Boolean!
+  donations_enabled: Boolean!
+  default_pet_monthly_limit_cents: Int
+  is_active: Boolean!
+  last_synced_at: String
+  created_at: String!
+  updated_at: String
 }
 
 type StripeConnectedAccountResult {
-    success: Boolean!
-    error: Error
-    connected_account: StripeConnectedAccount
+  success: Boolean!
+  error: Error
+  connected_account: StripeConnectedAccount
 }
 
 type PaginatedStripeConnectedAccounts {
-    success: Boolean
-    error: Error
-    items: [StripeConnectedAccount]!
+  success: Boolean
+  error: Error
+  items: [StripeConnectedAccount]!
 }
 
 type StripeOnboardingResult {
-    success: Boolean!
-    error: Error
-    connected_account: StripeConnectedAccount
-    onboarding_url: String
+  success: Boolean!
+  error: Error
+  connected_account: StripeConnectedAccount
+  onboarding_url: String
 }
 
 type StripeAccountRefreshResult {
-    success: Boolean!
-    error: Error
-    connected_account: StripeConnectedAccount
-    requirements: [String!]
+  success: Boolean!
+  error: Error
+  connected_account: StripeConnectedAccount
+  requirements: [String!]
 }
 
-# --- Public pet projection (storefront-safe fields only — never reuses
-#     the internal `Pet` type, which exposes ownerships) ---
-
 type PublicShelterPet {
-    id: ID!
-    shelter_pet_id: ID!
-    name: String!
-    birthday: String
-    gender: Gender
-    breed: String
-    coat_length: CoatLength
-    temperament: String
-    main_picture: Media
+  id: ID!
+  shelter_pet_id: ID!
+  name: String!
+  birthday: String
+  gender: Gender
+  breed: String
+  coat_length: CoatLength
+  temperament: String
+  main_picture: Media
 }
 
 type PublicShelterPetResult {
-    success: Boolean!
-    error: Error
-    pet: PublicShelterPet
+  success: Boolean!
+  error: Error
+  pet: PublicShelterPet
 }
 
 type PublicShelterPetsResult {
-    success: Boolean!
-    error: Error
-    items: [PublicShelterPet]!
+  success: Boolean!
+  error: Error
+  items: [PublicShelterPet]!
 }
 
 type DonationAvailability {
-    available: Boolean!
-    reasons: [String!]!
-    remaining_pet_allowance_cents: Int
-    # this pet's effective monthly donation limit (cents); null for
-    # shelter/funding-need targets. With remaining_pet_allowance_cents the
-    # app renders a monthly progress bar + goal-reached celebration.
-    pet_monthly_limit_cents: Int
-    is_test_mode: Boolean!
+  available: Boolean!
+  reasons: [String!]!
+  remaining_pet_allowance_cents: Int
+  pet_monthly_limit_cents: Int
+  is_test_mode: Boolean!
 }
 
 type DonationAvailabilityResult {
-    success: Boolean!
-    error: Error
-    availability: DonationAvailability
+  success: Boolean!
+  error: Error
+  availability: DonationAvailability
 }
 
-# --- Funding needs ---
-
 type PetFundingNeed {
-    id: ID!
-    shelter_id: ID!
-    pet_id: ID
-    title: String!
-    description: String
-    category: String
-    currency: String!
-    target_amount_cents: Int!
-    collected_amount_cents: Int!
-    remaining_amount_cents: Int!
-    status: FundingNeedStatus!
-    starts_at: String
-    ends_at: String
-    closed_at: String
-    created_at: String!
-    updated_at: String
+  id: ID!
+  shelter_id: ID!
+  pet_id: ID
+  title: String!
+  description: String
+  category: String
+  currency: String!
+  target_amount_cents: Int!
+  collected_amount_cents: Int!
+  remaining_amount_cents: Int!
+  status: FundingNeedStatus!
+  urgency: FundingNeedUrgency!
+  is_recurring_monthly: Boolean!
+  last_reset_at: String
+  starts_at: String
+  ends_at: String
+  closed_at: String
+  created_at: String!
+  updated_at: String
 }
 
 type PetFundingNeedResult {
-    success: Boolean!
-    error: Error
-    funding_need: PetFundingNeed
+  success: Boolean!
+  error: Error
+  funding_need: PetFundingNeed
 }
 
 type PetFundingNeedsResult {
-    success: Boolean!
-    error: Error
-    items: [PetFundingNeed]!
+  success: Boolean!
+  error: Error
+  items: [PetFundingNeed]!
 }
-
-input FundingNeedCreateInput {
-    shelter_id: ID!
-    pet_id: ID
-    title: String!
-    description: String
-    category: String
-    currency: String = "usd"
-    target_amount_cents: Int!
-    starts_at: String
-    ends_at: String
-}
-
-input FundingNeedUpdateInput {
-    title: String
-    description: String
-    category: String
-    target_amount_cents: Int
-    starts_at: String
-    ends_at: String
-}
-
-# --- Pet donation limits ---
 
 type PetDonationPolicy {
-    id: ID!
-    pet_id: ID!
-    shelter_id: ID!
-    custom_monthly_limit_cents: Int
-    is_active: Boolean!
-    temporary_override_cents: Int
-    temporary_override_reason: String
-    temporary_override_effective_at: String
-    temporary_override_expires_at: String
-    created_at: String!
-    updated_at: String
+  id: ID!
+  pet_id: ID!
+  shelter_id: ID!
+  custom_monthly_limit_cents: Int
+  is_active: Boolean!
+  temporary_override_cents: Int
+  temporary_override_reason: String
+  temporary_override_effective_at: String
+  temporary_override_expires_at: String
+  created_at: String!
+  updated_at: String
 }
 
 type PetDonationPolicyResult {
-    success: Boolean!
-    error: Error
-    policy: PetDonationPolicy
+  success: Boolean!
+  error: Error
+  policy: PetDonationPolicy
 }
 
 type PetDonationPoliciesResult {
-    success: Boolean!
-    error: Error
-    items: [PetDonationPolicy]!
+  success: Boolean!
+  error: Error
+  items: [PetDonationPolicy]!
 }
 
-# Reservation history doubles as "limit history" — see the design note on
-# PetDonationPolicy in repository/donations/models.py (no dedicated
-# override-log table in the task's fixed 10-model list).
 type DonationLimitReservation {
-    id: ID!
-    pet_id: ID!
-    shelter_id: ID!
-    period_start: String!
-    period_end: String!
-    amount_cents: Int!
-    status: String!
-    expires_at: String!
-    override_reason: String
-    override_expires_at: String
-    donation_id: ID
-    created_at: String!
+  id: ID!
+  pet_id: ID!
+  shelter_id: ID!
+  period_start: String!
+  period_end: String!
+  amount_cents: Int!
+  status: String!
+  expires_at: String!
+  override_reason: String
+  override_expires_at: String
+  donation_id: ID
+  created_at: String!
 }
 
 type DonationLimitReservationsResult {
-    success: Boolean!
-    error: Error
-    items: [DonationLimitReservation]!
+  success: Boolean!
+  error: Error
+  items: [DonationLimitReservation]!
 }
-
-input PetDonationLimitInput {
-    pet_id: ID!
-    shelter_id: ID!
-    custom_monthly_limit_cents: Int
-}
-
-input TemporaryPetLimitOverrideInput {
-    pet_id: ID!
-    shelter_id: ID!
-    amount_cents: Int!
-    reason: String!
-    effective_at: String
-    expires_at: String!
-}
-
-# --- Donations ---
 
 type Donation {
-    id: ID!
-    shelter_id: ID!
-    connected_account_id: ID!
-    target_type: DonationTargetType!
-    pet_id: ID
-    funding_need_id: ID
-    reservation_id: ID
-    donor_type: DonorType!
-    donor_user_id: ID
-    # null unless the caller holds shelters.donations.read_details /
-    # platform.donations.read_details — anonymous donors stay anonymous
-    # regardless of caller permission (see api/donations/resolvers.py).
-    donor_email: String
-    currency: String!
-    gross_amount_cents: Int!
-    platform_fee_percent: Float!
-    platform_fee_amount_cents: Int!
-    processing_fee_amount_cents: Int
-    shelter_net_amount_cents: Int
-    status: DonationStatus!
-    refund_status: RefundStatus!
-    refunded_amount_cents: Int!
-    dispute_status: DisputeStatus!
-    is_test: Boolean!
-    stripe_checkout_session_id: ID
-    stripe_payment_intent_id: ID
-    created_at: String!
-    updated_at: String
+  id: ID!
+  shelter_id: ID!
+  connected_account_id: ID!
+  target_type: DonationTargetType!
+  pet_id: ID
+  funding_need_id: ID
+  reservation_id: ID
+  donor_type: DonorType!
+  donor_user_id: ID
+  donor_email: String
+  currency: String!
+  gross_amount_cents: Int!
+  platform_fee_percent: Float!
+  platform_fee_amount_cents: Int!
+  processing_fee_amount_cents: Int
+  shelter_net_amount_cents: Int
+  status: DonationStatus!
+  refund_status: RefundStatus!
+  refunded_amount_cents: Int!
+  dispute_status: DisputeStatus!
+  is_test: Boolean!
+  stripe_checkout_session_id: ID
+  stripe_payment_intent_id: ID
+  created_at: String!
+  updated_at: String
 }
 
 type DonationResult {
-    success: Boolean!
-    error: Error
-    donation: Donation
+  success: Boolean!
+  error: Error
+  donation: Donation
 }
 
 type PaginatedDonations {
-    success: Boolean
-    error: Error
-    items: [Donation]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [Donation]!
+  pagination: Pagination!
 }
 
 type DonationCheckoutResult {
-    success: Boolean!
-    error: Error
-    donation: Donation
-    checkout_url: String
+  success: Boolean!
+  error: Error
+  donation: Donation
+  checkout_url: String
 }
-
-input GuestDonationCheckoutInput {
-    shelter_id: ID!
-    target_type: DonationTargetType!
-    pet_id: ID
-    funding_need_id: ID
-    amount_cents: Int!
-    currency: String = "usd"
-    success_url: String!
-    donor_email: String!
-}
-
-input AuthenticatedDonationInput {
-    shelter_id: ID!
-    target_type: DonationTargetType!
-    pet_id: ID
-    funding_need_id: ID
-    amount_cents: Int!
-    currency: String = "usd"
-    success_url: String!
-}
-
-# --- Donor saved payment methods ---
 
 type UserPaymentMethod {
-    id: ID!
-    card_brand: String
-    card_last4: String
-    card_exp_month: Int
-    card_exp_year: Int
-    is_active: Boolean!
-    created_at: String!
+  id: ID!
+  card_brand: String
+  card_last4: String
+  card_exp_month: Int
+  card_exp_year: Int
+  is_active: Boolean!
+  created_at: String!
 }
 
 type UserPaymentMethodResult {
-    success: Boolean!
-    error: Error
-    payment_method: UserPaymentMethod
+  success: Boolean!
+  error: Error
+  payment_method: UserPaymentMethod
 }
 
 type UserPaymentMethodsResult {
-    success: Boolean!
-    error: Error
-    items: [UserPaymentMethod]!
+  success: Boolean!
+  error: Error
+  items: [UserPaymentMethod]!
 }
 
 type PaymentMethodSetupResult {
-    success: Boolean!
-    error: Error
-    setup_url: String
+  success: Boolean!
+  error: Error
+  setup_url: String
 }
-
-input PaymentMethodSetupInput {
-    success_url: String!
-    cancel_url: String!
-    consent_text: String!
-}
-
-# --- Shelter expenses ---
 
 type ShelterExpense {
-    id: ID!
-    shelter_id: ID!
-    pet_id: ID
-    funding_need_id: ID
-    currency: String!
-    amount_cents: Int!
-    description: String!
-    status: ExpenseStatus!
-    created_by_id: ID
-    submitted_at: String
-    approved_by_id: ID
-    approved_at: String
-    rejected_reason: String
-    created_at: String!
-    updated_at: String
+  id: ID!
+  shelter_id: ID!
+  pet_id: ID
+  funding_need_id: ID
+  currency: String!
+  amount_cents: Int!
+  description: String!
+  status: ExpenseStatus!
+  created_by_id: ID
+  submitted_at: String
+  approved_by_id: ID
+  approved_at: String
+  rejected_reason: String
+  created_at: String!
+  updated_at: String
 }
 
 type ShelterExpenseResult {
-    success: Boolean!
-    error: Error
-    expense: ShelterExpense
+  success: Boolean!
+  error: Error
+  expense: ShelterExpense
 }
 
 type ShelterExpensesResult {
-    success: Boolean!
-    error: Error
-    items: [ShelterExpense]!
+  success: Boolean!
+  error: Error
+  items: [ShelterExpense]!
 }
-
-input ShelterExpenseCreateInput {
-    shelter_id: ID!
-    pet_id: ID
-    funding_need_id: ID
-    currency: String = "usd"
-    amount_cents: Int!
-    description: String!
-}
-
-input ShelterExpenseUpdateInput {
-    amount_cents: Int
-    description: String
-    pet_id: ID
-    funding_need_id: ID
-}
-
-# --- Shelter overview / settings / reports ---
 
 type ShelterDonationOverview {
-    gross_amount_cents: Int!
-    platform_fee_amount_cents: Int!
-    processing_fee_amount_cents: Int!
-    shelter_net_amount_cents: Int!
-    refunded_amount_cents: Int!
-    disputed_amount_cents: Int!
-    declared_expenses_cents: Int!
-    unreported_funds_cents: Int!
-    active_funding_needs_count: Int!
-    pets_near_limit_count: Int!
-    pets_at_limit_count: Int!
-    connected_account: StripeConnectedAccount
-    is_test_mode: Boolean!
+  gross_amount_cents: Int!
+  platform_fee_amount_cents: Int!
+  processing_fee_amount_cents: Int!
+  shelter_net_amount_cents: Int!
+  refunded_amount_cents: Int!
+  disputed_amount_cents: Int!
+  declared_expenses_cents: Int!
+  unreported_funds_cents: Int!
+  active_funding_needs_count: Int!
+  pets_near_limit_count: Int!
+  pets_at_limit_count: Int!
+  connected_account: StripeConnectedAccount
+  is_test_mode: Boolean!
 }
 
 type ShelterDonationOverviewResult {
-    success: Boolean!
-    error: Error
-    overview: ShelterDonationOverview
+  success: Boolean!
+  error: Error
+  overview: ShelterDonationOverview
 }
 
 type ShelterDonationSettings {
-    donations_enabled: Boolean!
-    default_pet_monthly_limit_cents: Int!
-    platform_fee_percent: Float!
-    unused_funds_policy: String!
-    environment: String!
-    connected_account: StripeConnectedAccount
+  donations_enabled: Boolean!
+  default_pet_monthly_limit_cents: Int!
+  platform_fee_percent: Float!
+  unused_funds_policy: String!
+  environment: String!
+  connected_account: StripeConnectedAccount
 }
 
 type ShelterDonationSettingsResult {
-    success: Boolean!
-    error: Error
-    settings: ShelterDonationSettings
-}
-
-input ShelterDonationSettingsInput {
-    donations_enabled: Boolean
-    # null clears the shelter override back to the global platform default;
-    # omitting the field entirely leaves the current setting untouched.
-    default_pet_monthly_limit_cents: Int
+  success: Boolean!
+  error: Error
+  settings: ShelterDonationSettings
 }
 
 type ShelterMonthlyReport {
-    year: Int!
-    month: Int!
-    gross_amount_cents: Int!
-    platform_fee_amount_cents: Int!
-    processing_fee_amount_cents: Int!
-    shelter_net_amount_cents: Int!
-    refunded_amount_cents: Int!
-    disputed_amount_cents: Int!
-    declared_expenses_cents: Int!
-    unreported_funds_cents: Int!
+  year: Int!
+  month: Int!
+  gross_amount_cents: Int!
+  platform_fee_amount_cents: Int!
+  processing_fee_amount_cents: Int!
+  shelter_net_amount_cents: Int!
+  refunded_amount_cents: Int!
+  disputed_amount_cents: Int!
+  declared_expenses_cents: Int!
+  unreported_funds_cents: Int!
 }
 
 type ShelterMonthlyReportResult {
-    success: Boolean!
-    error: Error
-    report: ShelterMonthlyReport
+  success: Boolean!
+  error: Error
+  report: ShelterMonthlyReport
 }
 
-# --- Ledger ---
-
 type FinancialMovement {
-    id: ID!
-    shelter_id: ID!
-    donation_id: ID
-    movement_type: FinancialMovementType!
-    amount_cents: Int!
-    currency: String!
-    stripe_object_id: String
-    description: String
-    is_test: Boolean!
-    created_at: String!
+  id: ID!
+  shelter_id: ID!
+  donation_id: ID
+  movement_type: FinancialMovementType!
+  amount_cents: Int!
+  currency: String!
+  stripe_object_id: String
+  description: String
+  is_test: Boolean!
+  created_at: String!
 }
 
 type PaginatedFinancialMovements {
-    success: Boolean
-    error: Error
-    items: [FinancialMovement]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [FinancialMovement]!
+  pagination: Pagination!
 }
 
 type ReconciliationResult {
-    success: Boolean!
-    error: Error
-    donation_id: ID!
-    is_balanced: Boolean!
-    movement_count: Int!
+  success: Boolean!
+  error: Error
+  donation_id: ID!
+  is_balanced: Boolean!
+  movement_count: Int!
 }
 
-# --- Stripe webhook events ---
-
 type StripeWebhookEvent {
-    id: ID!
-    stripe_event_id: String!
-    event_type: String!
-    livemode: Boolean!
-    status: WebhookEventStatus!
-    attempts: Int!
-    last_error: String
-    processed_at: String
-    created_at: String!
+  id: ID!
+  stripe_event_id: String!
+  event_type: String!
+  livemode: Boolean!
+  status: WebhookEventStatus!
+  attempts: Int!
+  last_error: String
+  processed_at: String
+  created_at: String!
 }
 
 type StripeWebhookEventResult {
-    success: Boolean!
-    error: Error
-    event: StripeWebhookEvent
+  success: Boolean!
+  error: Error
+  event: StripeWebhookEvent
 }
 
 type PaginatedStripeWebhookEvents {
-    success: Boolean
-    error: Error
-    items: [StripeWebhookEvent]!
-    pagination: Pagination!
+  success: Boolean
+  error: Error
+  items: [StripeWebhookEvent]!
+  pagination: Pagination!
 }
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum CoatLength {
+  SHORT
+  MEDIUM
+  LONG
+  HAIRLESS
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NOT_SAID
+}
+
+enum PetFamily {
+  REPTILE
+  CANINE
+  FELINE
+  BIRDS
+  FISH
+}
+
+enum CustodyLevel {
+  SUB_OWNER
+  OWNER
+  PET_SITTER
+}
+
+enum OwnershipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum TreatmentType {
+  VACCINE
+  ANTIPARASITIC
+  TABLET
+  OPERATION
+  REMINDER
+  TRAINING
+  WALK
+  CHECK
+  CURE
+}
+
+enum treatmentDuration {
+  TEN_MINUTES
+  QUARTER_HOUR
+  THREE_QUARTER
+  HALF_HOUR
+  HOUR
+  HOUR_AND_HALF
+  TWO_HOURS
+}
+
+enum WalkRatingType {
+  OVERALL
+  LEASH_PULLING
+  BEHAVIOR
+  AGGRESSION
+  CALM
+}
+
+enum StatsPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum FrequencyUnit {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum ReportType {
+  MISSING
+  FOUND
+}
+
+enum ShelterType {
+  OFFICIAL_SHELTER
+  PERSONAL_WORKSPACE
+}
+
+enum ShelterVerificationStatus {
+  UNVERIFIED
+  PENDING_CLAIM
+  VERIFIED
+  REJECTED
+}
+
+enum ShelterVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+enum RoleLevel {
+  OWNER
+  MANAGER
+  STAFF
+  VOLUNTEER
+}
+
+enum ShelterInviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum ShelterPersonStatus {
+  VISITOR
+  VOLUNTEER
+  PENDING_INVITE
+  ACTIVE_USER
+  ARCHIVED
+}
+
+enum ShelterPersonSource {
+  MANUAL
+  INVITE
+  VISIT
+  VOLUNTEER_REQUEST
+  IMPORT
+}
+
+enum ShelterOwnershipTransferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum ShelterClaimRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ShelterJoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ShelterTaskType {
+  CLEANING
+  DEEP_CLEANING
+  FEEDING
+  MEDICATION
+  GROOMING
+  OTHER
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  CANCELLED
+  OVERDUE
+}
+
+enum RecurrenceFreq {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum Weekday {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum ShelterWalkStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MapUnit {
+  METERS
+  PIXELS
+}
+
+enum BoxStatus {
+  AVAILABLE
+  OCCUPIED
+  FULL
+  OUT_OF_SERVICE
+  NEEDS_CLEANING
+}
+
+enum AreaType {
+  KENNEL
+  QUARANTINE
+  PLAYGROUND
+  MEDICAL
+  STORAGE
+  OFFICE
+  COMMON
+  OUTDOOR
+  OTHER
+}
+
+enum MapElementType {
+  WALL
+  DOOR
+  GATE
+  WATER_POINT
+  FEEDING_POINT
+  BENCH
+  TREE
+  OTHER
+}
+
+enum InventoryCategory {
+  FOOD_DRY
+  FOOD_WET
+  MEDICINE
+  HYGIENE
+  EQUIPMENT
+  OTHER
+}
+
+enum MovementType {
+  RESTOCK
+  CONSUMPTION
+  DONATION
+  WASTE
+  ADJUSTMENT
+}
+
+enum ShelterInventoryAlertStatus {
+  OUT_OF_STOCK
+  LOW_STOCK
+}
+
+enum NotificationType {
+  TREATMENT_REMINDER
+  PET_OWNERSHIP_INVITE
+  SHELTER_INVITE
+  SHELTER_TASK_INSTANCE
+  SHELTER_JOIN_REQUEST
+  PET_BIRTHDAY
+  SHELTER_OWNERSHIP_TRANSFER
+  SHELTER_CLAIM_REQUEST
+  DONATION_RECEIVED
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  DISMISSED
+  EXPIRED
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum NotificationEntityType {
+  PET
+  TREATMENT
+  OWNERSHIP
+  SHELTER
+  SHELTER_INVITE
+  SHELTER_TASK
+  SHELTER_JOIN_REQUEST
+  SHELTER_OWNERSHIP_TRANSFER
+  SHELTER_CLAIM_REQUEST
+  DONATION
+}
+
+enum DonationTargetType {
+  SHELTER
+  PET
+  PET_FUNDING_NEED
+}
+
+enum DonorType {
+  GUEST
+  AUTHENTICATED
+}
+
+enum DonationStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum RefundStatus {
+  NONE
+  PARTIAL
+  FULL
+}
+
+enum DisputeStatus {
+  NONE
+  OPEN
+  WON
+  LOST
+}
+
+enum FundingNeedStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum FundingNeedUrgency {
+  NORMAL
+  URGENT
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum FinancialMovementType {
+  GROSS_PAYMENT
+  PLATFORM_FEE
+  PROCESSING_FEE
+  SHELTER_NET
+  TRANSFER
+  PAYOUT
+  REFUND
+  DISPUTE
+  REVERSAL
+  ADJUSTMENT
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  IGNORED
+}
+
+enum ConnectedAccountEnvironment {
+  TEST
+  LIVE
+}
+
+input CreateRbacRoleInput {
+  code: String!
+  name: String!
+  description: String
+  scope_type: String!
+  permission_keys: [String!]!
+}
+
+input UpdateRbacRolePermissionsInput {
+  role_id: ID!
+  permission_keys: [String!]!
+}
+
+input CommonSearch {
+  page: Int = 0
+  page_size: Int = 20
+  order_by: String = "created_at"
+  order_direction: String = "desc"
+  filters: DeepFilters = {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}
+}
+
+input DeepFilters {
+  and: DeepFilters
+  or: DeepFilters
+  not: DeepFilters
+  fixed: [FixedFilter] = []
+  ranges: [RangeFilter] = []
+  search: SearchFilter = {value: "", fields: []}
+  lists: [ListFilter] = []
+  join: [Join] = []
+}
+
+input FixedFilter {
+  key: String!
+  value: String!
+}
+
+input Filters {
+  fixed: [FixedFilter] = []
+  ranges: [RangeFilter] = []
+  lists: [ListFilter] = []
+  join: [Join] = []
+  search: [SearchFilter]
+}
+
+input ListFilter {
+  key: String
+  value: [String]!
+}
+
+input RangeFilter {
+  key: String!
+  value: RangeFilterValue
+}
+
+input RangeFilterValue {
+  min: String
+  max: String
+}
+
+input SearchFilter {
+  value: String = ""
+  fields: [String] = []
+}
+
+"""just see"""
+input Join {
+  key: String!
+  value: DeepFilters!
+}
+
+input UserCreate {
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+input UserUpdate {
+  first_name: String
+  last_name: String
+  email: String
+  last_activity: String
+  verified: Boolean
+}
+
+input PetCreate {
+  name: String!
+  birthday: String
+  neutered: Boolean
+  gender: Gender
+  chip_code: String
+  weight_kg: Float
+  breed: String
+  coat_length: CoatLength
+  temperament: String
+  diet: [String]
+  intollerance: [String]
+  disciplines: [String]
+}
+
+input PetUpdate {
+  name: String
+  birthday: String
+  neutered: Boolean
+  gender: Gender
+  chip_code: String
+  weight_kg: Float
+  temperament: String
+  breed: String
+  coat_length: CoatLength
+  diet: [String]
+  intollerance: [String]
+  disciplines: [String]
+}
+
+input OwnershipUpdate {
+  custody_level: CustodyLevel!
+}
+
+input HealthCardCreate {
+  pet_id: ID!
+}
+
+input HealthCardUpdate {
+  notes: [String]!
+}
+
+input TreatmentCreate {
+  health_card_id: ID!
+  name: String!
+  date: String!
+  type: TreatmentType!
+  duration: treatmentDuration
+  logs: [String]
+  booster_date: String
+}
+
+input TreatmentUpdate {
+  logs: [String]
+  date: String
+  name: String
+  delete_old: Boolean
+  booster_date: String
+  treatmentDuration: treatmentDuration
+  type: TreatmentType
+}
+
+input WalkCreate {
+  date: String!
+  distance_km: Float!
+  health_card_id: ID!
+  name: String
+  notes: [String]
+  duration: treatmentDuration
+}
+
+input WalkUpdate {
+  date: String
+  distance_km: Float
+  duration: treatmentDuration
+  notes: [String]
+}
+
+input WalkRatingCreate {
+  walk_id: ID!
+  type: WalkRatingType!
+  rating: Int!
+}
+
+input WalkRatingUpdate {
+  type: WalkRatingType
+  rating: Int
+}
+
+input PetWeightCreate {
+  pet_id: ID!
+  weight_kg: Float!
+}
+
+input CureCreate {
+  name: String!
+  date: String!
+  health_card_id: ID!
+  frequency_times: Int
+  frequency_value: Int
+  frequency_unit: FrequencyUnit
+  notes: [String]
+}
+
+input CureUpdate {
+  date: String
+  frequency_times: Int
+  frequency_value: Int
+  frequency_unit: FrequencyUnit
+  notes: [String]
+}
+
+input ReportCreate {
+  type: ReportType!
+  place: String!
+  latitude: Float!
+  longitude: Float!
+  reporter: ReporterCreate!
+  notes: [String]
+  pet_id: String
+  date: String
+}
+
+input ReportUpdate {
+  place: String
+  latitude: Float
+  longitude: Float
+  notes: [String]
+  responders: [ReporterCreate]
+}
+
+input ReporterCreate {
+  email: String!
+  first_name: String!
+  last_name: String!
+  user_id: String
+}
+
+input MediaCreate {
+  url: String!
+  scope: String!
+  ref_id: String!
+  main_colors: [MainColorCreate] = []
+  main_color: MainColorCreate
+  type: String!
+}
+
+input MediaUpdate {
+  url: String
+  scope: String
+  ref_id: String
+  main_colors: [MainColorCreate] = []
+  main_color: MainColorCreate
+  type: String
+}
+
+input MainColorCreate {
+  color: String!
+  contrast: String
+}
+
+input CodeCreate {
+  code: String!
+  ref_id: String!
+  ref_table: String!
+}
+
+input PublicShelterSearchInput {
+  name: String
+  city: String
+  province_code: String
+  accepts_volunteers: Boolean
+  page: Int = 0
+  page_size: Int = 20
+}
+
+input ShelterCreate {
+  name: String!
+  street: String!
+  street_number: String!
+  city: String!
+  province_code: String!
+  postal_code: String!
+  region: String
+  district: String
+  contacts: [ShelterContactInput] = []
+}
+
+input CreatePersonalWorkspaceInput {
+  name: String!
+  street: String
+  street_number: String
+  city: String
+  province_code: String
+  postal_code: String
+  region: String
+  district: String
+  contacts: [ShelterContactInput] = []
+}
+
+input ShelterUpdate {
+  name: String
+  street: String
+  street_number: String
+  city: String
+  province_code: String
+  postal_code: String
+  region: String
+  district: String
+  contacts: [ShelterContactInput]
+  public_description: String
+  public_story_html: String
+  public_contact_email: String
+  public_contact_phone: String
+  accepts_volunteers: Boolean
+  public_location_label: String
+  public_lat: Float
+  public_lng: Float
+}
+
+input ShelterContactInput {
+  type: String!
+  value: String!
+}
+
+input ShelterRoleCreate {
+  user_id: ID!
+  shelter_id: ID!
+  role: RoleLevel!
+}
+
+input ShelterRoleUpdate {
+  role: RoleLevel
+}
+
+input ShelterInviteCreate {
+  shelter_id: ID!
+  user_id: ID!
+  role: RoleLevel!
+}
+
+input CreateShelterPersonInput {
+  shelter_id: ID!
+  user_id: ID
+  first_name: String
+  last_name: String
+  email: String
+  phone: String
+  status: ShelterPersonStatus
+  source: ShelterPersonSource
+  notes: String
+}
+
+input UpdateShelterPersonInput {
+  first_name: String
+  last_name: String
+  email: String
+  phone: String
+  status: ShelterPersonStatus
+  source: ShelterPersonSource
+  notes: String
+}
+
+input ShelterClaimInput {
+  proof_data: JSON
+  message: String
+}
+
+input ShelterPetCreate {
+  shelter_id: ID!
+  pet_id: ID!
+}
+
+input ShelterPetsCreate {
+  shelter_id: ID!
+  pet_ids: [ID!]!
+}
+
+input ShelterPetData {
+  name: String!
+  birthday: String!
+  gender: Gender
+  breed: String
+  neutered: Boolean
+  chip_code: String
+  weight_kg: Float
+  coat_length: CoatLength
+  temperament: String
+}
+
+input ShelterPetsWithDataCreate {
+  shelter_id: ID!
+  pets: [ShelterPetData!]!
+}
+
+input ChangeShelterInput {
+  pet_id: ID!
+  shelter_id_from: ID!
+  shelter_id_to: ID!
+}
+
+input RecurrenceInput {
+  freq: RecurrenceFreq!
+  interval: Int = 1
+  weekdays: [Weekday!]
+  week_ordinal: Int
+  time_of_day: String
+  start_at: String
+}
+
+input ShelterTaskCreate {
+  shelter_id: ID!
+  shelter_pet_id: ID
+  shelter_box_id: ID
+  task_type: ShelterTaskType!
+  area: String
+  assignee_ids: [ID!]
+  assignee_shelter_person_ids: [ID!]
+  scheduled_at: String
+  is_recurring: Boolean = false
+  recurrence: RecurrenceInput
+  notes: String
+}
+
+input ShelterTaskUpdate {
+  task_type: ShelterTaskType
+  area: String
+  assignee_ids: [ID!]
+  assignee_shelter_person_ids: [ID!]
+  scheduled_at: String
+  is_recurring: Boolean
+  recurrence: RecurrenceInput
+  notes: String
+}
+
+input ShelterWalkCreate {
+  shelter_pet_id: ID!
+  walker_id: ID
+  shelter_person_id: ID
+  scheduled_at: String
+  notes: String
+}
+
+input ShelterWalkUpdate {
+  scheduled_at: String
+  notes: String
+}
+
+input ShelterWalkRatingCreate {
+  walk_id: ID!
+  type: WalkRatingType!
+  rating: Int!
+}
+
+input ShelterMapCreate {
+  shelter_id: ID!
+  name: String!
+  width: Float!
+  height: Float!
+  unit: MapUnit = METERS
+  background_media_id: ID
+}
+
+input ShelterMapUpdate {
+  name: String
+  width: Float
+  height: Float
+  unit: MapUnit
+  background_media_id: ID
+}
+
+input ShelterBoxCreate {
+  map_id: ID!
+  zone_id: ID!
+  area_id: ID
+  label: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float = 0
+  capacity: Int = 1
+  notes: String
+}
+
+input ShelterBoxUpdate {
+  zone_id: ID
+  area_id: ID
+  label: String
+  x: Float
+  y: Float
+  width: Float
+  height: Float
+  rotation: Float
+  capacity: Int
+  is_out_of_service: Boolean
+  notes: String
+}
+
+input ShelterAreaCreate {
+  map_id: ID!
+  zone_id: ID!
+  name: String!
+  area_type: AreaType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+}
+
+input ShelterAreaUpdate {
+  zone_id: ID
+  name: String
+  area_type: AreaType
+  x: Float
+  y: Float
+  width: Float
+  height: Float
+  color: String
+}
+
+input ShelterMapLayoutInput {
+  zones: [ShelterZoneUpsert!]
+  areas: [ShelterAreaUpsert!]!
+  boxes: [ShelterBoxUpsert!]!
+  elements: [ShelterMapElementUpsert!]
+  deleted_zone_ids: [ID!]
+  deleted_area_ids: [ID!]
+  deleted_box_ids: [ID!]
+  deleted_element_ids: [ID!]
+}
+
+input ShelterZoneUpsert {
+  id: ID
+  name: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+}
+
+input ShelterAreaUpsert {
+  id: ID
+  zone_id: ID!
+  name: String!
+  area_type: AreaType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+}
+
+input ShelterBoxUpsert {
+  id: ID
+  zone_id: ID!
+  area_id: ID
+  label: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float = 0
+  capacity: Int = 1
+}
+
+input ShelterZoneCreate {
+  map_id: ID!
+  name: String!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  color: String
+}
+
+input ShelterZoneUpdate {
+  name: String
+  x: Float
+  y: Float
+  width: Float
+  height: Float
+  color: String
+}
+
+input ShelterMapElementCreate {
+  map_id: ID!
+  element_type: MapElementType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float = 0
+  color: String
+  label: String
+}
+
+input ShelterMapElementUpdate {
+  element_type: MapElementType
+  x: Float
+  y: Float
+  width: Float
+  height: Float
+  rotation: Float
+  color: String
+  label: String
+}
+
+input ShelterMapElementUpsert {
+  id: ID
+  element_type: MapElementType!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  rotation: Float = 0
+  color: String
+  label: String
+}
+
+input ShelterInventoryItemCreate {
+  shelter_id: ID!
+  name: String!
+  category: InventoryCategory!
+  unit: String!
+  minimum_threshold: Float
+  notes: String
+  initial_quantity: Float
+}
+
+input ShelterInventoryItemUpdate {
+  name: String
+  category: InventoryCategory
+  unit: String
+  minimum_threshold: Float
+  notes: String
+}
+
+input ShelterInventoryMovementCreate {
+  item_id: ID!
+  movement_type: MovementType!
+  quantity: Float!
+  notes: String
+  allow_negative: Boolean
+}
+
+input FundingNeedCreateInput {
+  shelter_id: ID!
+  pet_id: ID
+  title: String!
+  description: String
+  category: String
+  currency: String = "usd"
+  target_amount_cents: Int!
+  urgency: FundingNeedUrgency = NORMAL
+  is_recurring_monthly: Boolean = true
+  starts_at: String
+  ends_at: String
+}
+
+input FundingNeedUpdateInput {
+  title: String
+  description: String
+  category: String
+  target_amount_cents: Int
+  urgency: FundingNeedUrgency
+  is_recurring_monthly: Boolean
+  starts_at: String
+  ends_at: String
+}
+
+input PetDonationLimitInput {
+  pet_id: ID!
+  shelter_id: ID!
+  custom_monthly_limit_cents: Int
+}
+
+input TemporaryPetLimitOverrideInput {
+  pet_id: ID!
+  shelter_id: ID!
+  amount_cents: Int!
+  reason: String!
+  effective_at: String
+  expires_at: String!
+}
+
+input GuestDonationCheckoutInput {
+  shelter_id: ID!
+  target_type: DonationTargetType!
+  pet_id: ID
+  funding_need_id: ID
+  amount_cents: Int!
+  currency: String = "usd"
+  success_url: String!
+  donor_email: String!
+}
+
+input AuthenticatedDonationInput {
+  shelter_id: ID!
+  target_type: DonationTargetType!
+  pet_id: ID
+  funding_need_id: ID
+  amount_cents: Int!
+  currency: String = "usd"
+  success_url: String!
+}
+
+input PaymentMethodSetupInput {
+  success_url: String!
+  cancel_url: String!
+  consent_text: String!
+}
+
+input ShelterExpenseCreateInput {
+  shelter_id: ID!
+  pet_id: ID
+  funding_need_id: ID
+  currency: String = "usd"
+  amount_cents: Int!
+  description: String!
+}
+
+input ShelterExpenseUpdateInput {
+  amount_cents: Int
+  description: String
+  pet_id: ID
+  funding_need_id: ID
+}
+
+input ShelterDonationSettingsInput {
+  donations_enabled: Boolean
+  default_pet_monthly_limit_cents: Int
+}
+
+directive @subset(of: String!, values: [String!]!) on ENUM
+
+"""Exposes a URL that specifies the behaviour of this scalar."""
+directive @specifiedBy(
+  """The URL that specifies the behaviour of this scalar."""
+  url: String!,
+) on SCALAR
 
