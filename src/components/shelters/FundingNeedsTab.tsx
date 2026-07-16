@@ -346,7 +346,7 @@ const UrgentBadge = styled.span`
 	border-radius: 999px;
 	font-size: 1.1rem;
 	font-weight: 700;
-	background: ${$color("dangerBg")};
+	background: ${$color("danger")};
 	color: ${$color("danger")};
 `;
 
