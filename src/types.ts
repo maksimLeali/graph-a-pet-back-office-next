@@ -298,6 +298,7 @@ export type DonationAvailability = {
   __typename?: 'DonationAvailability';
   available: Scalars['Boolean']['output'];
   is_test_mode: Scalars['Boolean']['output'];
+  pet_monthly_limit_cents?: Maybe<Scalars['Int']['output']>;
   reasons: Array<Scalars['String']['output']>;
   remaining_pet_allowance_cents?: Maybe<Scalars['Int']['output']>;
 };
@@ -613,12 +614,15 @@ export type Mutation = {
   addPet: PetResult;
   addPetToMe: PetAddedResult;
   addPetToUser: PetAddedResult;
+  applyToShelterAsVolunteer: ShelterJoinRequestResult;
   approveShelterClaim: ShelterClaimRequestResult;
   approveShelterExpense: ShelterExpenseResult;
+  approveShelterJoinRequest: ShelterJoinRequestResult;
   archiveRbacRole: RbacRoleMutationResult;
   archiveShelterInventoryItem: ShelterInventoryItemResult;
   archiveShelterPerson: ShelterPersonResult;
   assignPetToBox: ShelterBoxOccupancyResult;
+  assignRbacRoleToUser: UserRbacAssignmentResult;
   cancelShelterClaim: ShelterClaimRequestResult;
   cancelShelterOwnershipTransfer: ShelterOwnershipTransferResult;
   cancelShelterWalk: ShelterWalkResult;
@@ -701,6 +705,7 @@ export type Mutation = {
   rejectShelterClaim: ShelterClaimRequestResult;
   rejectShelterExpense: ShelterExpenseResult;
   rejectShelterInvite: ShelterInviteResult;
+  rejectShelterJoinRequest: ShelterJoinRequestResult;
   rejectShelterOwnershipTransfer: ShelterOwnershipTransferResult;
   releasePetFromBox: ShelterBoxOccupancyResult;
   removeSavedPaymentMethod: GenericResult;
@@ -710,6 +715,7 @@ export type Mutation = {
   respondToReport: ReportResult;
   restoreMemoriae: RestoredResult;
   retryStripeWebhookEvent: StripeWebhookEventResult;
+  revokeRbacRoleAssignment: UserRbacAssignmentResult;
   saveShelterMapLayout: ShelterMapResult;
   setBoxOutOfService: ShelterBoxResult;
   setDefaultPaymentMethod: UserPaymentMethodResult;
@@ -784,6 +790,12 @@ export type MutationAddPetToUserArgs = {
 };
 
 
+export type MutationApplyToShelterAsVolunteerArgs = {
+  message?: InputMaybe<Scalars['String']['input']>;
+  shelter_id: Scalars['ID']['input'];
+};
+
+
 export type MutationApproveShelterClaimArgs = {
   decision_note?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -791,6 +803,11 @@ export type MutationApproveShelterClaimArgs = {
 
 
 export type MutationApproveShelterExpenseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationApproveShelterJoinRequestArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -814,6 +831,13 @@ export type MutationAssignPetToBoxArgs = {
   box_id: Scalars['ID']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
   shelter_pet_id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignRbacRoleToUserArgs = {
+  role_id: Scalars['ID']['input'];
+  shelter_id?: InputMaybe<Scalars['ID']['input']>;
+  user_id: Scalars['ID']['input'];
 };
 
 
@@ -1229,6 +1253,11 @@ export type MutationRejectShelterInviteArgs = {
 };
 
 
+export type MutationRejectShelterJoinRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRejectShelterOwnershipTransferArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1276,6 +1305,11 @@ export type MutationRestoreMemoriaeArgs = {
 
 export type MutationRetryStripeWebhookEventArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeRbacRoleAssignmentArgs = {
+  assignment_id: Scalars['ID']['input'];
 };
 
 
@@ -1595,9 +1629,11 @@ export type Notification = {
 };
 
 export enum NotificationEntityType {
+  Donation = 'DONATION',
   Ownership = 'OWNERSHIP',
   Pet = 'PET',
   Shelter = 'SHELTER',
+  ShelterClaimRequest = 'SHELTER_CLAIM_REQUEST',
   ShelterInvite = 'SHELTER_INVITE',
   ShelterJoinRequest = 'SHELTER_JOIN_REQUEST',
   ShelterOwnershipTransfer = 'SHELTER_OWNERSHIP_TRANSFER',
@@ -1627,8 +1663,10 @@ export enum NotificationStatus {
 }
 
 export enum NotificationType {
+  DonationReceived = 'DONATION_RECEIVED',
   PetBirthday = 'PET_BIRTHDAY',
   PetOwnershipInvite = 'PET_OWNERSHIP_INVITE',
+  ShelterClaimRequest = 'SHELTER_CLAIM_REQUEST',
   ShelterInvite = 'SHELTER_INVITE',
   ShelterJoinRequest = 'SHELTER_JOIN_REQUEST',
   ShelterOwnershipTransfer = 'SHELTER_OWNERSHIP_TRANSFER',
@@ -2222,7 +2260,9 @@ export type Query = {
   getHealthCard?: Maybe<HealthCardResult>;
   getLatestPetWeight: PetWeightResult;
   getMedia: MediaResult;
+  getMyDonationStatus: DonationResult;
   getMyShelterDashboard: MyShelterDashboardResult;
+  getMyShelterJoinRequest: ShelterJoinRequestResult;
   getOrCreateCode?: Maybe<CodeResult>;
   getOwnership: OwnershipResult;
   getPet: PetResult;
@@ -2297,6 +2337,7 @@ export type Query = {
   listShelterExpenses: ShelterExpensesResult;
   listShelterInventoryItems: PaginatedInventoryItems;
   listShelterInventoryMovements: PaginatedInventoryMovements;
+  listShelterJoinRequests: ShelterJoinRequestListResult;
   listShelterKpiHistory: ShelterKpiHistoryResult;
   listShelterMapElements: PaginatedMapElements;
   listShelterMaps: PaginatedShelterMaps;
@@ -2370,9 +2411,19 @@ export type QueryGetMediaArgs = {
 };
 
 
+export type QueryGetMyDonationStatusArgs = {
+  donation_id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetMyShelterDashboardArgs = {
   date_from: Scalars['String']['input'];
   date_to: Scalars['String']['input'];
+};
+
+
+export type QueryGetMyShelterJoinRequestArgs = {
+  shelter_id: Scalars['ID']['input'];
 };
 
 
@@ -2733,6 +2784,12 @@ export type QueryListShelterInventoryItemsArgs = {
 
 export type QueryListShelterInventoryMovementsArgs = {
   commonSearch?: InputMaybe<CommonSearch>;
+};
+
+
+export type QueryListShelterJoinRequestsArgs = {
+  shelter_id: Scalars['ID']['input'];
+  status?: InputMaybe<ShelterJoinRequestStatus>;
 };
 
 
@@ -3462,6 +3519,40 @@ export type ShelterInviteResult = {
 
 export enum ShelterInviteStatus {
   Accepted = 'ACCEPTED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
+
+export type ShelterJoinRequest = {
+  __typename?: 'ShelterJoinRequest';
+  created_at: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  reviewed_at?: Maybe<Scalars['String']['output']>;
+  reviewed_by?: Maybe<User>;
+  shelter: Shelter;
+  status: ShelterJoinRequestStatus;
+  updated_at?: Maybe<Scalars['String']['output']>;
+  user: User;
+};
+
+export type ShelterJoinRequestListResult = {
+  __typename?: 'ShelterJoinRequestListResult';
+  error?: Maybe<Error>;
+  items: Array<Maybe<ShelterJoinRequest>>;
+  success: Scalars['Boolean']['output'];
+};
+
+export type ShelterJoinRequestResult = {
+  __typename?: 'ShelterJoinRequestResult';
+  error?: Maybe<Error>;
+  shelter_join_request?: Maybe<ShelterJoinRequest>;
+  success: Scalars['Boolean']['output'];
+};
+
+export enum ShelterJoinRequestStatus {
+  Approved = 'APPROVED',
+  Cancelled = 'CANCELLED',
   Pending = 'PENDING',
   Rejected = 'REJECTED'
 }
@@ -4314,13 +4405,22 @@ export type UserPaymentMethodsResult = {
 export type UserRbacAssignment = {
   __typename?: 'UserRbacAssignment';
   assigned_at: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   role_code: Scalars['String']['output'];
+  role_id: Scalars['ID']['output'];
   role_name: Scalars['String']['output'];
   scope_type: Scalars['String']['output'];
   shelter_id?: Maybe<Scalars['ID']['output']>;
   status: Scalars['String']['output'];
   valid_from?: Maybe<Scalars['String']['output']>;
   valid_until?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserRbacAssignmentResult = {
+  __typename?: 'UserRbacAssignmentResult';
+  assignment?: Maybe<UserRbacAssignment>;
+  error?: Maybe<Error>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type UserRbacResult = {
@@ -5018,6 +5118,60 @@ export type GetUserTreatmentsQueryVariables = Exact<{
 export type GetUserTreatmentsQuery = { __typename?: 'Query', listTreatments: { __typename?: 'PaginatedTreatments', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null, pagination: { __typename?: 'Pagination', page_size?: number | null, current_page?: number | null, total_pages?: number | null, total_items?: number | null }, items: Array<{ __typename?: 'Treatment', id: string, date: string, name: string, type: TreatmentType, created_at: string, booster?: { __typename?: 'Treatment', name: string, date: string, id: string } | null, health_card?: { __typename?: 'HealthCard', pet: { __typename?: 'Pet', id: string, name: string } } | null } | null> } };
 
 export type ListUserFragment = { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, created_at: string, pets_owned: number, pets_on_loan: number };
+
+export type ListRbacRolesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListRbacRolesQuery = { __typename?: 'Query', listRbacRoles: { __typename?: 'RbacRolesResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, roles: Array<{ __typename?: 'RbacRole', id: string, code: string, name: string, scope_type: string, is_system: boolean, grants_all_permissions: boolean, permissions: Array<string> }> } };
+
+export type ListPermissionCatalogQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPermissionCatalogQuery = { __typename?: 'Query', listPermissionCatalog: Array<{ __typename?: 'RbacPermission', key: string, domain: string, scope_type: string, risk_level: string }> };
+
+export type GetUserRbacRolesQueryVariables = Exact<{
+  user_id: Scalars['ID']['input'];
+}>;
+
+
+export type GetUserRbacRolesQuery = { __typename?: 'Query', getUserRbacRoles: { __typename?: 'UserRbacResult', success: boolean, effective_platform_permissions: Array<string>, error?: { __typename?: 'Error', code: string, message: string } | null, assignments: Array<{ __typename?: 'UserRbacAssignment', id: string, role_id: string, role_code: string, role_name: string, scope_type: string, shelter_id?: string | null, status: string, valid_from?: string | null, valid_until?: string | null, assigned_at: string }> } };
+
+export type CreateRbacRoleMutationVariables = Exact<{
+  input: CreateRbacRoleInput;
+}>;
+
+
+export type CreateRbacRoleMutation = { __typename?: 'Mutation', createRbacRole: { __typename?: 'RbacRoleMutationResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, role?: { __typename?: 'RbacRole', id: string, code: string, name: string, scope_type: string, is_system: boolean, grants_all_permissions: boolean, permissions: Array<string> } | null } };
+
+export type UpdateRbacRolePermissionsMutationVariables = Exact<{
+  input: UpdateRbacRolePermissionsInput;
+}>;
+
+
+export type UpdateRbacRolePermissionsMutation = { __typename?: 'Mutation', updateRbacRolePermissions: { __typename?: 'RbacRoleMutationResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, role?: { __typename?: 'RbacRole', id: string, code: string, name: string, scope_type: string, is_system: boolean, grants_all_permissions: boolean, permissions: Array<string> } | null } };
+
+export type ArchiveRbacRoleMutationVariables = Exact<{
+  role_id: Scalars['ID']['input'];
+}>;
+
+
+export type ArchiveRbacRoleMutation = { __typename?: 'Mutation', archiveRbacRole: { __typename?: 'RbacRoleMutationResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, role?: { __typename?: 'RbacRole', id: string } | null } };
+
+export type AssignRbacRoleToUserMutationVariables = Exact<{
+  user_id: Scalars['ID']['input'];
+  role_id: Scalars['ID']['input'];
+  shelter_id?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type AssignRbacRoleToUserMutation = { __typename?: 'Mutation', assignRbacRoleToUser: { __typename?: 'UserRbacAssignmentResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, assignment?: { __typename?: 'UserRbacAssignment', id: string, role_id: string, role_code: string, role_name: string, scope_type: string, shelter_id?: string | null, status: string, assigned_at: string } | null } };
+
+export type RevokeRbacRoleAssignmentMutationVariables = Exact<{
+  assignment_id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeRbacRoleAssignmentMutation = { __typename?: 'Mutation', revokeRbacRoleAssignment: { __typename?: 'UserRbacAssignmentResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, assignment?: { __typename?: 'UserRbacAssignment', id: string, status: string } | null } };
 
 export type UserOwnershipsFragment = { __typename?: 'PaginatedOwnerships', success?: boolean | null, items: Array<{ __typename?: 'Ownership', id: string, custody_level: CustodyLevel, pet: { __typename?: 'Pet', birthday?: string | null, chip_code?: string | null, diet?: Array<string | null> | null, disciplines?: Array<string | null> | null, gender?: Gender | null, id: string, intollerance?: Array<string | null> | null, name: string, neutered?: boolean | null, temperament?: string | null, weight_kg?: number | null } } | null>, pagination: { __typename?: 'Pagination', current_page?: number | null, page_size?: number | null, total_items?: number | null, total_pages?: number | null } };
 
@@ -8697,3 +8851,380 @@ export type GetUserTreatmentsQueryHookResult = ReturnType<typeof useGetUserTreat
 export type GetUserTreatmentsLazyQueryHookResult = ReturnType<typeof useGetUserTreatmentsLazyQuery>;
 export type GetUserTreatmentsSuspenseQueryHookResult = ReturnType<typeof useGetUserTreatmentsSuspenseQuery>;
 export type GetUserTreatmentsQueryResult = Apollo.QueryResult<GetUserTreatmentsQuery, GetUserTreatmentsQueryVariables>;
+export const ListRbacRolesDocument = gql`
+    query listRbacRoles {
+  listRbacRoles {
+    success
+    error {
+      code
+      message
+    }
+    roles {
+      id
+      code
+      name
+      scope_type
+      is_system
+      grants_all_permissions
+      permissions
+    }
+  }
+}
+    `;
+
+/**
+ * __useListRbacRolesQuery__
+ *
+ * To run a query within a React component, call `useListRbacRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListRbacRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListRbacRolesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListRbacRolesQuery(baseOptions?: Apollo.QueryHookOptions<ListRbacRolesQuery, ListRbacRolesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListRbacRolesQuery, ListRbacRolesQueryVariables>(ListRbacRolesDocument, options);
+      }
+export function useListRbacRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListRbacRolesQuery, ListRbacRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListRbacRolesQuery, ListRbacRolesQueryVariables>(ListRbacRolesDocument, options);
+        }
+export function useListRbacRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListRbacRolesQuery, ListRbacRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListRbacRolesQuery, ListRbacRolesQueryVariables>(ListRbacRolesDocument, options);
+        }
+export type ListRbacRolesQueryHookResult = ReturnType<typeof useListRbacRolesQuery>;
+export type ListRbacRolesLazyQueryHookResult = ReturnType<typeof useListRbacRolesLazyQuery>;
+export type ListRbacRolesSuspenseQueryHookResult = ReturnType<typeof useListRbacRolesSuspenseQuery>;
+export type ListRbacRolesQueryResult = Apollo.QueryResult<ListRbacRolesQuery, ListRbacRolesQueryVariables>;
+export const ListPermissionCatalogDocument = gql`
+    query listPermissionCatalog {
+  listPermissionCatalog {
+    key
+    domain
+    scope_type
+    risk_level
+  }
+}
+    `;
+
+/**
+ * __useListPermissionCatalogQuery__
+ *
+ * To run a query within a React component, call `useListPermissionCatalogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPermissionCatalogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPermissionCatalogQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPermissionCatalogQuery(baseOptions?: Apollo.QueryHookOptions<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>(ListPermissionCatalogDocument, options);
+      }
+export function useListPermissionCatalogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>(ListPermissionCatalogDocument, options);
+        }
+export function useListPermissionCatalogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>(ListPermissionCatalogDocument, options);
+        }
+export type ListPermissionCatalogQueryHookResult = ReturnType<typeof useListPermissionCatalogQuery>;
+export type ListPermissionCatalogLazyQueryHookResult = ReturnType<typeof useListPermissionCatalogLazyQuery>;
+export type ListPermissionCatalogSuspenseQueryHookResult = ReturnType<typeof useListPermissionCatalogSuspenseQuery>;
+export type ListPermissionCatalogQueryResult = Apollo.QueryResult<ListPermissionCatalogQuery, ListPermissionCatalogQueryVariables>;
+export const GetUserRbacRolesDocument = gql`
+    query getUserRbacRoles($user_id: ID!) {
+  getUserRbacRoles(user_id: $user_id) {
+    success
+    error {
+      code
+      message
+    }
+    assignments {
+      id
+      role_id
+      role_code
+      role_name
+      scope_type
+      shelter_id
+      status
+      valid_from
+      valid_until
+      assigned_at
+    }
+    effective_platform_permissions
+  }
+}
+    `;
+
+/**
+ * __useGetUserRbacRolesQuery__
+ *
+ * To run a query within a React component, call `useGetUserRbacRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserRbacRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserRbacRolesQuery({
+ *   variables: {
+ *      user_id: // value for 'user_id'
+ *   },
+ * });
+ */
+export function useGetUserRbacRolesQuery(baseOptions: Apollo.QueryHookOptions<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables> & ({ variables: GetUserRbacRolesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>(GetUserRbacRolesDocument, options);
+      }
+export function useGetUserRbacRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>(GetUserRbacRolesDocument, options);
+        }
+export function useGetUserRbacRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>(GetUserRbacRolesDocument, options);
+        }
+export type GetUserRbacRolesQueryHookResult = ReturnType<typeof useGetUserRbacRolesQuery>;
+export type GetUserRbacRolesLazyQueryHookResult = ReturnType<typeof useGetUserRbacRolesLazyQuery>;
+export type GetUserRbacRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserRbacRolesSuspenseQuery>;
+export type GetUserRbacRolesQueryResult = Apollo.QueryResult<GetUserRbacRolesQuery, GetUserRbacRolesQueryVariables>;
+export const CreateRbacRoleDocument = gql`
+    mutation createRbacRole($input: CreateRbacRoleInput!) {
+  createRbacRole(input: $input) {
+    success
+    error {
+      code
+      message
+    }
+    role {
+      id
+      code
+      name
+      scope_type
+      is_system
+      grants_all_permissions
+      permissions
+    }
+  }
+}
+    `;
+export type CreateRbacRoleMutationFn = Apollo.MutationFunction<CreateRbacRoleMutation, CreateRbacRoleMutationVariables>;
+
+/**
+ * __useCreateRbacRoleMutation__
+ *
+ * To run a mutation, you first call `useCreateRbacRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRbacRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRbacRoleMutation, { data, loading, error }] = useCreateRbacRoleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRbacRoleMutation(baseOptions?: Apollo.MutationHookOptions<CreateRbacRoleMutation, CreateRbacRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRbacRoleMutation, CreateRbacRoleMutationVariables>(CreateRbacRoleDocument, options);
+      }
+export type CreateRbacRoleMutationHookResult = ReturnType<typeof useCreateRbacRoleMutation>;
+export type CreateRbacRoleMutationResult = Apollo.MutationResult<CreateRbacRoleMutation>;
+export type CreateRbacRoleMutationOptions = Apollo.BaseMutationOptions<CreateRbacRoleMutation, CreateRbacRoleMutationVariables>;
+export const UpdateRbacRolePermissionsDocument = gql`
+    mutation updateRbacRolePermissions($input: UpdateRbacRolePermissionsInput!) {
+  updateRbacRolePermissions(input: $input) {
+    success
+    error {
+      code
+      message
+    }
+    role {
+      id
+      code
+      name
+      scope_type
+      is_system
+      grants_all_permissions
+      permissions
+    }
+  }
+}
+    `;
+export type UpdateRbacRolePermissionsMutationFn = Apollo.MutationFunction<UpdateRbacRolePermissionsMutation, UpdateRbacRolePermissionsMutationVariables>;
+
+/**
+ * __useUpdateRbacRolePermissionsMutation__
+ *
+ * To run a mutation, you first call `useUpdateRbacRolePermissionsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRbacRolePermissionsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRbacRolePermissionsMutation, { data, loading, error }] = useUpdateRbacRolePermissionsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRbacRolePermissionsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRbacRolePermissionsMutation, UpdateRbacRolePermissionsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRbacRolePermissionsMutation, UpdateRbacRolePermissionsMutationVariables>(UpdateRbacRolePermissionsDocument, options);
+      }
+export type UpdateRbacRolePermissionsMutationHookResult = ReturnType<typeof useUpdateRbacRolePermissionsMutation>;
+export type UpdateRbacRolePermissionsMutationResult = Apollo.MutationResult<UpdateRbacRolePermissionsMutation>;
+export type UpdateRbacRolePermissionsMutationOptions = Apollo.BaseMutationOptions<UpdateRbacRolePermissionsMutation, UpdateRbacRolePermissionsMutationVariables>;
+export const ArchiveRbacRoleDocument = gql`
+    mutation archiveRbacRole($role_id: ID!) {
+  archiveRbacRole(role_id: $role_id) {
+    success
+    error {
+      code
+      message
+    }
+    role {
+      id
+    }
+  }
+}
+    `;
+export type ArchiveRbacRoleMutationFn = Apollo.MutationFunction<ArchiveRbacRoleMutation, ArchiveRbacRoleMutationVariables>;
+
+/**
+ * __useArchiveRbacRoleMutation__
+ *
+ * To run a mutation, you first call `useArchiveRbacRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useArchiveRbacRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [archiveRbacRoleMutation, { data, loading, error }] = useArchiveRbacRoleMutation({
+ *   variables: {
+ *      role_id: // value for 'role_id'
+ *   },
+ * });
+ */
+export function useArchiveRbacRoleMutation(baseOptions?: Apollo.MutationHookOptions<ArchiveRbacRoleMutation, ArchiveRbacRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ArchiveRbacRoleMutation, ArchiveRbacRoleMutationVariables>(ArchiveRbacRoleDocument, options);
+      }
+export type ArchiveRbacRoleMutationHookResult = ReturnType<typeof useArchiveRbacRoleMutation>;
+export type ArchiveRbacRoleMutationResult = Apollo.MutationResult<ArchiveRbacRoleMutation>;
+export type ArchiveRbacRoleMutationOptions = Apollo.BaseMutationOptions<ArchiveRbacRoleMutation, ArchiveRbacRoleMutationVariables>;
+export const AssignRbacRoleToUserDocument = gql`
+    mutation assignRbacRoleToUser($user_id: ID!, $role_id: ID!, $shelter_id: ID) {
+  assignRbacRoleToUser(
+    user_id: $user_id
+    role_id: $role_id
+    shelter_id: $shelter_id
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    assignment {
+      id
+      role_id
+      role_code
+      role_name
+      scope_type
+      shelter_id
+      status
+      assigned_at
+    }
+  }
+}
+    `;
+export type AssignRbacRoleToUserMutationFn = Apollo.MutationFunction<AssignRbacRoleToUserMutation, AssignRbacRoleToUserMutationVariables>;
+
+/**
+ * __useAssignRbacRoleToUserMutation__
+ *
+ * To run a mutation, you first call `useAssignRbacRoleToUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignRbacRoleToUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignRbacRoleToUserMutation, { data, loading, error }] = useAssignRbacRoleToUserMutation({
+ *   variables: {
+ *      user_id: // value for 'user_id'
+ *      role_id: // value for 'role_id'
+ *      shelter_id: // value for 'shelter_id'
+ *   },
+ * });
+ */
+export function useAssignRbacRoleToUserMutation(baseOptions?: Apollo.MutationHookOptions<AssignRbacRoleToUserMutation, AssignRbacRoleToUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AssignRbacRoleToUserMutation, AssignRbacRoleToUserMutationVariables>(AssignRbacRoleToUserDocument, options);
+      }
+export type AssignRbacRoleToUserMutationHookResult = ReturnType<typeof useAssignRbacRoleToUserMutation>;
+export type AssignRbacRoleToUserMutationResult = Apollo.MutationResult<AssignRbacRoleToUserMutation>;
+export type AssignRbacRoleToUserMutationOptions = Apollo.BaseMutationOptions<AssignRbacRoleToUserMutation, AssignRbacRoleToUserMutationVariables>;
+export const RevokeRbacRoleAssignmentDocument = gql`
+    mutation revokeRbacRoleAssignment($assignment_id: ID!) {
+  revokeRbacRoleAssignment(assignment_id: $assignment_id) {
+    success
+    error {
+      code
+      message
+    }
+    assignment {
+      id
+      status
+    }
+  }
+}
+    `;
+export type RevokeRbacRoleAssignmentMutationFn = Apollo.MutationFunction<RevokeRbacRoleAssignmentMutation, RevokeRbacRoleAssignmentMutationVariables>;
+
+/**
+ * __useRevokeRbacRoleAssignmentMutation__
+ *
+ * To run a mutation, you first call `useRevokeRbacRoleAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeRbacRoleAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeRbacRoleAssignmentMutation, { data, loading, error }] = useRevokeRbacRoleAssignmentMutation({
+ *   variables: {
+ *      assignment_id: // value for 'assignment_id'
+ *   },
+ * });
+ */
+export function useRevokeRbacRoleAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<RevokeRbacRoleAssignmentMutation, RevokeRbacRoleAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeRbacRoleAssignmentMutation, RevokeRbacRoleAssignmentMutationVariables>(RevokeRbacRoleAssignmentDocument, options);
+      }
+export type RevokeRbacRoleAssignmentMutationHookResult = ReturnType<typeof useRevokeRbacRoleAssignmentMutation>;
+export type RevokeRbacRoleAssignmentMutationResult = Apollo.MutationResult<RevokeRbacRoleAssignmentMutation>;
+export type RevokeRbacRoleAssignmentMutationOptions = Apollo.BaseMutationOptions<RevokeRbacRoleAssignmentMutation, RevokeRbacRoleAssignmentMutationVariables>;

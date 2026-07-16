@@ -9,10 +9,17 @@ import toast from "react-hot-toast";
 import { useGetUserQuery } from "@/graphql/__generated__/getUser.generated";
 import { useGetUserOwnershipQuery } from "@/graphql/__generated__/getUserOwnership.generated";
 import { useGetUserTreatmentsQuery } from "@/graphql/__generated__/getUserTreatments.generated";
-import { useGetUserRbacRolesQuery } from "@/graphql/__generated__/rbac.generated";
+import {
+	useGetUserRbacRolesQuery,
+	useListRbacRolesQuery,
+	useAssignRbacRoleToUserMutation,
+	useRevokeRbacRoleAssignmentMutation,
+} from "@/graphql/__generated__/rbac.generated";
+import { useListSheltersQuery } from "@/graphql/__generated__/queries.generated";
 import { Tabs } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/cells";
 import { $color, $uw } from "@/theme";
@@ -127,11 +134,68 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const UserRbacTab: React.FC<{ userId: string }> = ({ userId }) => {
-	const { data, loading } = useGetUserRbacRolesQuery({
+	const { data, loading, refetch } = useGetUserRbacRolesQuery({
 		variables: { user_id: userId },
 		fetchPolicy: "network-only",
 		onError: () => toast.error("Errore nel caricamento dei ruoli"),
 	});
+
+	const { data: rolesData } = useListRbacRolesQuery({
+		fetchPolicy: "cache-and-network",
+	});
+	// listRbacRoles already excludes archived roles; system roles are assignable too
+	const roles = rolesData?.listRbacRoles?.roles ?? [];
+
+	const [roleId, setRoleId] = useState("");
+	const [shelterId, setShelterId] = useState("");
+	const selectedRole = roles.find((r) => r.id === roleId);
+	const needsShelter = selectedRole?.scope_type === "SHELTER";
+
+	// shelter picker only loaded when a shelter-scoped role is selected
+	const { data: sheltersData } = useListSheltersQuery({
+		skip: !needsShelter,
+		variables: { search: { page: 0, page_size: 200 } },
+	});
+	const shelterOptions = (sheltersData?.listShelters?.items ?? [])
+		.filter((s): s is NonNullable<typeof s> => !!s)
+		.map((s) => ({ value: s.id, label: `${s.name} (${s.city ?? "—"})` }));
+
+	const [assignRole, { loading: assigning }] = useAssignRbacRoleToUserMutation({
+		onCompleted: (res) => {
+			if (!res.assignRbacRoleToUser.success) {
+				toast.error(res.assignRbacRoleToUser.error?.message ?? "Errore");
+				return;
+			}
+			toast.success("Ruolo assegnato");
+			setRoleId("");
+			setShelterId("");
+			refetch();
+		},
+		onError: () => toast.error("Errore nell'assegnazione"),
+	});
+
+	const [revokeAssignment] = useRevokeRbacRoleAssignmentMutation({
+		onCompleted: (res) => {
+			if (!res.revokeRbacRoleAssignment.success) {
+				toast.error(res.revokeRbacRoleAssignment.error?.message ?? "Errore");
+				return;
+			}
+			toast.success("Ruolo revocato");
+			refetch();
+		},
+		onError: () => toast.error("Errore nella revoca"),
+	});
+
+	const onAssign = () => {
+		if (!roleId || (needsShelter && !shelterId)) return;
+		assignRole({
+			variables: {
+				user_id: userId,
+				role_id: roleId,
+				shelter_id: needsShelter ? shelterId : null,
+			},
+		});
+	};
 
 	if (loading) return <Spinner />;
 	const result = data?.getUserRbacRoles;
@@ -140,6 +204,40 @@ const UserRbacTab: React.FC<{ userId: string }> = ({ userId }) => {
 
 	return (
 		<RbacWrap>
+			<Card title="Assegna ruolo">
+				<AssignRow>
+					<Select
+						label="Ruolo"
+						placeholder="Seleziona ruolo"
+						value={roleId}
+						options={roles.map((r) => ({
+							value: r.id,
+							label: `${r.name} (${r.code})`,
+						}))}
+						onChange={(e) => {
+							setRoleId(e.target.value);
+							setShelterId("");
+						}}
+					/>
+					{needsShelter && (
+						<Select
+							label="Rifugio"
+							placeholder="Seleziona rifugio"
+							value={shelterId}
+							options={shelterOptions}
+							onChange={(e) => setShelterId(e.target.value)}
+						/>
+					)}
+					<Button
+						type="button"
+						loading={assigning}
+						disabled={!roleId || (needsShelter && !shelterId)}
+						onClick={onAssign}
+					>
+						Assegna
+					</Button>
+				</AssignRow>
+			</Card>
 			<Card title="Assegnazioni ruolo">
 				{assignments.length === 0 ? (
 					<EmptyText>Nessuna assegnazione RBAC</EmptyText>
@@ -152,11 +250,12 @@ const UserRbacTab: React.FC<{ userId: string }> = ({ userId }) => {
 								<Th>Rifugio</Th>
 								<Th>Stato</Th>
 								<Th>Assegnato</Th>
+								<Th>Azioni</Th>
 							</tr>
 						</thead>
 						<tbody>
-							{assignments.map((a, i) => (
-								<tr key={i}>
+							{assignments.map((a) => (
+								<tr key={a.id}>
 									<Td>
 										<RoleCode>{a.role_code}</RoleCode>
 										<RoleName>{a.role_name}</RoleName>
@@ -170,6 +269,26 @@ const UserRbacTab: React.FC<{ userId: string }> = ({ userId }) => {
 										{a.status}
 									</Td>
 									<Td>{dayjs(a.assigned_at).format("DD/MM/YYYY")}</Td>
+									<Td>
+										{a.status === "ACTIVE" && (
+											<Button
+												variant="danger"
+												type="button"
+												onClick={() => {
+													if (
+														confirm(
+															`Revocare "${a.role_name}" a questo utente?`
+														)
+													)
+														revokeAssignment({
+															variables: { assignment_id: a.id },
+														});
+												}}
+											>
+												Revoca
+											</Button>
+										)}
+									</Td>
 								</tr>
 							))}
 						</tbody>
@@ -374,6 +493,20 @@ const RbacWrap = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: ${$uw(1)};
+`;
+
+const AssignRow = styled.div`
+	display: flex;
+	align-items: flex-end;
+	gap: ${$uw(0.75)};
+	flex-wrap: wrap;
+
+	> * {
+		min-width: ${$uw(12)};
+	}
+	> button {
+		min-width: auto;
+	}
 `;
 
 const AssignmentTable = styled.table`

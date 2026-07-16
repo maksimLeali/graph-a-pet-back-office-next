@@ -109,15 +109,13 @@ export default function RoleDetailPage({
 				<Button variant="ghost" type="button" onClick={() => router.back()}>
 					← Indietro
 				</Button>
-				{!role.is_system && (
-					<Button
-						type="button"
-						loading={saving}
-						onClick={save}
-					>
-						Salva permessi ({selected.size})
-					</Button>
-				)}
+				<Button
+					type="button"
+					loading={saving}
+					onClick={save}
+				>
+					Salva permessi ({selected.size})
+				</Button>
 			</TopBar>
 
 			<RoleHeader>
@@ -127,7 +125,7 @@ export default function RoleDetailPage({
 					<ScopePill $scope={role.scope_type}>
 						{role.scope_type === "PLATFORM" ? "Platform" : "Rifugio"}
 					</ScopePill>
-					{role.is_system && <SystemBadge>Sistema — sola lettura</SystemBadge>}
+					{role.is_system && <SystemBadge>Sistema</SystemBadge>}
 					{role.grants_all_permissions && (
 						<AllPermsBadge>grants_all_permissions</AllPermsBadge>
 					)}
@@ -143,8 +141,7 @@ export default function RoleDetailPage({
 				<PermissionsCard>
 					<PermHeader>
 						<PermTitle>Permessi ({selected.size} / {catalog.length} selezionati)</PermTitle>
-						{!role.is_system && (
-							<SelectAllGlobal
+						<SelectAllGlobal
 								type="button"
 								onClick={() => {
 									const allKeys = catalog.map((p) => p.key);
@@ -156,7 +153,6 @@ export default function RoleDetailPage({
 									? "Deseleziona tutti"
 									: "Seleziona tutti"}
 							</SelectAllGlobal>
-						)}
 					</PermHeader>
 
 					<DomainList>
@@ -167,8 +163,7 @@ export default function RoleDetailPage({
 							return (
 								<DomainSection key={domain}>
 									<DomainRow>
-										{!role.is_system && (
-											<DomainCheckbox
+										<DomainCheckbox
 												type="checkbox"
 												checked={allOn}
 												ref={(el) => {
@@ -176,7 +171,6 @@ export default function RoleDetailPage({
 												}}
 												onChange={() => toggleDomain(keys)}
 											/>
-										)}
 										<DomainLabel>{domain}</DomainLabel>
 										<DomainCount>
 											{keys.filter((k) => selected.has(k)).length}/{keys.length}
@@ -189,7 +183,6 @@ export default function RoleDetailPage({
 													type="checkbox"
 													id={p.key}
 													checked={selected.has(p.key)}
-													disabled={role.is_system}
 													onChange={() => toggle(p.key)}
 												/>
 												<label htmlFor={p.key}>

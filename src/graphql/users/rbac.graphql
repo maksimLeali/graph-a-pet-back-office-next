@@ -1,0 +1,135 @@
+query listRbacRoles {
+	listRbacRoles {
+		success
+		error {
+			code
+			message
+		}
+		roles {
+			id
+			code
+			name
+			scope_type
+			is_system
+			grants_all_permissions
+			permissions
+		}
+	}
+}
+
+query listPermissionCatalog {
+	listPermissionCatalog {
+		key
+		domain
+		scope_type
+		risk_level
+	}
+}
+
+query getUserRbacRoles($user_id: ID!) {
+	getUserRbacRoles(user_id: $user_id) {
+		success
+		error {
+			code
+			message
+		}
+		assignments {
+			id
+			role_id
+			role_code
+			role_name
+			scope_type
+			shelter_id
+			status
+			valid_from
+			valid_until
+			assigned_at
+		}
+		effective_platform_permissions
+	}
+}
+
+mutation createRbacRole($input: CreateRbacRoleInput!) {
+	createRbacRole(input: $input) {
+		success
+		error {
+			code
+			message
+		}
+		role {
+			id
+			code
+			name
+			scope_type
+			is_system
+			grants_all_permissions
+			permissions
+		}
+	}
+}
+
+mutation updateRbacRolePermissions($input: UpdateRbacRolePermissionsInput!) {
+	updateRbacRolePermissions(input: $input) {
+		success
+		error {
+			code
+			message
+		}
+		role {
+			id
+			code
+			name
+			scope_type
+			is_system
+			grants_all_permissions
+			permissions
+		}
+	}
+}
+
+mutation archiveRbacRole($role_id: ID!) {
+	archiveRbacRole(role_id: $role_id) {
+		success
+		error {
+			code
+			message
+		}
+		role {
+			id
+		}
+	}
+}
+
+mutation assignRbacRoleToUser($user_id: ID!, $role_id: ID!, $shelter_id: ID) {
+	assignRbacRoleToUser(user_id: $user_id, role_id: $role_id, shelter_id: $shelter_id) {
+		success
+		error {
+			code
+			message
+		}
+		assignment {
+			id
+			role_id
+			role_code
+			role_name
+			scope_type
+			shelter_id
+			status
+			assigned_at
+		}
+	}
+}
+
+mutation revokeRbacRoleAssignment($assignment_id: ID!) {
+	revokeRbacRoleAssignment(assignment_id: $assignment_id) {
+		success
+		error {
+			code
+			message
+		}
+		assignment {
+			id
+			status
+		}
+	}
+}
