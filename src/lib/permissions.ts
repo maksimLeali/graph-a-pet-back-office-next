@@ -36,6 +36,7 @@ export const ShelterPermissions = {
 
 	PUBLIC_PROFILE_MANAGE: "shelters.public_profile.manage",
 	PETS_PUBLISH: "shelters.pets.publish",
+	PETS_UPDATE: "shelters.pets.update",
 } as const;
 
 export const PlatformPermissions = {

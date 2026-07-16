@@ -6,11 +6,17 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import styled from "styled-components";
 
-import { useListShelterPetsBoQuery } from "@/graphql/__generated__/queries.generated";
+import {
+	useListShelterPetsBoQuery,
+	useListShelterRolesBoQuery,
+	useListShelterPeopleQuery,
+} from "@/graphql/__generated__/queries.generated";
 import {
 	useCreateShelterPetBoMutation,
 	useCreateShelterPetsWithDataBoMutation,
 	useDeleteShelterPetBoMutation,
+	useSetShelterPetAssigneesBoMutation,
+	useSetShelterPetPublishedBoMutation,
 } from "@/graphql/__generated__/mutations.generated";
 import { useListPetDonationPoliciesQuery } from "@/graphql/__generated__/listPetDonationPolicies.generated";
 import { Gender } from "@/types";
@@ -120,6 +126,91 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 			refetch();
 		},
 		onError: () => toast.error("Errore nel collegamento dell'animale"),
+	});
+
+	// referente del pet: membri (utenti con ruolo) + shelter people volontari
+	const canAssign = shelterAuth.can(ShelterPermissions.PETS_UPDATE);
+	const { data: rolesData } = useListShelterRolesBoQuery({
+		skip: !canAssign,
+		variables: {
+			search: {
+				page: 0,
+				page_size: 200,
+				filters: { fixed: [{ key: "shelter_id", value: shelterId }] },
+			},
+		},
+	});
+	const { data: peopleData } = useListShelterPeopleQuery({
+		skip: !canAssign,
+		variables: { shelter_id: shelterId, search: { page: 0, page_size: 200 } },
+	});
+	const memberOptions = [
+		{ value: "", label: "— nessun referente —" },
+		...(rolesData?.listShelterRoles?.items ?? [])
+			.filter((r): r is NonNullable<typeof r> => !!r?.user)
+			.map((r) => ({
+				value: `user:${r.user.id}`,
+				label:
+					[r.user.first_name, r.user.last_name].filter(Boolean).join(" ") ||
+					r.user.email,
+			}))
+			.filter((o, i, arr) => arr.findIndex((x) => x.value === o.value) === i),
+		...(peopleData?.listShelterPeople?.items ?? [])
+			.filter(
+				(p): p is NonNullable<typeof p> => !!p && p.status === "VOLUNTEER"
+			)
+			.map((p) => ({
+				value: `person:${p.id}`,
+				label:
+					([p.first_name, p.last_name].filter(Boolean).join(" ") || p.id) +
+					" (volontario)",
+			})),
+	];
+
+	const [setAssignees] = useSetShelterPetAssigneesBoMutation({
+		onCompleted: ({ setShelterPetAssignees }) => {
+			if (!setShelterPetAssignees.success) {
+				toast.error(
+					setShelterPetAssignees.error?.message ??
+						"Errore nell'assegnazione del referente"
+				);
+				return;
+			}
+			toast.success("Referente aggiornato");
+			refetch();
+		},
+		onError: () => toast.error("Errore nell'assegnazione del referente"),
+	});
+
+	const saveAssignee = (shelterPetId: string, encoded: string) => {
+		const [kind, id] = encoded.split(":");
+		setAssignees({
+			variables: {
+				shelter_pet_id: shelterPetId,
+				user_ids: kind === "user" && id ? [id] : [],
+				shelter_person_ids: kind === "person" && id ? [id] : [],
+			},
+		});
+	};
+
+	const canPublish = shelterAuth.can(ShelterPermissions.PETS_PUBLISH);
+	const [setPublished] = useSetShelterPetPublishedBoMutation({
+		onCompleted: ({ setShelterPetPublished }) => {
+			if (!setShelterPetPublished.success) {
+				toast.error(
+					setShelterPetPublished.error?.message ??
+						"Errore nell'aggiornamento della pubblicazione"
+				);
+				return;
+			}
+			toast.success(
+				setShelterPetPublished.shelter_pet?.is_published
+					? "Animale pubblicato"
+					: "Animale nascosto dal pubblico"
+			);
+			refetch();
+		},
+		onError: () => toast.error("Errore nell'aggiornamento della pubblicazione"),
 	});
 
 	const [deletePet] = useDeleteShelterPetBoMutation({
@@ -235,6 +326,53 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 								</div>
 								<RowActions>
 									<Badge>{sp.is_active ? "Presente" : "Uscito"}</Badge>
+									{sp.is_active && canAssign ? (
+										<AssigneeSelect
+											aria-label="Referente"
+											options={memberOptions}
+											value={
+												sp.assigned_members?.[0]
+													? `user:${sp.assigned_members[0].id}`
+													: sp.assigned_shelter_people?.[0]
+														? `person:${sp.assigned_shelter_people[0].id}`
+														: ""
+											}
+											onChange={(e) => saveAssignee(sp.id, e.target.value)}
+										/>
+									) : (
+										(sp.assigned_members?.[0] ||
+											sp.assigned_shelter_people?.[0]) && (
+											<Badge>
+												{[
+													(sp.assigned_members?.[0] ??
+														sp.assigned_shelter_people?.[0])
+														?.first_name,
+													(sp.assigned_members?.[0] ??
+														sp.assigned_shelter_people?.[0])
+														?.last_name,
+												]
+													.filter(Boolean)
+													.join(" ")}
+											</Badge>
+										)
+									)}
+									<Badge>
+										{sp.is_published ? "Pubblicato" : "Non pubblicato"}
+									</Badge>
+									{sp.is_active && canPublish && (
+										<RowButton
+											onClick={() =>
+												setPublished({
+													variables: {
+														shelter_pet_id: sp.id,
+														is_published: !sp.is_published,
+													},
+												})
+											}
+										>
+											{sp.is_published ? "Nascondi" : "Pubblica"}
+										</RowButton>
+									)}
 									{sp.left_at && (
 										<RowSub>
 											uscito il {dayjs(sp.left_at).format("DD/MM/YYYY")}
@@ -273,4 +411,8 @@ const RowLink = styled(Link)`
 	&:hover {
 		text-decoration: underline;
 	}
+`;
+
+const AssigneeSelect = styled(Select)`
+	min-width: 180px;
 `;

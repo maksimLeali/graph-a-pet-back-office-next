@@ -4,6 +4,7 @@ fragment ListUser on User {
     last_name
     first_name
     role
+    verified
     created_at
     pets_owned
     pets_on_loan

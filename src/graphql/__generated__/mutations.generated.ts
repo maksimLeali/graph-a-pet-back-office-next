@@ -60,6 +60,23 @@ export type CreateShelterPetBoMutationVariables = Types.Exact<{
 
 export type CreateShelterPetBoMutation = { __typename?: 'Mutation', createShelterPet: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string } | null } };
 
+export type SetShelterPetAssigneesBoMutationVariables = Types.Exact<{
+  shelter_pet_id: Types.Scalars['ID']['input'];
+  user_ids?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
+  shelter_person_ids?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
+}>;
+
+
+export type SetShelterPetAssigneesBoMutation = { __typename?: 'Mutation', setShelterPetAssignees: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string, assigned_members: Array<{ __typename?: 'User', id: string, first_name: string, last_name: string }>, assigned_shelter_people: Array<{ __typename?: 'ShelterPerson', id: string, first_name?: string | null, last_name?: string | null }> } | null } };
+
+export type SetShelterPetPublishedBoMutationVariables = Types.Exact<{
+  shelter_pet_id: Types.Scalars['ID']['input'];
+  is_published: Types.Scalars['Boolean']['input'];
+}>;
+
+
+export type SetShelterPetPublishedBoMutation = { __typename?: 'Mutation', setShelterPetPublished: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string, is_published: boolean } | null } };
+
 export type DeleteShelterPetBoMutationVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
 }>;
@@ -492,6 +509,107 @@ export function useCreateShelterPetBoMutation(baseOptions?: Apollo.MutationHookO
 export type CreateShelterPetBoMutationHookResult = ReturnType<typeof useCreateShelterPetBoMutation>;
 export type CreateShelterPetBoMutationResult = Apollo.MutationResult<CreateShelterPetBoMutation>;
 export type CreateShelterPetBoMutationOptions = Apollo.BaseMutationOptions<CreateShelterPetBoMutation, CreateShelterPetBoMutationVariables>;
+export const SetShelterPetAssigneesBoDocument = gql`
+    mutation setShelterPetAssigneesBO($shelter_pet_id: ID!, $user_ids: [ID!], $shelter_person_ids: [ID!]) {
+  setShelterPetAssignees(
+    shelter_pet_id: $shelter_pet_id
+    user_ids: $user_ids
+    shelter_person_ids: $shelter_person_ids
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_pet {
+      id
+      assigned_members {
+        id
+        first_name
+        last_name
+      }
+      assigned_shelter_people {
+        id
+        first_name
+        last_name
+      }
+    }
+  }
+}
+    `;
+export type SetShelterPetAssigneesBoMutationFn = Apollo.MutationFunction<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>;
+
+/**
+ * __useSetShelterPetAssigneesBoMutation__
+ *
+ * To run a mutation, you first call `useSetShelterPetAssigneesBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetShelterPetAssigneesBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setShelterPetAssigneesBoMutation, { data, loading, error }] = useSetShelterPetAssigneesBoMutation({
+ *   variables: {
+ *      shelter_pet_id: // value for 'shelter_pet_id'
+ *      user_ids: // value for 'user_ids'
+ *      shelter_person_ids: // value for 'shelter_person_ids'
+ *   },
+ * });
+ */
+export function useSetShelterPetAssigneesBoMutation(baseOptions?: Apollo.MutationHookOptions<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>(SetShelterPetAssigneesBoDocument, options);
+      }
+export type SetShelterPetAssigneesBoMutationHookResult = ReturnType<typeof useSetShelterPetAssigneesBoMutation>;
+export type SetShelterPetAssigneesBoMutationResult = Apollo.MutationResult<SetShelterPetAssigneesBoMutation>;
+export type SetShelterPetAssigneesBoMutationOptions = Apollo.BaseMutationOptions<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>;
+export const SetShelterPetPublishedBoDocument = gql`
+    mutation setShelterPetPublishedBO($shelter_pet_id: ID!, $is_published: Boolean!) {
+  setShelterPetPublished(
+    shelter_pet_id: $shelter_pet_id
+    is_published: $is_published
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_pet {
+      id
+      is_published
+    }
+  }
+}
+    `;
+export type SetShelterPetPublishedBoMutationFn = Apollo.MutationFunction<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>;
+
+/**
+ * __useSetShelterPetPublishedBoMutation__
+ *
+ * To run a mutation, you first call `useSetShelterPetPublishedBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetShelterPetPublishedBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setShelterPetPublishedBoMutation, { data, loading, error }] = useSetShelterPetPublishedBoMutation({
+ *   variables: {
+ *      shelter_pet_id: // value for 'shelter_pet_id'
+ *      is_published: // value for 'is_published'
+ *   },
+ * });
+ */
+export function useSetShelterPetPublishedBoMutation(baseOptions?: Apollo.MutationHookOptions<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>(SetShelterPetPublishedBoDocument, options);
+      }
+export type SetShelterPetPublishedBoMutationHookResult = ReturnType<typeof useSetShelterPetPublishedBoMutation>;
+export type SetShelterPetPublishedBoMutationResult = Apollo.MutationResult<SetShelterPetPublishedBoMutation>;
+export type SetShelterPetPublishedBoMutationOptions = Apollo.BaseMutationOptions<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>;
 export const DeleteShelterPetBoDocument = gql`
     mutation deleteShelterPetBO($id: ID!) {
   deleteShelterPet(id: $id) {

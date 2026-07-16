@@ -719,6 +719,8 @@ export type Mutation = {
   saveShelterMapLayout: ShelterMapResult;
   setBoxOutOfService: ShelterBoxResult;
   setDefaultPaymentMethod: UserPaymentMethodResult;
+  setShelterPetAssignees: ShelterPetResult;
+  setShelterPetPublished: ShelterPetResult;
   setShelterWalkManualDuration: ShelterWalkResult;
   signUp: UserResult;
   skipShelterTask: ShelterTaskResult;
@@ -1327,6 +1329,19 @@ export type MutationSetBoxOutOfServiceArgs = {
 
 export type MutationSetDefaultPaymentMethodArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetShelterPetAssigneesArgs = {
+  shelter_person_ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  shelter_pet_id: Scalars['ID']['input'];
+  user_ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
+export type MutationSetShelterPetPublishedArgs = {
+  is_published: Scalars['Boolean']['input'];
+  shelter_pet_id: Scalars['ID']['input'];
 };
 
 
@@ -3827,9 +3842,12 @@ export enum ShelterPersonStatus {
 
 export type ShelterPet = {
   __typename?: 'ShelterPet';
+  assigned_members: Array<User>;
+  assigned_shelter_people: Array<ShelterPerson>;
   created_at: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   is_active: Scalars['Boolean']['output'];
+  is_published: Scalars['Boolean']['output'];
   left_at?: Maybe<Scalars['String']['output']>;
   pet: Pet;
   shelter: Shelter;
@@ -4334,6 +4352,7 @@ export type User = {
   profile_picture?: Maybe<Media>;
   reports?: Maybe<PaginatedReports>;
   role: UserRole;
+  verified: Scalars['Boolean']['output'];
 };
 
 
@@ -4448,6 +4467,7 @@ export type UserUpdate = {
   first_name?: InputMaybe<Scalars['String']['input']>;
   last_activity?: InputMaybe<Scalars['String']['input']>;
   last_name?: InputMaybe<Scalars['String']['input']>;
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UsersResult = {
@@ -4895,6 +4915,23 @@ export type CreateShelterPetBoMutationVariables = Exact<{
 
 export type CreateShelterPetBoMutation = { __typename?: 'Mutation', createShelterPet: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string } | null } };
 
+export type SetShelterPetAssigneesBoMutationVariables = Exact<{
+  shelter_pet_id: Scalars['ID']['input'];
+  user_ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  shelter_person_ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type SetShelterPetAssigneesBoMutation = { __typename?: 'Mutation', setShelterPetAssignees: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string, assigned_members: Array<{ __typename?: 'User', id: string, first_name: string, last_name: string }>, assigned_shelter_people: Array<{ __typename?: 'ShelterPerson', id: string, first_name?: string | null, last_name?: string | null }> } | null } };
+
+export type SetShelterPetPublishedBoMutationVariables = Exact<{
+  shelter_pet_id: Scalars['ID']['input'];
+  is_published: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetShelterPetPublishedBoMutation = { __typename?: 'Mutation', setShelterPetPublished: { __typename?: 'ShelterPetResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_pet?: { __typename?: 'ShelterPet', id: string, is_published: boolean } | null } };
+
 export type DeleteShelterPetBoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -5039,7 +5076,7 @@ export type ListShelterPetsBoQueryVariables = Exact<{
 }>;
 
 
-export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
+export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, is_published: boolean, left_at?: string | null, assigned_members: Array<{ __typename?: 'User', id: string, first_name: string, last_name: string }>, assigned_shelter_people: Array<{ __typename?: 'ShelterPerson', id: string, first_name?: string | null, last_name?: string | null }>, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
 
 export type ListShelterInventoryItemsBoQueryVariables = Exact<{
   search: CommonSearch;
@@ -5085,21 +5122,21 @@ export type CreateUserBoMutationVariables = Exact<{
 
 export type CreateUserBoMutation = { __typename?: 'Mutation', createUser: { __typename?: 'UserResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, user?: { __typename?: 'User', id: string, first_name: string, last_name: string, email: string } | null } };
 
-export type FullUserFragment = { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null };
+export type FullUserFragment = { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, verified: boolean, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null };
 
 export type GetPaginatedUsersQueryVariables = Exact<{
   search: CommonSearch;
 }>;
 
 
-export type GetPaginatedUsersQuery = { __typename?: 'Query', listUsers: { __typename?: 'PaginatedUsers', success?: boolean | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, error?: { __typename?: 'Error', message: string, code: string, extra?: string | null } | null, items: Array<{ __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, created_at: string, pets_owned: number, pets_on_loan: number } | null> } };
+export type GetPaginatedUsersQuery = { __typename?: 'Query', listUsers: { __typename?: 'PaginatedUsers', success?: boolean | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, error?: { __typename?: 'Error', message: string, code: string, extra?: string | null } | null, items: Array<{ __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, verified: boolean, created_at: string, pets_owned: number, pets_on_loan: number } | null> } };
 
 export type GetUserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'UserResult', success: boolean, user?: { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null } | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'UserResult', success: boolean, user?: { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, verified: boolean, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null } | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null } };
 
 export type GetUserOwnershipQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -5117,7 +5154,7 @@ export type GetUserTreatmentsQueryVariables = Exact<{
 
 export type GetUserTreatmentsQuery = { __typename?: 'Query', listTreatments: { __typename?: 'PaginatedTreatments', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null, pagination: { __typename?: 'Pagination', page_size?: number | null, current_page?: number | null, total_pages?: number | null, total_items?: number | null }, items: Array<{ __typename?: 'Treatment', id: string, date: string, name: string, type: TreatmentType, created_at: string, booster?: { __typename?: 'Treatment', name: string, date: string, id: string } | null, health_card?: { __typename?: 'HealthCard', pet: { __typename?: 'Pet', id: string, name: string } } | null } | null> } };
 
-export type ListUserFragment = { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, created_at: string, pets_owned: number, pets_on_loan: number };
+export type ListUserFragment = { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: UserRole, verified: boolean, created_at: string, pets_owned: number, pets_on_loan: number };
 
 export type ListRbacRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5172,6 +5209,14 @@ export type RevokeRbacRoleAssignmentMutationVariables = Exact<{
 
 
 export type RevokeRbacRoleAssignmentMutation = { __typename?: 'Mutation', revokeRbacRoleAssignment: { __typename?: 'UserRbacAssignmentResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, assignment?: { __typename?: 'UserRbacAssignment', id: string, status: string } | null } };
+
+export type UpdateUserBoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: UserUpdate;
+}>;
+
+
+export type UpdateUserBoMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserResult', success: boolean, user?: { __typename?: 'User', id: string, verified: boolean } | null, error?: { __typename?: 'Error', code: string, message: string } | null } };
 
 export type UserOwnershipsFragment = { __typename?: 'PaginatedOwnerships', success?: boolean | null, items: Array<{ __typename?: 'Ownership', id: string, custody_level: CustodyLevel, pet: { __typename?: 'Pet', birthday?: string | null, chip_code?: string | null, diet?: Array<string | null> | null, disciplines?: Array<string | null> | null, gender?: Gender | null, id: string, intollerance?: Array<string | null> | null, name: string, neutered?: boolean | null, temperament?: string | null, weight_kg?: number | null } } | null>, pagination: { __typename?: 'Pagination', current_page?: number | null, page_size?: number | null, total_items?: number | null, total_pages?: number | null } };
 
@@ -5336,6 +5381,7 @@ export const FullUserFragmentDoc = gql`
   last_name
   first_name
   role
+  verified
   created_at
   profile_picture {
     type
@@ -5350,6 +5396,7 @@ export const ListUserFragmentDoc = gql`
   last_name
   first_name
   role
+  verified
   created_at
   pets_owned
   pets_on_loan
@@ -7368,6 +7415,107 @@ export function useCreateShelterPetBoMutation(baseOptions?: Apollo.MutationHookO
 export type CreateShelterPetBoMutationHookResult = ReturnType<typeof useCreateShelterPetBoMutation>;
 export type CreateShelterPetBoMutationResult = Apollo.MutationResult<CreateShelterPetBoMutation>;
 export type CreateShelterPetBoMutationOptions = Apollo.BaseMutationOptions<CreateShelterPetBoMutation, CreateShelterPetBoMutationVariables>;
+export const SetShelterPetAssigneesBoDocument = gql`
+    mutation setShelterPetAssigneesBO($shelter_pet_id: ID!, $user_ids: [ID!], $shelter_person_ids: [ID!]) {
+  setShelterPetAssignees(
+    shelter_pet_id: $shelter_pet_id
+    user_ids: $user_ids
+    shelter_person_ids: $shelter_person_ids
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_pet {
+      id
+      assigned_members {
+        id
+        first_name
+        last_name
+      }
+      assigned_shelter_people {
+        id
+        first_name
+        last_name
+      }
+    }
+  }
+}
+    `;
+export type SetShelterPetAssigneesBoMutationFn = Apollo.MutationFunction<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>;
+
+/**
+ * __useSetShelterPetAssigneesBoMutation__
+ *
+ * To run a mutation, you first call `useSetShelterPetAssigneesBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetShelterPetAssigneesBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setShelterPetAssigneesBoMutation, { data, loading, error }] = useSetShelterPetAssigneesBoMutation({
+ *   variables: {
+ *      shelter_pet_id: // value for 'shelter_pet_id'
+ *      user_ids: // value for 'user_ids'
+ *      shelter_person_ids: // value for 'shelter_person_ids'
+ *   },
+ * });
+ */
+export function useSetShelterPetAssigneesBoMutation(baseOptions?: Apollo.MutationHookOptions<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>(SetShelterPetAssigneesBoDocument, options);
+      }
+export type SetShelterPetAssigneesBoMutationHookResult = ReturnType<typeof useSetShelterPetAssigneesBoMutation>;
+export type SetShelterPetAssigneesBoMutationResult = Apollo.MutationResult<SetShelterPetAssigneesBoMutation>;
+export type SetShelterPetAssigneesBoMutationOptions = Apollo.BaseMutationOptions<SetShelterPetAssigneesBoMutation, SetShelterPetAssigneesBoMutationVariables>;
+export const SetShelterPetPublishedBoDocument = gql`
+    mutation setShelterPetPublishedBO($shelter_pet_id: ID!, $is_published: Boolean!) {
+  setShelterPetPublished(
+    shelter_pet_id: $shelter_pet_id
+    is_published: $is_published
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_pet {
+      id
+      is_published
+    }
+  }
+}
+    `;
+export type SetShelterPetPublishedBoMutationFn = Apollo.MutationFunction<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>;
+
+/**
+ * __useSetShelterPetPublishedBoMutation__
+ *
+ * To run a mutation, you first call `useSetShelterPetPublishedBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetShelterPetPublishedBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setShelterPetPublishedBoMutation, { data, loading, error }] = useSetShelterPetPublishedBoMutation({
+ *   variables: {
+ *      shelter_pet_id: // value for 'shelter_pet_id'
+ *      is_published: // value for 'is_published'
+ *   },
+ * });
+ */
+export function useSetShelterPetPublishedBoMutation(baseOptions?: Apollo.MutationHookOptions<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>(SetShelterPetPublishedBoDocument, options);
+      }
+export type SetShelterPetPublishedBoMutationHookResult = ReturnType<typeof useSetShelterPetPublishedBoMutation>;
+export type SetShelterPetPublishedBoMutationResult = Apollo.MutationResult<SetShelterPetPublishedBoMutation>;
+export type SetShelterPetPublishedBoMutationOptions = Apollo.BaseMutationOptions<SetShelterPetPublishedBoMutation, SetShelterPetPublishedBoMutationVariables>;
 export const DeleteShelterPetBoDocument = gql`
     mutation deleteShelterPetBO($id: ID!) {
   deleteShelterPet(id: $id) {
@@ -8241,7 +8389,18 @@ export const ListShelterPetsBoDocument = gql`
       id
       created_at
       is_active
+      is_published
       left_at
+      assigned_members {
+        id
+        first_name
+        last_name
+      }
+      assigned_shelter_people {
+        id
+        first_name
+        last_name
+      }
       shelter {
         id
         name
@@ -9228,3 +9387,45 @@ export function useRevokeRbacRoleAssignmentMutation(baseOptions?: Apollo.Mutatio
 export type RevokeRbacRoleAssignmentMutationHookResult = ReturnType<typeof useRevokeRbacRoleAssignmentMutation>;
 export type RevokeRbacRoleAssignmentMutationResult = Apollo.MutationResult<RevokeRbacRoleAssignmentMutation>;
 export type RevokeRbacRoleAssignmentMutationOptions = Apollo.BaseMutationOptions<RevokeRbacRoleAssignmentMutation, RevokeRbacRoleAssignmentMutationVariables>;
+export const UpdateUserBoDocument = gql`
+    mutation updateUserBO($id: ID!, $data: UserUpdate!) {
+  updateUser(id: $id, data: $data) {
+    success
+    user {
+      id
+      verified
+    }
+    error {
+      code
+      message
+    }
+  }
+}
+    `;
+export type UpdateUserBoMutationFn = Apollo.MutationFunction<UpdateUserBoMutation, UpdateUserBoMutationVariables>;
+
+/**
+ * __useUpdateUserBoMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserBoMutation, { data, loading, error }] = useUpdateUserBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserBoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserBoMutation, UpdateUserBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserBoMutation, UpdateUserBoMutationVariables>(UpdateUserBoDocument, options);
+      }
+export type UpdateUserBoMutationHookResult = ReturnType<typeof useUpdateUserBoMutation>;
+export type UpdateUserBoMutationResult = Apollo.MutationResult<UpdateUserBoMutation>;
+export type UpdateUserBoMutationOptions = Apollo.BaseMutationOptions<UpdateUserBoMutation, UpdateUserBoMutationVariables>;

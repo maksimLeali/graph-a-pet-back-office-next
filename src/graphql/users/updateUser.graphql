@@ -1,0 +1,13 @@
+mutation updateUserBO($id: ID!, $data: UserUpdate!) {
+    updateUser(id: $id, data: $data) {
+        success
+        user {
+            id
+            verified
+        }
+        error {
+            code
+            message
+        }
+    }
+}

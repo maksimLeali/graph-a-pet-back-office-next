@@ -7,6 +7,7 @@ import styled from "styled-components";
 import toast from "react-hot-toast";
 
 import { useGetUserQuery } from "@/graphql/__generated__/getUser.generated";
+import { useUpdateUserBoMutation } from "@/graphql/__generated__/updateUser.generated";
 import { useGetUserOwnershipQuery } from "@/graphql/__generated__/getUserOwnership.generated";
 import { useGetUserTreatmentsQuery } from "@/graphql/__generated__/getUserTreatments.generated";
 import {
@@ -316,26 +317,67 @@ export default function UserDetailPage({
 	params: Promise<{ id: string }>;
 }) {
 	const { id } = use(params);
-	const { data, loading } = useGetUserQuery({
+	const { data, loading, refetch } = useGetUserQuery({
 		variables: { id },
 		onError: () => toast.error("Errore nel caricamento dell'utente"),
+	});
+
+	const [updateUser, { loading: verifying }] = useUpdateUserBoMutation({
+		onCompleted: ({ updateUser }) => {
+			if (!updateUser.success) {
+				toast.error(updateUser.error?.message ?? "Errore nella verifica");
+				return;
+			}
+			toast.success(
+				updateUser.user?.verified ? "Utente verificato" : "Verifica revocata"
+			);
+			refetch();
+		},
+		onError: () => toast.error("Errore nella verifica"),
 	});
 
 	if (loading) return <Spinner />;
 	const user = data?.getUser?.user;
 	if (!user) return <EmptyText>Utente non trovato</EmptyText>;
 
+	const setVerified = (verified: boolean) =>
+		updateUser({ variables: { id, data: { verified } } });
+
 	return (
 		<Page>
-			<div>
-				<PageTitle>
-					{user.first_name} {user.last_name}
-				</PageTitle>
-				<PageSub>
-					{user.email} — registrato il{" "}
-					{dayjs(user.created_at).format("DD/MM/YYYY")}
-				</PageSub>
-			</div>
+			<TitleRow>
+				<div>
+					<PageTitle>
+						{user.first_name} {user.last_name}
+					</PageTitle>
+					<PageSub>
+						{user.email} — registrato il{" "}
+						{dayjs(user.created_at).format("DD/MM/YYYY")}
+					</PageSub>
+				</div>
+				<Badge>{user.verified ? "Verificato" : "Da verificare"}</Badge>
+				{user.verified ? (
+					<Button
+						variant="danger"
+						type="button"
+						loading={verifying}
+						onClick={() => {
+							if (confirm("Revocare la verifica di questo utente?"))
+								setVerified(false);
+						}}
+					>
+						Revoca verifica
+					</Button>
+				) : (
+					<Button
+						type="button"
+						loading={verifying}
+						onClick={() => setVerified(true)}
+					>
+						Verifica utente
+					</Button>
+				)}
+			</TitleRow>
 			<Tabs
 				entries={[
 					{
@@ -393,6 +435,13 @@ const Page = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: ${$uw(1.5)};
+`;
+
+const TitleRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: ${$uw(0.75)};
+	flex-wrap: wrap;
 `;
 
 const PageTitle = styled.h2`

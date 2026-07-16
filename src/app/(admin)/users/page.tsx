@@ -103,6 +103,11 @@ export default function UsersPage() {
 			render: (u) => <Badge>{u.role}</Badge>,
 		},
 		{
+			id: "verified",
+			header: "Verificato",
+			render: (u) => <Badge>{u.verified ? "Verificato" : "Da verificare"}</Badge>,
+		},
+		{
 			id: "pets_owned",
 			header: "Animali",
 			render: (u) => u.pets_owned ?? 0,

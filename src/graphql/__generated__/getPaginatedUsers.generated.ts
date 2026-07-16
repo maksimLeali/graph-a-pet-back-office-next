@@ -9,7 +9,7 @@ export type GetPaginatedUsersQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPaginatedUsersQuery = { __typename?: 'Query', listUsers: { __typename?: 'PaginatedUsers', success?: boolean | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, error?: { __typename?: 'Error', message: string, code: string, extra?: string | null } | null, items: Array<{ __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: Types.UserRole, created_at: string, pets_owned: number, pets_on_loan: number } | null> } };
+export type GetPaginatedUsersQuery = { __typename?: 'Query', listUsers: { __typename?: 'PaginatedUsers', success?: boolean | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, error?: { __typename?: 'Error', message: string, code: string, extra?: string | null } | null, items: Array<{ __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: Types.UserRole, verified: boolean, created_at: string, pets_owned: number, pets_on_loan: number } | null> } };
 
 
 export const GetPaginatedUsersDocument = gql`

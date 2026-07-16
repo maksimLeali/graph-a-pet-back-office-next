@@ -37,7 +37,7 @@ export type ListShelterPetsBoQueryVariables = Types.Exact<{
 }>;
 
 
-export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, left_at?: string | null, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Types.Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
+export type ListShelterPetsBoQuery = { __typename?: 'Query', listShelterPets: { __typename?: 'PaginatedShelterPets', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null }, items: Array<{ __typename?: 'ShelterPet', id: string, created_at: string, is_active: boolean, is_published: boolean, left_at?: string | null, assigned_members: Array<{ __typename?: 'User', id: string, first_name: string, last_name: string }>, assigned_shelter_people: Array<{ __typename?: 'ShelterPerson', id: string, first_name?: string | null, last_name?: string | null }>, shelter: { __typename?: 'Shelter', id: string, name: string }, pet: { __typename?: 'Pet', id: string, name: string, gender?: Types.Gender | null, breed?: string | null, birthday?: string | null, chip_code?: string | null } } | null> } };
 
 export type ListShelterInventoryItemsBoQueryVariables = Types.Exact<{
   search: Types.CommonSearch;
@@ -338,7 +338,18 @@ export const ListShelterPetsBoDocument = gql`
       id
       created_at
       is_active
+      is_published
       left_at
+      assigned_members {
+        id
+        first_name
+        last_name
+      }
+      assigned_shelter_people {
+        id
+        first_name
+        last_name
+      }
       shelter {
         id
         name

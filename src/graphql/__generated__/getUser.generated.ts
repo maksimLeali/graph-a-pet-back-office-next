@@ -9,7 +9,7 @@ export type GetUserQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'UserResult', success: boolean, user?: { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: Types.UserRole, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null } | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'UserResult', success: boolean, user?: { __typename?: 'User', id: string, email: string, last_name: string, first_name: string, role: Types.UserRole, verified: boolean, created_at: string, profile_picture?: { __typename?: 'Media', type: string, id: string } | null } | null, error?: { __typename?: 'Error', code: string, message: string, extra?: string | null } | null } };
 
 
 export const GetUserDocument = gql`
