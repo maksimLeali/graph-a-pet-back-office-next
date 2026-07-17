@@ -6,40 +6,136 @@ import styled from "styled-components";
 
 import { auth } from "@/lib/auth";
 import { useHasDonationsSidebarAccess } from "@/lib/donations/useHasDonationsSidebarAccess";
+import { useBackofficeAuth } from "@/contexts/BackofficeAuthContext";
+import { SHELTER_SECTIONS } from "@/lib/navigation/shelterSections";
+import { PlatformPermissions } from "@/lib/permissions";
 import { $color, $uw } from "@/theme";
 
-const BASE_NAV = [
-	{ href: "/dashboard", label: "Dashboard", icon: "◧" },
-	{ href: "/pets", label: "Animali", icon: "◔" },
-	{ href: "/users", label: "Utenti", icon: "◉" },
-	{ href: "/shelters", label: "Rifugi", icon: "⌂" },
-	{ href: "/statistics", label: "Statistiche", icon: "◫" },
-	{ href: "/roles-permissions", label: "Ruoli e Permessi", icon: "◈" },
-	{ href: "/translations", label: "Traduzioni", icon: "◭" },
-	{ href: "/me", label: "Profilo", icon: "◍" },
+/**
+ * Sidebar a due modalità:
+ * - /platform/*: sezioni platform, filtrate sulle permission platform;
+ * - /shelters/:shelterId/*: sezioni del rifugio corrente, ognuna dichiara la
+ *   permission richiesta e compare solo se autorizzata.
+ * Mai decidere dai nomi dei ruoli: solo permission dal contesto.
+ */
+
+type PlatformNavItem = {
+	href: string;
+	label: string;
+	icon: string;
+	permission?: string;
+};
+
+const PLATFORM_NAV: PlatformNavItem[] = [
+	{ href: "/platform/dashboard", label: "Dashboard", icon: "◧" },
+	{ href: "/platform/pets", label: "Animali", icon: "◔" },
+	{
+		href: "/platform/users",
+		label: "Utenti",
+		icon: "◉",
+		permission: PlatformPermissions.USERS_READ,
+	},
+	{
+		href: "/platform/shelters",
+		label: "Rifugi",
+		icon: "⌂",
+		permission: PlatformPermissions.SHELTERS_READ,
+	},
+	{
+		href: "/platform/claims",
+		label: "Verifiche",
+		icon: "✓",
+		permission: PlatformPermissions.CLAIMS_REVIEW,
+	},
+	{ href: "/platform/statistics", label: "Statistiche", icon: "◫" },
+	{
+		href: "/platform/roles-permissions",
+		label: "Ruoli e Permessi",
+		icon: "◈",
+		permission: PlatformPermissions.ROLES_MANAGE,
+	},
+	{ href: "/platform/translations", label: "Traduzioni", icon: "◭" },
+	{ href: "/platform/me", label: "Profilo", icon: "◍" },
 ];
 
-const DONATIONS_ITEM = { href: "/donations", label: "Donazioni", icon: "♥" };
+const DONATIONS_ITEM: PlatformNavItem = {
+	href: "/platform/donations",
+	label: "Donazioni",
+	icon: "♥",
+};
 
 export const Sidebar: React.FC = () => {
 	const pathname = usePathname();
 	const router = useRouter();
+	const { canPlatform, canShelter, currentShelter, shelters } =
+		useBackofficeAuth();
 	// permission-key-based (never a role name) — see useHasDonationsSidebarAccess
 	const hasDonationsAccess = useHasDonationsSidebarAccess();
 
-	const nav = hasDonationsAccess
-		? [...BASE_NAV.slice(0, 4), DONATIONS_ITEM, ...BASE_NAV.slice(4)]
-		: BASE_NAV;
+	const inShelterArea = pathname.startsWith("/shelters/");
+
+	let items: { href: string; label: string; icon: string }[];
+	if (inShelterArea && currentShelter) {
+		const base = `/shelters/${currentShelter.shelter.id}`;
+		items = SHELTER_SECTIONS.filter((s) =>
+			canShelter(s.permission)
+		).map((s) => ({
+			href: `${base}/${s.section}`,
+			label: s.label,
+			icon: s.icon,
+		}));
+	} else if (inShelterArea) {
+		items = [];
+	} else {
+		// senza il gate d'area platform la nav platform non esiste: un
+		// manager/owner di rifugio vede solo i propri rifugi (e il modulo
+		// donazioni, che si auto-autorizza per scope shelter)
+		const hasPlatformArea = canPlatform(
+			PlatformPermissions.BACKOFFICE_ACCESS
+		);
+		const nav = hasPlatformArea
+			? PLATFORM_NAV.filter(
+					(i) => !i.permission || canPlatform(i.permission)
+			  )
+			: [];
+		items = hasDonationsAccess
+			? [...nav.slice(0, 4), DONATIONS_ITEM, ...nav.slice(4)]
+			: nav;
+	}
+
+	const crossLinks: { href: string; label: string; icon: string }[] = [];
+	if (
+		inShelterArea &&
+		canPlatform(PlatformPermissions.BACKOFFICE_ACCESS)
+	) {
+		crossLinks.push({
+			href: "/platform/dashboard",
+			label: "Area platform",
+			icon: "⇱",
+		});
+	}
+	if (!inShelterArea && shelters.length > 0) {
+		crossLinks.push({
+			href:
+				shelters.length === 1
+					? `/shelters/${shelters[0].shelter.id}/dashboard`
+					: "/select-shelter",
+			label: "Area rifugi",
+			icon: "⌂",
+		});
+	}
 
 	return (
 		<Aside>
 			<Brand>
 				<BrandName>Graph-a-Pet</BrandName>
-				<BrandSub>Back office</BrandSub>
+				<BrandSub>
+					{inShelterArea ? "Back office rifugio" : "Back office"}
+				</BrandSub>
 			</Brand>
 
 			<Nav>
-				{nav.map(({ href, label, icon }) => {
+				{items.map(({ href, label, icon }) => {
 					const active =
 						pathname === href || pathname.startsWith(`${href}/`);
 					return (
@@ -57,6 +153,12 @@ export const Sidebar: React.FC = () => {
 			</Nav>
 
 			<Foot>
+				{crossLinks.map(({ href, label, icon }) => (
+					<NavItem key={href} href={href} $active={false}>
+						<NavIcon aria-hidden>{icon}</NavIcon>
+						{label}
+					</NavItem>
+				))}
 				<LogoutButton
 					type="button"
 					onClick={() => {
@@ -142,6 +244,9 @@ const NavIcon = styled.span`
 `;
 
 const Foot = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: ${$uw(0.25)};
 	border-top: 1px solid ${$color("border")};
 	padding: ${$uw(0.75)};
 `;

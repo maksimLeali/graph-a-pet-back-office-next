@@ -9,7 +9,8 @@
     "lint": "eslint",
     "generate": "graphql-codegen --config codegen.yml",
     "fetch:graphql": "rover graph introspect https://graph-a-pet.makso.me/graphql > graphql-schema.graphql",
-    "fetch:graphql:local": "rover graph introspect http://localhost:5001/graphql > graphql-schema.graphql"
+    "fetch:graphql:local": "rover graph introspect http://localhost:5001/graphql > graphql-schema.graphql",
+    "test": "vitest run"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
@@ -42,6 +43,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

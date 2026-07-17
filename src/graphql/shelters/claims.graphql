@@ -1,0 +1,85 @@
+query listPlatformShelterClaimRequestsBO($search: CommonSearch) {
+	listPlatformShelterClaimRequests(search: $search) {
+		success
+		error {
+			code
+			message
+		}
+		items {
+			id
+			created_at
+			status
+			message
+			proof_data
+			decision_note
+			reviewed_at
+			shelter {
+				id
+				name
+				city
+				type
+				verification_status
+			}
+			requester {
+				id
+				first_name
+				last_name
+				email
+			}
+			reviewed_by {
+				id
+				first_name
+				last_name
+			}
+		}
+		pagination {
+			total_items
+			total_pages
+			current_page
+			page_size
+		}
+	}
+}
+
+mutation approveShelterClaimBO($id: ID!, $decision_note: String) {
+	approveShelterClaim(id: $id, decision_note: $decision_note) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_claim_request {
+			id
+			status
+		}
+	}
+}
+
+mutation rejectShelterClaimBO($id: ID!, $decision_note: String) {
+	rejectShelterClaim(id: $id, decision_note: $decision_note) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_claim_request {
+			id
+			status
+		}
+	}
+}
+
+mutation requestShelterClaimDocumentChangeBO($id: ID!, $document_id: String!, $note: String) {
+	requestShelterClaimDocumentChange(id: $id, document_id: $document_id, note: $note) {
+		success
+		error {
+			code
+			message
+		}
+		shelter_claim_request {
+			id
+			status
+			proof_data
+		}
+	}
+}

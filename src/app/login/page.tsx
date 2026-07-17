@@ -25,7 +25,8 @@ export default function LoginPage() {
 			}
 			auth.saveToken(login.token);
 			auth.saveUser(login.user);
-			router.replace("/dashboard");
+			// la radice smista in base agli accessi (platform / rifugi / 403)
+			router.replace("/");
 		},
 		onError: () => toast.error("Errore di accesso"),
 	});

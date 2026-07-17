@@ -41,6 +41,23 @@ export type AuthenticatedDonationInput = {
   target_type: DonationTargetType;
 };
 
+export type BackofficeAccessContext = {
+  __typename?: 'BackofficeAccessContext';
+  platform_permissions: Array<Scalars['String']['output']>;
+  shelters: Array<BackofficeShelterAccess>;
+};
+
+export type BackofficeShelterAccess = {
+  __typename?: 'BackofficeShelterAccess';
+  access_mode: Scalars['String']['output'];
+  is_technical_owner: Scalars['Boolean']['output'];
+  membership_status?: Maybe<Scalars['String']['output']>;
+  permissions: Array<Scalars['String']['output']>;
+  platform_override_active: Scalars['Boolean']['output'];
+  roles: Array<Scalars['String']['output']>;
+  shelter: Shelter;
+};
+
 export enum BoxStatus {
   Available = 'AVAILABLE',
   Full = 'FULL',
@@ -719,6 +736,7 @@ export type Mutation = {
   releasePetFromBox: ShelterBoxOccupancyResult;
   removeSavedPaymentMethod: GenericResult;
   requestShelterClaim: ShelterClaimRequestResult;
+  requestShelterClaimDocumentChange: ShelterClaimRequestResult;
   requestShelterOwnershipTransfer: ShelterOwnershipTransferResult;
   resendCode: GenericResult;
   respondToReport: ReportResult;
@@ -750,6 +768,7 @@ export type Mutation = {
   updateShelter: ShelterResult;
   updateShelterArea: ShelterAreaResult;
   updateShelterBox: ShelterBoxResult;
+  updateShelterClaimDocuments: ShelterClaimRequestResult;
   updateShelterDonationSettings: ShelterDonationSettingsResult;
   updateShelterExpense: ShelterExpenseResult;
   updateShelterInventoryItem: ShelterInventoryItemResult;
@@ -1291,6 +1310,13 @@ export type MutationRequestShelterClaimArgs = {
 };
 
 
+export type MutationRequestShelterClaimDocumentChangeArgs = {
+  document_id: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationRequestShelterOwnershipTransferArgs = {
   new_role_for_previous_owner?: InputMaybe<RoleLevel>;
   shelter_id: Scalars['ID']['input'];
@@ -1464,6 +1490,12 @@ export type MutationUpdateShelterAreaArgs = {
 
 export type MutationUpdateShelterBoxArgs = {
   data: ShelterBoxUpdate;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateShelterClaimDocumentsArgs = {
+  documents: Scalars['JSON']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -2276,6 +2308,8 @@ export type PublicShelterSearchInput = {
 
 export type Query = {
   __typename?: 'Query';
+  backofficeAccessContext: BackofficeAccessContext;
+  backofficeShelterAccess: BackofficeShelterAccess;
   discoverPublicShelters: PaginatedPublicShelters;
   discoverShelters: PaginatedPublicShelters;
   getCode: CodeResult;
@@ -2353,6 +2387,7 @@ export type Query = {
   listPets: PaginatedPets;
   listPetsNeedingWalk: PaginatedShelterPets;
   listPlatformDonations: PaginatedDonations;
+  listPlatformShelterClaimRequests: PaginatedShelterClaimRequests;
   listPublicShelterPets: PublicShelterPetsResult;
   listRbacRoles: RbacRolesResult;
   listReports: PaginatedReports;
@@ -2383,6 +2418,11 @@ export type Query = {
   listWalks: PaginatedWalks;
   me: UserResult;
   myShelterAuthorization: ShelterAuthorizationResult;
+};
+
+
+export type QueryBackofficeShelterAccessArgs = {
+  shelter_id: Scalars['ID']['input'];
 };
 
 
@@ -2758,6 +2798,11 @@ export type QueryListPlatformDonationsArgs = {
   donor_type?: InputMaybe<DonorType>;
   shelter_id?: InputMaybe<Scalars['ID']['input']>;
   status?: InputMaybe<DonationStatus>;
+};
+
+
+export type QueryListPlatformShelterClaimRequestsArgs = {
+  search?: InputMaybe<CommonSearch>;
 };
 
 
@@ -3182,8 +3227,10 @@ export type ShelterAreaUpsert = {
 
 export type ShelterAuthorization = {
   __typename?: 'ShelterAuthorization';
+  is_technical_owner: Scalars['Boolean']['output'];
   membership_status?: Maybe<Scalars['String']['output']>;
   permissions: Array<Scalars['String']['output']>;
+  roles: Array<Scalars['String']['output']>;
   shelter_id: Scalars['ID']['output'];
 };
 
@@ -4608,6 +4655,18 @@ export enum TreatmentDuration {
   TwoHours = 'TWO_HOURS'
 }
 
+export type BackofficeAccessContextQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BackofficeAccessContextQuery = { __typename?: 'Query', backofficeAccessContext: { __typename?: 'BackofficeAccessContext', platform_permissions: Array<string>, shelters: Array<{ __typename?: 'BackofficeShelterAccess', membership_status?: string | null, roles: Array<string>, permissions: Array<string>, access_mode: string, platform_override_active: boolean, shelter: { __typename?: 'Shelter', id: string, name: string, city: string, type: ShelterType } }> } };
+
+export type BackofficeShelterAccessQueryVariables = Exact<{
+  shelter_id: Scalars['ID']['input'];
+}>;
+
+
+export type BackofficeShelterAccessQuery = { __typename?: 'Query', backofficeShelterAccess: { __typename?: 'BackofficeShelterAccess', membership_status?: string | null, roles: Array<string>, permissions: Array<string>, access_mode: string, platform_override_active: boolean, shelter: { __typename?: 'Shelter', id: string, name: string, city: string, type: ShelterType } } };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -4843,6 +4902,45 @@ export type MovePetBetweenBoxesBoMutationVariables = Exact<{
 
 
 export type MovePetBetweenBoxesBoMutation = { __typename?: 'Mutation', movePetBetweenBoxes: { __typename?: 'ShelterBoxOccupancyResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, occupancy?: { __typename?: 'ShelterBoxOccupancy', id: string } | null } };
+
+export type ListPlatformShelterClaimRequestsBoQueryVariables = Exact<{
+  search?: InputMaybe<CommonSearch>;
+}>;
+
+
+export type ListPlatformShelterClaimRequestsBoQuery = { __typename?: 'Query', listPlatformShelterClaimRequests: { __typename?: 'PaginatedShelterClaimRequests', success?: boolean | null, error?: { __typename?: 'Error', code: string, message: string } | null, items: Array<{ __typename?: 'ShelterClaimRequest', id: string, created_at: string, status: ShelterClaimRequestStatus, message?: string | null, proof_data?: any | null, decision_note?: string | null, reviewed_at?: string | null, shelter: { __typename?: 'Shelter', id: string, name: string, city: string, type: ShelterType, verification_status: ShelterVerificationStatus }, requester: { __typename?: 'User', id: string, first_name: string, last_name: string, email: string }, reviewed_by?: { __typename?: 'User', id: string, first_name: string, last_name: string } | null } | null>, pagination: { __typename?: 'Pagination', total_items?: number | null, total_pages?: number | null, current_page?: number | null, page_size?: number | null } } };
+
+export type ApproveShelterClaimBoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  decision_note?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ApproveShelterClaimBoMutation = { __typename?: 'Mutation', approveShelterClaim: { __typename?: 'ShelterClaimRequestResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_claim_request?: { __typename?: 'ShelterClaimRequest', id: string, status: ShelterClaimRequestStatus } | null } };
+
+export type RejectShelterClaimBoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  decision_note?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type RejectShelterClaimBoMutation = { __typename?: 'Mutation', rejectShelterClaim: { __typename?: 'ShelterClaimRequestResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_claim_request?: { __typename?: 'ShelterClaimRequest', id: string, status: ShelterClaimRequestStatus } | null } };
+
+export type RequestShelterClaimDocumentChangeBoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  document_id: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type RequestShelterClaimDocumentChangeBoMutation = { __typename?: 'Mutation', requestShelterClaimDocumentChange: { __typename?: 'ShelterClaimRequestResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter_claim_request?: { __typename?: 'ShelterClaimRequest', id: string, status: ShelterClaimRequestStatus, proof_data?: any | null } | null } };
+
+export type CreateShelterBoMutationVariables = Exact<{
+  data: ShelterCreate;
+}>;
+
+
+export type CreateShelterBoMutation = { __typename?: 'Mutation', createShelter: { __typename?: 'ShelterResult', success: boolean, error?: { __typename?: 'Error', code: string, message: string } | null, shelter?: { __typename?: 'Shelter', id: string, name: string, city: string, type: ShelterType, verification_status: ShelterVerificationStatus } | null } };
 
 export type FullShelterMapBoFragment = { __typename?: 'ShelterMap', id: string, name: string, width: number, height: number, unit: MapUnit, zones: Array<{ __typename?: 'ShelterZone', id: string, name: string, x: number, y: number, width: number, height: number, color?: string | null }>, areas: Array<{ __typename?: 'ShelterArea', id: string, name: string, area_type: AreaType, x: number, y: number, width: number, height: number, color?: string | null, zone?: { __typename?: 'ShelterZone', id: string } | null }>, boxes: Array<{ __typename?: 'ShelterBox', id: string, label: string, x: number, y: number, width: number, height: number, rotation: number, capacity: number, status: BoxStatus, is_out_of_service: boolean, area?: { __typename?: 'ShelterArea', id: string } | null, zone?: { __typename?: 'ShelterZone', id: string } | null, occupancy_history?: { __typename?: 'PaginatedBoxOccupancies', items: Array<{ __typename?: 'ShelterBoxOccupancy', id: string, exited_at?: string | null, shelter_pet: { __typename?: 'ShelterPet', id: string, pet: { __typename?: 'Pet', id: string, name: string } } } | null> } | null }>, elements: Array<{ __typename?: 'ShelterMapElement', id: string, element_type: MapElementType, x: number, y: number, width: number, height: number, rotation: number, color?: string | null, label?: string | null }> };
 
@@ -5492,6 +5590,108 @@ export const UserTreatmentFragmentDoc = gql`
   }
 }
     `;
+export const BackofficeAccessContextDocument = gql`
+    query backofficeAccessContext {
+  backofficeAccessContext {
+    platform_permissions
+    shelters {
+      shelter {
+        id
+        name
+        city
+        type
+      }
+      membership_status
+      roles
+      permissions
+      access_mode
+      platform_override_active
+    }
+  }
+}
+    `;
+
+/**
+ * __useBackofficeAccessContextQuery__
+ *
+ * To run a query within a React component, call `useBackofficeAccessContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBackofficeAccessContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBackofficeAccessContextQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBackofficeAccessContextQuery(baseOptions?: Apollo.QueryHookOptions<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>(BackofficeAccessContextDocument, options);
+      }
+export function useBackofficeAccessContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>(BackofficeAccessContextDocument, options);
+        }
+export function useBackofficeAccessContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>(BackofficeAccessContextDocument, options);
+        }
+export type BackofficeAccessContextQueryHookResult = ReturnType<typeof useBackofficeAccessContextQuery>;
+export type BackofficeAccessContextLazyQueryHookResult = ReturnType<typeof useBackofficeAccessContextLazyQuery>;
+export type BackofficeAccessContextSuspenseQueryHookResult = ReturnType<typeof useBackofficeAccessContextSuspenseQuery>;
+export type BackofficeAccessContextQueryResult = Apollo.QueryResult<BackofficeAccessContextQuery, BackofficeAccessContextQueryVariables>;
+export const BackofficeShelterAccessDocument = gql`
+    query backofficeShelterAccess($shelter_id: ID!) {
+  backofficeShelterAccess(shelter_id: $shelter_id) {
+    shelter {
+      id
+      name
+      city
+      type
+    }
+    membership_status
+    roles
+    permissions
+    access_mode
+    platform_override_active
+  }
+}
+    `;
+
+/**
+ * __useBackofficeShelterAccessQuery__
+ *
+ * To run a query within a React component, call `useBackofficeShelterAccessQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBackofficeShelterAccessQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBackofficeShelterAccessQuery({
+ *   variables: {
+ *      shelter_id: // value for 'shelter_id'
+ *   },
+ * });
+ */
+export function useBackofficeShelterAccessQuery(baseOptions: Apollo.QueryHookOptions<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables> & ({ variables: BackofficeShelterAccessQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>(BackofficeShelterAccessDocument, options);
+      }
+export function useBackofficeShelterAccessLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>(BackofficeShelterAccessDocument, options);
+        }
+export function useBackofficeShelterAccessSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>(BackofficeShelterAccessDocument, options);
+        }
+export type BackofficeShelterAccessQueryHookResult = ReturnType<typeof useBackofficeShelterAccessQuery>;
+export type BackofficeShelterAccessLazyQueryHookResult = ReturnType<typeof useBackofficeShelterAccessLazyQuery>;
+export type BackofficeShelterAccessSuspenseQueryHookResult = ReturnType<typeof useBackofficeShelterAccessSuspenseQuery>;
+export type BackofficeShelterAccessQueryResult = Apollo.QueryResult<BackofficeShelterAccessQuery, BackofficeShelterAccessQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -7013,6 +7213,259 @@ export function useMovePetBetweenBoxesBoMutation(baseOptions?: Apollo.MutationHo
 export type MovePetBetweenBoxesBoMutationHookResult = ReturnType<typeof useMovePetBetweenBoxesBoMutation>;
 export type MovePetBetweenBoxesBoMutationResult = Apollo.MutationResult<MovePetBetweenBoxesBoMutation>;
 export type MovePetBetweenBoxesBoMutationOptions = Apollo.BaseMutationOptions<MovePetBetweenBoxesBoMutation, MovePetBetweenBoxesBoMutationVariables>;
+export const ListPlatformShelterClaimRequestsBoDocument = gql`
+    query listPlatformShelterClaimRequestsBO($search: CommonSearch) {
+  listPlatformShelterClaimRequests(search: $search) {
+    success
+    error {
+      code
+      message
+    }
+    items {
+      id
+      created_at
+      status
+      message
+      proof_data
+      decision_note
+      reviewed_at
+      shelter {
+        id
+        name
+        city
+        type
+        verification_status
+      }
+      requester {
+        id
+        first_name
+        last_name
+        email
+      }
+      reviewed_by {
+        id
+        first_name
+        last_name
+      }
+    }
+    pagination {
+      total_items
+      total_pages
+      current_page
+      page_size
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPlatformShelterClaimRequestsBoQuery__
+ *
+ * To run a query within a React component, call `useListPlatformShelterClaimRequestsBoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPlatformShelterClaimRequestsBoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPlatformShelterClaimRequestsBoQuery({
+ *   variables: {
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useListPlatformShelterClaimRequestsBoQuery(baseOptions?: Apollo.QueryHookOptions<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>(ListPlatformShelterClaimRequestsBoDocument, options);
+      }
+export function useListPlatformShelterClaimRequestsBoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>(ListPlatformShelterClaimRequestsBoDocument, options);
+        }
+export function useListPlatformShelterClaimRequestsBoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>(ListPlatformShelterClaimRequestsBoDocument, options);
+        }
+export type ListPlatformShelterClaimRequestsBoQueryHookResult = ReturnType<typeof useListPlatformShelterClaimRequestsBoQuery>;
+export type ListPlatformShelterClaimRequestsBoLazyQueryHookResult = ReturnType<typeof useListPlatformShelterClaimRequestsBoLazyQuery>;
+export type ListPlatformShelterClaimRequestsBoSuspenseQueryHookResult = ReturnType<typeof useListPlatformShelterClaimRequestsBoSuspenseQuery>;
+export type ListPlatformShelterClaimRequestsBoQueryResult = Apollo.QueryResult<ListPlatformShelterClaimRequestsBoQuery, ListPlatformShelterClaimRequestsBoQueryVariables>;
+export const ApproveShelterClaimBoDocument = gql`
+    mutation approveShelterClaimBO($id: ID!, $decision_note: String) {
+  approveShelterClaim(id: $id, decision_note: $decision_note) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_claim_request {
+      id
+      status
+    }
+  }
+}
+    `;
+export type ApproveShelterClaimBoMutationFn = Apollo.MutationFunction<ApproveShelterClaimBoMutation, ApproveShelterClaimBoMutationVariables>;
+
+/**
+ * __useApproveShelterClaimBoMutation__
+ *
+ * To run a mutation, you first call `useApproveShelterClaimBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveShelterClaimBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveShelterClaimBoMutation, { data, loading, error }] = useApproveShelterClaimBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      decision_note: // value for 'decision_note'
+ *   },
+ * });
+ */
+export function useApproveShelterClaimBoMutation(baseOptions?: Apollo.MutationHookOptions<ApproveShelterClaimBoMutation, ApproveShelterClaimBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveShelterClaimBoMutation, ApproveShelterClaimBoMutationVariables>(ApproveShelterClaimBoDocument, options);
+      }
+export type ApproveShelterClaimBoMutationHookResult = ReturnType<typeof useApproveShelterClaimBoMutation>;
+export type ApproveShelterClaimBoMutationResult = Apollo.MutationResult<ApproveShelterClaimBoMutation>;
+export type ApproveShelterClaimBoMutationOptions = Apollo.BaseMutationOptions<ApproveShelterClaimBoMutation, ApproveShelterClaimBoMutationVariables>;
+export const RejectShelterClaimBoDocument = gql`
+    mutation rejectShelterClaimBO($id: ID!, $decision_note: String) {
+  rejectShelterClaim(id: $id, decision_note: $decision_note) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_claim_request {
+      id
+      status
+    }
+  }
+}
+    `;
+export type RejectShelterClaimBoMutationFn = Apollo.MutationFunction<RejectShelterClaimBoMutation, RejectShelterClaimBoMutationVariables>;
+
+/**
+ * __useRejectShelterClaimBoMutation__
+ *
+ * To run a mutation, you first call `useRejectShelterClaimBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectShelterClaimBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectShelterClaimBoMutation, { data, loading, error }] = useRejectShelterClaimBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      decision_note: // value for 'decision_note'
+ *   },
+ * });
+ */
+export function useRejectShelterClaimBoMutation(baseOptions?: Apollo.MutationHookOptions<RejectShelterClaimBoMutation, RejectShelterClaimBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RejectShelterClaimBoMutation, RejectShelterClaimBoMutationVariables>(RejectShelterClaimBoDocument, options);
+      }
+export type RejectShelterClaimBoMutationHookResult = ReturnType<typeof useRejectShelterClaimBoMutation>;
+export type RejectShelterClaimBoMutationResult = Apollo.MutationResult<RejectShelterClaimBoMutation>;
+export type RejectShelterClaimBoMutationOptions = Apollo.BaseMutationOptions<RejectShelterClaimBoMutation, RejectShelterClaimBoMutationVariables>;
+export const RequestShelterClaimDocumentChangeBoDocument = gql`
+    mutation requestShelterClaimDocumentChangeBO($id: ID!, $document_id: String!, $note: String) {
+  requestShelterClaimDocumentChange(
+    id: $id
+    document_id: $document_id
+    note: $note
+  ) {
+    success
+    error {
+      code
+      message
+    }
+    shelter_claim_request {
+      id
+      status
+      proof_data
+    }
+  }
+}
+    `;
+export type RequestShelterClaimDocumentChangeBoMutationFn = Apollo.MutationFunction<RequestShelterClaimDocumentChangeBoMutation, RequestShelterClaimDocumentChangeBoMutationVariables>;
+
+/**
+ * __useRequestShelterClaimDocumentChangeBoMutation__
+ *
+ * To run a mutation, you first call `useRequestShelterClaimDocumentChangeBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestShelterClaimDocumentChangeBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestShelterClaimDocumentChangeBoMutation, { data, loading, error }] = useRequestShelterClaimDocumentChangeBoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      document_id: // value for 'document_id'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useRequestShelterClaimDocumentChangeBoMutation(baseOptions?: Apollo.MutationHookOptions<RequestShelterClaimDocumentChangeBoMutation, RequestShelterClaimDocumentChangeBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RequestShelterClaimDocumentChangeBoMutation, RequestShelterClaimDocumentChangeBoMutationVariables>(RequestShelterClaimDocumentChangeBoDocument, options);
+      }
+export type RequestShelterClaimDocumentChangeBoMutationHookResult = ReturnType<typeof useRequestShelterClaimDocumentChangeBoMutation>;
+export type RequestShelterClaimDocumentChangeBoMutationResult = Apollo.MutationResult<RequestShelterClaimDocumentChangeBoMutation>;
+export type RequestShelterClaimDocumentChangeBoMutationOptions = Apollo.BaseMutationOptions<RequestShelterClaimDocumentChangeBoMutation, RequestShelterClaimDocumentChangeBoMutationVariables>;
+export const CreateShelterBoDocument = gql`
+    mutation createShelterBO($data: ShelterCreate!) {
+  createShelter(data: $data) {
+    success
+    error {
+      code
+      message
+    }
+    shelter {
+      id
+      name
+      city
+      type
+      verification_status
+    }
+  }
+}
+    `;
+export type CreateShelterBoMutationFn = Apollo.MutationFunction<CreateShelterBoMutation, CreateShelterBoMutationVariables>;
+
+/**
+ * __useCreateShelterBoMutation__
+ *
+ * To run a mutation, you first call `useCreateShelterBoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateShelterBoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createShelterBoMutation, { data, loading, error }] = useCreateShelterBoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateShelterBoMutation(baseOptions?: Apollo.MutationHookOptions<CreateShelterBoMutation, CreateShelterBoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateShelterBoMutation, CreateShelterBoMutationVariables>(CreateShelterBoDocument, options);
+      }
+export type CreateShelterBoMutationHookResult = ReturnType<typeof useCreateShelterBoMutation>;
+export type CreateShelterBoMutationResult = Apollo.MutationResult<CreateShelterBoMutation>;
+export type CreateShelterBoMutationOptions = Apollo.BaseMutationOptions<CreateShelterBoMutation, CreateShelterBoMutationVariables>;
 export const ListShelterMapsBoDocument = gql`
     query listShelterMapsBO($commonSearch: CommonSearch) {
   listShelterMaps(commonSearch: $commonSearch) {

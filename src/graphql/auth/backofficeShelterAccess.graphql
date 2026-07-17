@@ -1,0 +1,15 @@
+query backofficeShelterAccess($shelter_id: ID!) {
+	backofficeShelterAccess(shelter_id: $shelter_id) {
+		shelter {
+			id
+			name
+			city
+			type
+		}
+		membership_status
+		roles
+		permissions
+		access_mode
+		platform_override_active
+	}
+}

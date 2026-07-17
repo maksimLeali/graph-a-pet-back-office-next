@@ -26,16 +26,30 @@ const authLink = setContext((_op, { headers }) => {
 	};
 });
 
-// stesso pattern di graph-a-pet-app: 401/403 negli errori GraphQL -> logout
+// 401 = sessione scaduta -> logout. 403 / MEMBERSHIP_NOT_ACTIVE NON fanno
+// logout: in un back office multi-rifugio un divieto su un tenant è normale;
+// si notifica il provider autorizzativo che ricarica backofficeAccessContext
+// (l'utente può aver perso una membership mentre era in sessione).
 const unauthorizedLink = new ApolloLink((operation, forward) =>
 	forward(operation).map((response) => {
 		const code = _.get(response, "errors.0.extensions.code", "");
-		if (["401", "403", 401, 403].includes(code as string | number)) {
+		const errorCode = _.get(response, "errors.0.extensions.error_code", "");
+		if (["401", 401].includes(code as string | number)) {
 			toast.error("Sessione scaduta");
 			auth.logout();
 			setTimeout(() => {
 				window.location.href = "/login";
 			}, 1200);
+		} else if (
+			(["403", 403].includes(code as string | number) ||
+				errorCode === "MEMBERSHIP_NOT_ACTIVE") &&
+			// il 403 delle query di bootstrap autorizzativo non deve
+			// ri-innescare il refresh del contesto (loop probe→403→refresh)
+			!["backofficeAccessContext", "backofficeShelterAccess"].includes(
+				operation.operationName ?? ""
+			)
+		) {
+			window.dispatchEvent(new Event("gap-bo:authz-refresh"));
 		}
 		return response;
 	})

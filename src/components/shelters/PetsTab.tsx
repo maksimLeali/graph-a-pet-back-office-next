@@ -311,7 +311,7 @@ export const PetsTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 						sp?.pet && (
 							<RowCard key={sp.id}>
 								<div>
-									<RowLink href={`/pets/${sp.pet.id}`}>{sp.pet.name}</RowLink>
+									<RowLink href={`/platform/pets/${sp.pet.id}`}>{sp.pet.name}</RowLink>
 									<RowSub>
 										{sp.pet.gender === "MALE"
 											? "Maschio"

@@ -10,6 +10,57 @@
  */
 
 export const ShelterPermissions = {
+	READ: "shelters.read",
+	UPDATE: "shelters.update",
+
+	// gate d'ingresso all'area operativa del back office (per rifugio);
+	// non sostituisce le permission funzionali
+	BACKOFFICE_ACCESS: "shelters.backoffice.access",
+
+	MEMBERS_READ: "shelters.members.read",
+	MEMBERS_INVITE: "shelters.members.invite",
+	MEMBERS_REMOVE: "shelters.members.remove",
+
+	ROLES_READ: "shelters.roles.read",
+	ROLES_ASSIGN: "shelters.roles.assign",
+	ROLES_MANAGE: "shelters.roles.manage",
+
+	PEOPLE_READ: "shelters.people.read",
+	PEOPLE_CREATE: "shelters.people.create",
+	PEOPLE_UPDATE: "shelters.people.update",
+	PEOPLE_ARCHIVE: "shelters.people.archive",
+
+	PETS_READ: "shelters.pets.read",
+	PETS_CREATE: "shelters.pets.create",
+	PETS_REMOVE: "shelters.pets.remove",
+
+	TASKS_READ: "shelters.tasks.read",
+	TASKS_CREATE: "shelters.tasks.create",
+	TASKS_UPDATE: "shelters.tasks.update",
+	TASKS_EXECUTE: "shelters.tasks.execute",
+	TASKS_DELETE: "shelters.tasks.delete",
+
+	WALKS_READ: "shelters.walks.read",
+	WALKS_CREATE: "shelters.walks.create",
+	WALKS_CANCEL: "shelters.walks.cancel",
+	WALKS_DELETE: "shelters.walks.delete",
+
+	INVENTORY_READ: "shelters.inventory.read",
+	INVENTORY_CONSUME: "shelters.inventory.consume",
+	INVENTORY_RESTOCK: "shelters.inventory.restock",
+	INVENTORY_ADJUST: "shelters.inventory.adjust",
+	INVENTORY_MANAGE: "shelters.inventory.manage",
+
+	BOXES_READ: "shelters.boxes.read",
+	BOXES_MANAGE: "shelters.boxes.manage",
+	BOXES_ASSIGN_PET: "shelters.boxes.assign_pet",
+	BOXES_RELEASE_PET: "shelters.boxes.release_pet",
+
+	MAP_READ: "shelters.map.read",
+	MAP_UPDATE: "shelters.map.update",
+
+	OWNERSHIP_TRANSFER: "shelters.ownership.transfer",
+
 	DONATIONS_READ: "shelters.donations.read",
 	DONATIONS_READ_DETAILS: "shelters.donations.read_details",
 	DONATIONS_SETTINGS_MANAGE: "shelters.donations.settings.manage",
@@ -40,6 +91,16 @@ export const ShelterPermissions = {
 } as const;
 
 export const PlatformPermissions = {
+	BACKOFFICE_ACCESS: "platform.backoffice.access",
+	USERS_READ: "platform.users.read",
+	USERS_UPDATE: "platform.users.update",
+	SHELTERS_READ: "platform.shelters.read",
+	SHELTERS_VERIFY: "platform.shelters.verify",
+	SHELTERS_MANAGE: "platform.shelters.manage",
+	CLAIMS_REVIEW: "platform.claims.review",
+	ROLES_MANAGE: "platform.roles.manage",
+	AUDIT_READ: "platform.audit.read",
+
 	DONATIONS_READ: "platform.donations.read",
 	DONATIONS_READ_DETAILS: "platform.donations.read_details",
 	DONATIONS_REFUND: "platform.donations.refund",

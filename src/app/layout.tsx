@@ -6,6 +6,7 @@ import "./globals.css";
 import { ApolloWrapper } from "@/lib/apollo";
 import { StyledComponentsRegistry } from "@/lib/registry";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { BackofficeAuthProvider } from "@/contexts/BackofficeAuthContext";
 import { THEME_STORAGE_KEY } from "@/theme/constants";
 
 // applica il tema salvato prima dell'idratazione, per evitare il flash dark->light
@@ -53,7 +54,7 @@ export default function RootLayout({
         <StyledComponentsRegistry>
           <ApolloWrapper>
             <ThemeProvider>
-              {children}
+              <BackofficeAuthProvider>{children}</BackofficeAuthProvider>
               <Toaster
                 position="top-right"
                 toastOptions={{

@@ -47,6 +47,8 @@ type Query {
   getShelterRole(id: ID!): ShelterRoleResult!
   listShelterRoles(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterRoles!
   myShelterAuthorization(shelter_id: ID!): ShelterAuthorizationResult!
+  backofficeAccessContext: BackofficeAccessContext!
+  backofficeShelterAccess(shelter_id: ID!): BackofficeShelterAccess!
   listRbacRoles: RbacRolesResult!
   getUserRbacRoles(user_id: ID!): UserRbacResult!
   listPermissionCatalog: [RbacPermission!]!
@@ -59,6 +61,7 @@ type Query {
   getMyShelterJoinRequest(shelter_id: ID!): ShelterJoinRequestResult!
   listShelterJoinRequests(shelter_id: ID!, status: ShelterJoinRequestStatus): ShelterJoinRequestListResult!
   listShelterClaimRequests(shelter_id: ID!, search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterClaimRequests!
+  listPlatformShelterClaimRequests(search: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterClaimRequests!
   getShelterPet(id: ID!): ShelterPetResult!
   listShelterPets(commonSearch: CommonSearch = {page: 0, page_size: 20, order_by: "created_at", order_direction: "desc", filters: {and: null, or: null, not: null, fixed: [], ranges: [], search: {value: "", fields: []}, lists: [], join: []}}): PaginatedShelterPets!
   getShelterTask(id: ID!): ShelterTaskResult!
@@ -185,6 +188,8 @@ type Mutation {
   cancelShelterClaim(id: ID!): ShelterClaimRequestResult!
   approveShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
   rejectShelterClaim(id: ID!, decision_note: String): ShelterClaimRequestResult!
+  updateShelterClaimDocuments(id: ID!, documents: JSON!): ShelterClaimRequestResult!
+  requestShelterClaimDocumentChange(id: ID!, document_id: String!, note: String): ShelterClaimRequestResult!
   applyToShelterAsVolunteer(shelter_id: ID!, message: String): ShelterJoinRequestResult!
   approveShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
   rejectShelterJoinRequest(id: ID!): ShelterJoinRequestResult!
@@ -275,10 +280,25 @@ type Error {
   extra: String
 }
 
+type BackofficeShelterAccess {
+  shelter: Shelter!
+  membership_status: String
+  roles: [String!]!
+  permissions: [String!]!
+  access_mode: String!
+  platform_override_active: Boolean!
+  is_technical_owner: Boolean!
+}
+type BackofficeAccessContext {
+  platform_permissions: [String!]!
+  shelters: [BackofficeShelterAccess!]!
+}
 type ShelterAuthorization {
   shelter_id: ID!
   membership_status: String
   permissions: [String!]!
+  roles: [String!]!
+  is_technical_owner: Boolean!
 }
 
 type ShelterAuthorizationResult {

@@ -1,0 +1,16 @@
+mutation createShelterBO($data: ShelterCreate!) {
+	createShelter(data: $data) {
+		success
+		error {
+			code
+			message
+		}
+		shelter {
+			id
+			name
+			city
+			type
+			verification_status
+		}
+	}
+}

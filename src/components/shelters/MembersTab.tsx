@@ -10,6 +10,8 @@ import {
 	useDeleteShelterRoleBoMutation,
 } from "@/graphql/__generated__/mutations.generated";
 import { RoleLevel } from "@/types";
+import { useBackofficeAuth } from "@/contexts/BackofficeAuthContext";
+import { PlatformPermissions, ShelterPermissions } from "@/lib/permissions";
 import { Spinner } from "@/components/ui/Spinner";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -43,6 +45,23 @@ type RoleForm = {
 
 export const MembersTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 	const form = useForm<RoleForm>({ defaultValues: { role: "VOLUNTEER" } });
+
+	// permission-based, mai role-name: nell'area rifugio decide il contesto
+	// dello shelter corrente; nel dettaglio platform decide la permission
+	// platform (il backend resta comunque l'autorità).
+	const { currentShelter, canShelter, canPlatform } = useBackofficeAuth();
+	const inShelterArea = currentShelter?.shelter.id === shelterId;
+	const may = (permission: string) =>
+		inShelterArea
+			? canShelter(permission)
+			: canPlatform(PlatformPermissions.SHELTERS_READ);
+	const canAssignRoles = may(ShelterPermissions.ROLES_ASSIGN);
+	const canManageRoles = may(ShelterPermissions.ROLES_MANAGE);
+	// il delete legacy resta platform-admin-only sul backend
+	const canDeleteRoles = canPlatform(PlatformPermissions.ROLES_MANAGE);
+	const shelterName = inShelterArea
+		? currentShelter!.shelter.name
+		: "questo rifugio";
 
 	const { data, loading, refetch } = useListShelterRolesBoQuery({
 		variables: {
@@ -106,6 +125,7 @@ export const MembersTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 
 	return (
 		<TabWrap>
+			{canAssignRoles && (
 			<AddSection label="Aggiungi membro">
 				<form
 					onSubmit={form.handleSubmit((v) =>
@@ -139,6 +159,7 @@ export const MembersTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 					</FormFoot>
 				</form>
 			</AddSection>
+			)}
 
 			<List>
 				{items.length === 0 && <EmptyText>Nessun membro</EmptyText>}
@@ -154,29 +175,37 @@ export const MembersTab: React.FC<{ shelterId: string }> = ({ shelterId }) => {
 								</div>
 								<RowActions>
 									<Badge>{r.role}</Badge>
-									<Select
-										aria-label="Cambia ruolo"
-										options={ROLE_OPTIONS}
-										value={r.role}
-										onChange={(e) =>
-											updateRole({
-												variables: {
-													id: r.id,
-													data: { role: e.target.value as RoleLevel },
-												},
-											})
-										}
-									/>
-									<RowButton
-										variant="danger"
-										onClick={() => {
-											if (confirm("Rimuovere questo membro dal rifugio?")) {
-												deleteRole({ variables: { id: r.id } });
+									{canManageRoles && (
+										<Select
+											aria-label="Cambia ruolo"
+											options={ROLE_OPTIONS}
+											value={r.role}
+											onChange={(e) =>
+												updateRole({
+													variables: {
+														id: r.id,
+														data: { role: e.target.value as RoleLevel },
+													},
+												})
 											}
-										}}
-									>
-										Rimuovi
-									</RowButton>
+										/>
+									)}
+									{canDeleteRoles && (
+										<RowButton
+											variant="danger"
+											onClick={() => {
+												if (
+													confirm(
+														`Rimuovere questo membro da ${shelterName}?`
+													)
+												) {
+													deleteRole({ variables: { id: r.id } });
+												}
+											}}
+										>
+											Rimuovi
+										</RowButton>
+									)}
 								</RowActions>
 							</RowCard>
 						)
